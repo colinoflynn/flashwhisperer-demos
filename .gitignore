@@ -1,0 +1,25 @@
+# Firmware build output. Every demo's victim builds out of tree.
+Build/
+build/
+
+# Vendor trees. deps/<name> entries that are submodules ARE tracked, as
+# gitlinks; this covers whatever a fetch script puts beside them, such as a
+# package that is not on GitHub at all and arrives as an archive.
+deps/*/vendor/
+deps/sbsfu-src/
+
+# Raw captures. The vectors under demos/*/vectors/ ARE tracked and are small
+# on purpose; captures/MANIFEST.tsv records a size and a SHA-256 for the big
+# files that stay on the bench.
+captures/**/*.npz
+captures/**/*.npy
+captures/**/*.log
+
+# A board map is per-machine: probe serials, ports, which board is plugged in.
+BOARDS.local.json
+
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
