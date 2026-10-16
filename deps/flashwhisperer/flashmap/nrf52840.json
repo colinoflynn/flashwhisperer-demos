@@ -1,0 +1,358 @@
+{
+ "part": "nrf52840",
+ "meta": {
+  "protocol": "memmap/1",
+  "part": "nrf52840",
+  "core": "cortex-m4",
+  "clk_hz": 64000000,
+  "timer": "systick",
+  "timer_hz": 64000000,
+  "caps": [
+   "counters",
+   "icache",
+   "ramfunc"
+  ],
+  "banner": "memmap/1 nrf52840 cortex-m4 64000000 systick 64000000 counters,icache,ramfunc",
+  "regions": [
+   {
+    "name": "flash",
+    "base": 8192,
+    "size": 16384,
+    "kind": "flash"
+   },
+   {
+    "name": "sram",
+    "base": 536879104,
+    "size": 16384,
+    "kind": "sram"
+   }
+  ],
+  "flash_region": "flash",
+  "twin_region": "sram",
+  "twin_kind": "sram",
+  "knobs": [
+   {
+    "name": "icache",
+    "values": [
+     0,
+     1
+    ],
+    "reset": 1
+   },
+   {
+    "name": "cacheprof",
+    "values": [
+     0,
+     1
+    ],
+    "reset": 0
+   }
+  ],
+  "reps": 7,
+  "captured": "2026-09-18T10:12:00",
+  "warnings": [],
+  "elapsed_s": 92.8
+ },
+ "claims": {
+  "read_width": {
+   "name": "read_width",
+   "value": 16,
+   "known": true,
+   "confidence": "high",
+   "basis": "Cold forward stride walk, flash minus its own SRAM twin. The per-access cost rises with the number of distinct flash words touched and saturates at one word per access; the saturating stride is the array's read width.",
+   "evidence": [
+    "  icache=0 cacheprof=0: saturates at stride 16, 2.97 cyc/access",
+    "  icache=0 cacheprof=1: saturates at stride 16, 2.97 cyc/access",
+    "  icache=1 cacheprof=0: saturates at stride 16, 2.97 cyc/access",
+    "  icache=1 cacheprof=1: saturates at stride 16, 2.97 cyc/access",
+    "  invariant across all 4 knob settings measured -- consistent with a property of the flash array, not of the accelerator"
+   ],
+   "caveats": [],
+   "data": {
+    "per_word_cycles": 2.969,
+    "by_config": {
+     "icache=0 cacheprof=0": 16,
+     "icache=0 cacheprof=1": 16,
+     "icache=1 cacheprof=0": 16,
+     "icache=1 cacheprof=1": 16
+    },
+    "invariant": true
+   }
+  },
+  "fill_unit": {
+   "name": "fill_unit",
+   "value": null,
+   "known": false,
+   "confidence": "none",
+   "basis": "Largest saturating stride across knob settings: where a knob makes the walk saturate later than the array's read width, that later stride is the unit the cache fills.",
+   "evidence": [
+    "  icache=0 cacheprof=0: saturates at stride 16, 2.97 cyc/access",
+    "  icache=0 cacheprof=1: saturates at stride 16, 2.97 cyc/access",
+    "  icache=1 cacheprof=0: saturates at stride 16, 2.97 cyc/access",
+    "  icache=1 cacheprof=1: saturates at stride 16, 2.97 cyc/access"
+   ],
+   "caveats": [
+    "Every knob setting saturates at the same stride, so no separate fill unit is distinguishable from the read width."
+   ],
+   "data": {}
+  },
+  "latch": {
+   "name": "latch",
+   "value": {
+    "present": true,
+    "granularity_bytes": 16,
+    "entries": 1,
+    "depth": 1,
+    "indexed_on": null,
+    "knob_reaches_it": false,
+    "model_determined": true,
+    "equivalent_models": [
+     "16Bx1"
+    ],
+    "differential_cycles": 3.0,
+    "differential_at": "icache=0 cacheprof=0"
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "reread sweep (read A, read A+off, re-read A) fitted against a model family {granularity g, entries k, index = (A>>log2 g) mod k, target alignment a}; depth from `evict` at a spacing that maps to the same entry; reachability by repeating the sweep at every knob combination",
+   "evidence": [
+    "  icache=0 cacheprof=0: 88/88 offsets fit granularity 16 B x 1 entry (align 1), differential 3 cyc  [discriminating: this sweep admits only 16Bx1]",
+    "  icache=0 cacheprof=1: 88/88 offsets fit granularity 16 B x 1 entry (align 1), differential 3 cyc  [discriminating: this sweep admits only 16Bx1]",
+    "  icache=1 cacheprof=0: 88/88 offsets fit granularity 16 B x 1 entry (align 1), differential 3 cyc  [discriminating: this sweep admits only 16Bx1]",
+    "  icache=1 cacheprof=1: 88/88 offsets fit granularity 16 B x 1 entry (align 1), differential 3 cyc  [discriminating: this sweep admits only 16Bx1]",
+    "  -> intersecting what each configuration is consistent with leaves 16 B x 1 entry; the fit is taken from the 4 configuration(s) that admit it, not from a majority of per-configuration best fits",
+    "  aligned-block model 100% vs proximity model 94% over 88 offsets (41 of them negative) -- it is a latch holding one aligned 16-byte flash word, not a +/-16 byte neighbourhood",
+    "  depth: 1 -- at spacing 16 B (which maps to the same entry) the target is lost after 1 intervening distinct word(s), in 4 config(s)",
+    "  no knob setting removed it: the latch resolved in 4 setting(s) and in the remaining 0 the probe read uniformly *fast*, which is a larger structure masking it, not its absence",
+    "  sub-cycle cross-check: `alt` off=16 over 200 reps gives 5.975 cyc/iteration against off=0, at 1/200-cycle resolution (single-shot `reread` sits on the counter's floor)"
+   ],
+   "caveats": [],
+   "data": {
+    "per_config": {
+     "icache=0 cacheprof=0": "resolved",
+     "icache=0 cacheprof=1": "resolved",
+     "icache=1 cacheprof=0": "resolved",
+     "icache=1 cacheprof=1": "resolved"
+    },
+    "fit_score": 1.0,
+    "rival_distance_score": 0.9431818181818182,
+    "align": 1
+   }
+  },
+  "cache": {
+   "name": "cache",
+   "value": {
+    "present": false
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "eviction-surface fit; the best fit has the capacity and granularity of the latch already claimed, so there is no multi-line structure above it",
+   "evidence": [
+    "  icache=0 cacheprof=0: N_evict 4:4 8:2 16:1 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1  -> 1-way, conflict period 16 B, 16 B (8/8 exact)",
+    "  icache=0 cacheprof=1: N_evict 4:4 8:2 16:1 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1  -> 1-way, conflict period 16 B, 16 B (8/8 exact)",
+    "  icache=1 cacheprof=0: N_evict 4:4 8:2 16:1 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1  -> 1-way, conflict period 16 B, 16 B (8/8 exact)",
+    "  icache=1 cacheprof=1: N_evict 4:4 8:2 16:1 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1  -> 1-way, conflict period 16 B, 16 B (8/8 exact)"
+   ],
+   "caveats": [
+    "No data-side cache: in every knob setting the target is lost after the latch's own depth. Reuse that is not back-to-back is not retained anywhere."
+   ],
+   "data": {
+    "per_config": {
+     "icache=0 cacheprof=0": {
+      "ways": 1,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 16,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 8,
+      "pinned": 8,
+      "total": 8,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "icache=0 cacheprof=1": {
+      "ways": 1,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 16,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 8,
+      "pinned": 8,
+      "total": 8,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "icache=1 cacheprof=0": {
+      "ways": 1,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 16,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 8,
+      "pinned": 8,
+      "total": 8,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "icache=1 cacheprof=1": {
+      "ways": 1,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 16,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 8,
+      "pinned": 8,
+      "total": 8,
+      "score": 1.0,
+      "err": 0.0
+     }
+    }
+   }
+  },
+  "replacement_policy": {
+   "name": "replacement_policy",
+   "value": null,
+   "known": false,
+   "confidence": "none",
+   "basis": "step sharpness of the eviction surface, plus a cyclic `chase` over capacity and capacity+1 lines",
+   "evidence": [],
+   "caveats": [
+    "LRU and FIFO are NOT separable with `memmap/1`'s two-argument primitives, and that is a property of the primitives rather than of the part. `walk` and `evict` produce a monotone reference string and `chase` a cyclic one, and on a cyclic string over capacity+1 lines LRU and FIFO evict exactly the same line at every step. Separating them needs a reference string that re-touches an already-resident line before bringing in a new one -- which is what the optional third `evict` argument provides, and what a shim that does not implement it leaves unreachable.",
+    "No multi-line cache was found, so there is no replacement policy to infer: a 1-entry latch has no victim to choose."
+   ],
+   "data": {}
+  },
+  "knob_map": {
+   "name": "knob_map",
+   "value": {
+    "icache": {
+     "read_width": {
+      "verdict": "no effect",
+      "pairs": 2,
+      "value": 16,
+      "why": "identical in all 2 matched pairs"
+     },
+     "latch": {
+      "verdict": "no effect",
+      "pairs": 2,
+      "value": "16Bx1",
+      "why": "identical in all 2 matched pairs"
+     },
+     "data_reuse": {
+      "verdict": "no effect",
+      "pairs": 2,
+      "value": "1-way/period 16 B/16 B",
+      "why": "identical in all 2 matched pairs"
+     }
+    },
+    "cacheprof": {
+     "read_width": {
+      "verdict": "no effect",
+      "pairs": 2,
+      "value": 16,
+      "why": "identical in all 2 matched pairs"
+     },
+     "latch": {
+      "verdict": "no effect",
+      "pairs": 2,
+      "value": "16Bx1",
+      "why": "identical in all 2 matched pairs"
+     },
+     "data_reuse": {
+      "verdict": "no effect",
+      "pairs": 2,
+      "value": "1-way/period 16 B/16 B",
+      "why": "identical in all 2 matched pairs"
+     }
+    }
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "the full cross-product: for each knob, every pair of measured configurations that differ in that knob alone is compared on three metrics (walk saturation, the fitted latch model, and the fitted cache geometry (ways, conflict period, capacity)). A knob 'controls' a structure when a matched pair moves it, 're-indexes' it when the geometry moves at constant capacity, and 'masks' it when the probe stops being able to see it",
+   "evidence": [
+    "  icache    -> read_width : no effect    identical in all 2 matched pairs",
+    "  icache    -> latch      : no effect    identical in all 2 matched pairs",
+    "  icache    -> data_reuse : no effect    identical in all 2 matched pairs",
+    "  cacheprof -> read_width : no effect    identical in all 2 matched pairs",
+    "  cacheprof -> latch      : no effect    identical in all 2 matched pairs",
+    "  cacheprof -> data_reuse : no effect    identical in all 2 matched pairs",
+    "  -> read width is moved by no knob, which is what makes it a property of the flash array rather than of the accelerator",
+    "  -> no knob reaches the latch",
+    "  -> `icache` moved none of the three metrics. Every primitive here is a data access, so an instruction cache that does not share a structure with the data path is invisible to this probe by construction -- this is the expected reading for a separate I-cache, and it is not evidence that the register is inert. The instruction side is not measured: see the cache claim's caveats."
+   ],
+   "caveats": [],
+   "data": {
+    "controllers": {
+     "read_width": [],
+     "latch": [],
+     "data_reuse": []
+    },
+    "reindexers": []
+   }
+  },
+  "waitstate_scaling": {
+   "name": "waitstate_scaling",
+   "value": null,
+   "known": false,
+   "confidence": "none",
+   "basis": "per-access cost fitted against the `waitstates` knob",
+   "evidence": [],
+   "caveats": [
+    "This part exposes no wait-state knob."
+   ],
+   "data": {}
+  },
+  "twin_calibration": {
+   "name": "twin_calibration",
+   "value": null,
+   "known": false,
+   "confidence": "none",
+   "basis": "flash minus twin at zero wait states",
+   "evidence": [],
+   "caveats": [
+    "This part exposes no wait-state knob, so there is no setting at which a flash access is known to be free and the twin cannot be calibrated this way."
+   ],
+   "data": {}
+  }
+ },
+ "notes": [
+  "Cross-check: the latch granularity equals the flash read width (16 B), as it does on every part in this repository.",
+  "GAP: this part advertises `counters` -- hardware hit/miss registers that `PROTOCOL.md` calls an independent instrument -- and the capture contains no counter reading. Every claim here rests on timing alone, with a cross-check available and unused."
+ ]
+}

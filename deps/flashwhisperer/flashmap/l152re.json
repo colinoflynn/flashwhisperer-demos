@@ -1,0 +1,286 @@
+{
+ "part": "stm32l152re",
+ "meta": {
+  "protocol": "memmap/1",
+  "part": "stm32l152re",
+  "core": "cortex-m3",
+  "clk_hz": 16000000,
+  "timer": "systick",
+  "timer_hz": 16000000,
+  "caps": [
+   "waitstates",
+   "ramfunc"
+  ],
+  "banner": "memmap/1 stm32l152re cortex-m3 16000000 systick 16000000 waitstates,ramfunc",
+  "regions": [
+   {
+    "name": "flash",
+    "base": 134283264,
+    "size": 32768,
+    "kind": "flash"
+   },
+   {
+    "name": "sram",
+    "base": 536903680,
+    "size": 32768,
+    "kind": "sram"
+   }
+  ],
+  "flash_region": "flash",
+  "twin_region": "sram",
+  "twin_kind": "sram",
+  "knobs": [
+   {
+    "name": "waitstates",
+    "values": [
+     0,
+     1
+    ],
+    "reset": 1
+   },
+   {
+    "name": "prefetch",
+    "values": [
+     0,
+     1
+    ],
+    "reset": 1
+   },
+   {
+    "name": "loopmem",
+    "values": [
+     0,
+     1
+    ],
+    "reset": 1
+   }
+  ],
+  "reps": 7,
+  "captured": "2026-09-18T19:51:54",
+  "warnings": [
+   "no advertised wait-state setting delivered a 4-cycle flash penalty (measured 0:0 1:0.032); the structural grid runs at the largest advertised setting (1) and hit/miss separation may be marginal"
+  ],
+  "elapsed_s": 141.7
+ },
+ "claims": {
+  "read_width": {
+   "name": "read_width",
+   "value": null,
+   "known": false,
+   "confidence": "none",
+   "basis": "cold stride walk, flash minus its own twin, per access",
+   "evidence": [],
+   "caveats": [
+    "No knob setting produced a resolvable per-access flash cost. At LATENCY = 0 a hit and a miss cost the same cycle, so every flash structure reads flat (MEASURING_CHANNELS B3) -- over-program the wait states and re-run."
+   ],
+   "data": {}
+  },
+  "fill_unit": {
+   "name": "fill_unit",
+   "value": null,
+   "known": false,
+   "confidence": "none",
+   "basis": "cold stride walk with reuse enabled",
+   "evidence": [],
+   "caveats": [],
+   "data": {}
+  },
+  "latch": {
+   "name": "latch",
+   "value": {
+    "present": true,
+    "granularity_bytes": 8,
+    "entries": 1,
+    "depth": 0,
+    "indexed_on": null,
+    "knob_reaches_it": false,
+    "model_determined": true,
+    "equivalent_models": [
+     "8Bx1"
+    ],
+    "differential_cycles": 1.0,
+    "differential_at": "waitstates=1 prefetch=0 loopmem=0"
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "reread sweep (read A, read A+off, re-read A) fitted against a model family {granularity g, entries k, index = (A>>log2 g) mod k, target alignment a}; depth from `evict` at a spacing that maps to the same entry; reachability by repeating the sweep at every knob combination",
+   "evidence": [
+    "  waitstates=1 prefetch=0 loopmem=0: 89/89 offsets fit granularity 8 B x 1 entry, differential 1 cyc  [discriminating: this sweep admits only 8Bx1]",
+    "  waitstates=1 prefetch=1 loopmem=0: 89/89 offsets fit granularity 8 B x 1 entry, differential 1 cyc  [discriminating: this sweep admits only 8Bx1]",
+    "  -> intersecting what each configuration is consistent with leaves 8 B x 1 entry; the fit is taken from the 2 configuration(s) that admit it, not from a majority of per-configuration best fits",
+    "  aligned-block model 100% vs proximity model 97% over 89 offsets (41 of them negative) -- it is a latch holding one aligned 8-byte flash word, not a +/-8 byte neighbourhood",
+    "  depth: 0 -- at spacing 8 B (which maps to the same entry) the target is lost after 0 intervening distinct word(s), in 2 config(s)",
+    "  no knob setting removed it: the latch resolved in 2 setting(s) and in the remaining 0 the probe read uniformly *fast*, which is a larger structure masking it, not its absence",
+    "  sub-cycle cross-check: `alt` off=8 over 200 reps gives 2.975 cyc/iteration against off=0, at 1/200-cycle resolution (single-shot `reread` sits on the counter's floor)"
+   ],
+   "caveats": [
+    "2 configuration(s) are SILENT on this claim rather than evidence for or against it: waitstates=0 prefetch=0 loopmem=0, waitstates=0 prefetch=1 loopmem=1. In each the positive control fails -- a hit and a miss differ by 0 cycles here (the same walk at `waitstates = 0`, where a flash access is known to cost no more than an SRAM one), below the 1-cycle resolution of an integer counter, so this configuration could not have shown a structure whether or not one is present -- at LATENCY 0 in particular every flash structure reads flat by construction (MEASURING_CHANNELS B3) -- so the flat column they produced is the resolution floor, not a register. A configuration that could not have shown the opposite does not get a vote.",
+    "2 configuration(s) show no data-side reuse at any offset -- but in every one of them the probe loop is resident in the memory under test (waitstates=1 prefetch=0 loopmem=1, waitstates=1 prefetch=1 loopmem=1), so what vanished is the measurement, not the latch. They are excluded from 'does a register reach it', and they are the reason a run with the loop in flash reports the exact negation of the truth on a part with a unified cache."
+   ],
+   "data": {
+    "per_config": {
+     "waitstates=1 prefetch=0 loopmem=0": "resolved",
+     "waitstates=1 prefetch=0 loopmem=1": "no-reuse",
+     "waitstates=1 prefetch=1 loopmem=0": "resolved",
+     "waitstates=1 prefetch=1 loopmem=1": "no-reuse",
+     "waitstates=0 prefetch=0 loopmem=0": "no-resolution",
+     "waitstates=0 prefetch=1 loopmem=1": "no-resolution"
+    },
+    "fit_score": 1.0,
+    "rival_distance_score": 0.9662921348314607,
+    "align": 0
+   }
+  },
+  "cache": {
+   "name": "cache",
+   "value": null,
+   "known": false,
+   "confidence": "none",
+   "basis": "eviction-surface fit",
+   "evidence": [],
+   "caveats": [
+    "No read width was resolved, so the eviction surface has no line to be fitted at."
+   ],
+   "data": {}
+  },
+  "replacement_policy": {
+   "name": "replacement_policy",
+   "value": null,
+   "known": false,
+   "confidence": "none",
+   "basis": "step sharpness of the eviction surface, plus a cyclic `chase` over capacity and capacity+1 lines",
+   "evidence": [],
+   "caveats": [
+    "LRU and FIFO are NOT separable with `memmap/1`'s two-argument primitives, and that is a property of the primitives rather than of the part. `walk` and `evict` produce a monotone reference string and `chase` a cyclic one, and on a cyclic string over capacity+1 lines LRU and FIFO evict exactly the same line at every step. Separating them needs a reference string that re-touches an already-resident line before bringing in a new one -- which is what the optional third `evict` argument provides, and what a shim that does not implement it leaves unreachable.",
+    "No multi-line cache was found, so there is no replacement policy to infer: a 1-entry latch has no victim to choose."
+   ],
+   "data": {}
+  },
+  "knob_map": {
+   "name": "knob_map",
+   "value": {
+    "prefetch": {
+     "read_width": {
+      "verdict": "unknown",
+      "why": "no complete pair of configs"
+     },
+     "latch": {
+      "verdict": "unknown",
+      "why": "no complete pair of configs"
+     },
+     "data_reuse": {
+      "verdict": "unknown",
+      "why": "no complete pair of configs"
+     }
+    },
+    "loopmem": {
+     "read_width": {
+      "verdict": "unknown",
+      "why": "no complete pair of configs"
+     },
+     "latch": {
+      "verdict": "unknown",
+      "why": "no complete pair of configs"
+     },
+     "data_reuse": {
+      "verdict": "unknown",
+      "why": "no complete pair of configs"
+     }
+    }
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "the full cross-product: for each knob, every pair of measured configurations that differ in that knob alone is compared on three metrics (walk saturation, the fitted latch model, and the fitted cache geometry (ways, conflict period, capacity)). A knob 'controls' a structure when a matched pair moves it, 're-indexes' it when the geometry moves at constant capacity, and 'masks' it when the probe stops being able to see it",
+   "evidence": [
+    "  prefetch  -> read_width : unknown      no complete pair of configs",
+    "  prefetch  -> latch      : unknown      no complete pair of configs",
+    "  prefetch  -> data_reuse : unknown      no complete pair of configs",
+    "  loopmem   -> read_width : unknown      no complete pair of configs",
+    "  loopmem   -> latch      : unknown      no complete pair of configs",
+    "  loopmem   -> data_reuse : unknown      no complete pair of configs",
+    "  -> read width is moved by no knob, which is what makes it a property of the flash array rather than of the accelerator",
+    "  -> no knob reaches the latch"
+   ],
+   "caveats": [
+    "No read width or fill unit was resolved, so the data-reuse metric had no line to fit the eviction surface at and every data-reuse verdict is `unknown` rather than `no effect`."
+   ],
+   "data": {
+    "controllers": {
+     "read_width": [],
+     "latch": [],
+     "data_reuse": []
+    },
+    "reindexers": []
+   }
+  },
+  "waitstate_scaling": {
+   "name": "waitstate_scaling",
+   "value": null,
+   "known": false,
+   "confidence": "none",
+   "basis": "per-access cost fitted against the `waitstates` knob",
+   "evidence": [],
+   "caveats": [
+    "No configuration was measured at three or more wait-state settings."
+   ],
+   "data": {}
+  },
+  "twin_calibration": {
+   "name": "twin_calibration",
+   "value": {
+    "cyc_per_access": 0.0,
+    "config": "waitstates=0 prefetch=0 loopmem=0",
+    "body": "walk",
+    "isolated": true
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "the cold walk's `flash - twin` per-access cost measured at `waitstates = 0`, where a flash access is known to cost no more than an SRAM one, so anything left over is the harness. Computed per configuration and per loop body and never pooled across either; the headline is the isolated configuration, which is the one the structural claims are measured in",
+   "evidence": [
+    "  waitstates=0 prefetch=0 loopmem=0: `reread` body over 6 point(s) -> flash-twin = +0.000 cyc/access",
+    "  waitstates=0 prefetch=0 loopmem=0: `walk` body over 4 point(s) -> flash-twin = +0.000 cyc/access",
+    "  waitstates=0 prefetch=1 loopmem=1: `reread` body over 6 point(s) -> flash-twin = +0.000 cyc/access   [probe loop in flash: deliberately confounded]",
+    "  waitstates=0 prefetch=1 loopmem=1: `walk` body over 4 point(s) -> flash-twin = +0.000 cyc/access   [probe loop in flash: deliberately confounded]",
+    "  -> the twin is a clean zero on this part: with no wait states to pay, the flash walk and the identically shaped SRAM walk agree to better than 0.1 cycles per access, so `flash - twin` is an unbiased estimator of the flash penalty"
+   ],
+   "caveats": [],
+   "data": {
+    "per_config": {
+     "waitstates=0 prefetch=0 loopmem=0/walk": {
+      "body": "walk",
+      "value": 0.0,
+      "spread": 0.0,
+      "n": 4,
+      "isolated": true
+     },
+     "waitstates=0 prefetch=0 loopmem=0/reread": {
+      "body": "reread",
+      "value": 0.0,
+      "spread": 0.0,
+      "n": 6,
+      "isolated": true
+     },
+     "waitstates=0 prefetch=1 loopmem=1/walk": {
+      "body": "walk",
+      "value": 0.0,
+      "spread": 0.0,
+      "n": 4,
+      "isolated": false
+     },
+     "waitstates=0 prefetch=1 loopmem=1/reread": {
+      "body": "reread",
+      "value": 0.0,
+      "spread": 0.0,
+      "n": 6,
+      "isolated": false
+     }
+    },
+    "per_access": 0.0
+   }
+  }
+ },
+ "notes": [
+  "Capture warnings: no advertised wait-state setting delivered a 4-cycle flash penalty (measured 0:0 1:0.032); the structural grid runs at the largest advertised setting (1) and hit/miss separation may be marginal",
+  "SCOPE: every `evict` and `chase` row in this capture was taken at `waitstates = 1`, so the cache claim is a claim about that one setting. Nothing here suggests the geometry moves with the latency, and nothing here tests it either."
+ ]
+}
