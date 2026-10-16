@@ -1,0 +1,34 @@
+{
+  "vector": "pic32mz_cacheoff_60k.npz",
+  "what": "PIC32MZ2048EFH144, Harmony 3 + wolfCrypt SNMPv3 agent on FreeRTOS, CP0 Count around wc_AesCfbEncrypt, Config.K0 = 2 (data cache off), interrupts masked, 60 000 traces",
+  "victim": {
+    "part": "PIC32MZ2048EFH144",
+    "core_mhz": 200,
+    "stack": "Microchip Harmony 3 net_apps_pic32mz snmpv3_nvm_mpfs on FreeRTOS, wolfCrypt AES with WOLFSSL_AES_SMALL_TABLES",
+    "build": "NOT the shipped build: Config.K0 = 2 puts the data cache off. The shipped build is K0 = 3 with PRECON.PREFEN = 3",
+    "flash_acr": "PRECON as SYS_Initialize leaves it",
+    "table": "wolfCrypt Tsbox, 256 x 1 byte",
+    "table_addr": "0x9D044580"
+  },
+  "geometry": {
+    "row_bytes": 16,
+    "entry_bytes": 1,
+    "line_shift": 4,
+    "line_off": 0,
+    "note": "Line offset 0 for THIS build. The probe moves the table: the interrupts-masked build puts Tsbox at 0x9D044580 where the cache-off and PRECON arms leave it at 0x9D044398, and one arm that formed an uncached alias shifted .rodata by 24 bytes. Read the address off every build; on this victim the address is not a scale factor but the whole answer, because the shipped build is a null at all sixteen offsets."
+  },
+  "attack": {
+    "direction": "enc",
+    "pair_offsets": null,
+    "conditioning": "raw",
+    "column": "aes_tick",
+    "n": 60000,
+    "expect_recovery": true,
+    "expect_note": "the exact privacy key, from the cipher's own clock, at 60 000 traces",
+    "note": "All 120 output-byte pairs are scored, which is the safe choice here: XC32 does not emit wolfCrypt's last-round reads in source order, so the pairs that can share a row are (0,3), (1,3) and (1,2) and the pairs the source suggests cannot collide at all. Scoring the obvious ones gets 0 of 24. Conditioning is `raw` because this oracle is the cipher's own cycle count, with no network modes to fit."
+  },
+  "truth": {
+    "master_key": "543363833d108c6a8f5a258c23bc4c97",
+    "note": "the agent's localized privacy key. In the vector so the packer can check E(K, C1) == keystream2 before writing; the recovery uses the free known pair."
+  }
+}

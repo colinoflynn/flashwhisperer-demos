@@ -1,0 +1,34 @@
+{
+  "vector": "f429_romtables_250k.npz",
+  "what": "NUCLEO-F429ZI lwIP SNMPv3 + mbedTLS, make ROMTABLES=1, 250 000 exchanges, 2026-10-09",
+  "victim": {
+    "part": "STM32F429ZI",
+    "core_mhz": 180,
+    "stack": "lwIP's own SNMPv3 agent on mbedTLS, both out of STM32CubeF4, built as they ship",
+    "build": "make ROMTABLES=1",
+    "flash_acr": "0x305",
+    "table": "mbedTLS FSb, 256 x 1 byte (the 4-table build's final-round S-box)",
+    "table_addr": "0x08017d7c"
+  },
+  "geometry": {
+    "row_bytes": 16,
+    "entry_bytes": 1,
+    "line_shift": 4,
+    "line_off": 12,
+    "note": "0x08017d7c is 12 bytes into its 16-byte flash row. Read off the ELF with arm-none-eabi-nm on 2026-10-09; an earlier note paired this build with 0x08017d10, which is offset 0 and was a DIFFERENT build (an extra .rodata pad). Measured both ways on this capture, vote only: at offset 12 the vote is 7/13/15 of 16 at 50k/100k/150k traces, at offset 0 it is 1/10/13. -fdata-sections makes the linker's ordering depend on what else is in the image, so a rebuild moves this."
+  },
+  "attack": {
+    "direction": "enc",
+    "pair_offsets": null,
+    "conditioning": "fast",
+    "column": "dt_hw",
+    "n": 150000,
+    "expect_recovery": true,
+    "expect_note": "privacy key recovered and verified; the vote reaches 15/16 and the known (C1, E(K,C1)) pair settles the rest",
+    "note": "pair_offsets is null because the key-free offset scan finds nothing to narrow the vote to on this capture, so all 120 byte pairs are scored. Conditioning is `fast` rather than `mode`: this capture is NOT stationary, its first stretch runs about 8 us faster than the rest, and a mode fit that straddles the step spans both regimes and kills the signal."
+  },
+  "truth": {
+    "master_key": "befa18829b1376e8d5d0d232ce6ecf5b",
+    "note": "the agent's localized privacy key, a function of the passphrase and the engine ID (RFC 3414 s2.6). It is in the vector so the packer can check E(K, C1) == keystream2 before writing, and so a replay can say whether the recovery was right. The recovery reads the free (input, output) pair instead, and needs no key."
+  }
+}

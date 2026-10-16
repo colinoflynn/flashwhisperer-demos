@@ -29,7 +29,7 @@ WHAT THIS DOES NOT CHECK
 from __future__ import annotations
 
 import argparse
-import importlib.util
+import importlib
 import io
 import json
 import os
@@ -37,6 +37,13 @@ import sys
 import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Run as `python tools/replay.py`, which puts tools/ on sys.path and not the
+# repository root, and imported as `tools.replay` by demo 00. Both have to
+# reach `tools.stats` and `demos.<demo>.host.replay`.
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from tools import stats                        # noqa: E402
 
 
 def load_geometry(vector_path):
@@ -50,25 +57,23 @@ def load_geometry(vector_path):
 
 
 def demo_adapter(vector_path):
-    """Import <demo>/host/replay.py the way running it would.
+    """(demo name, its host/replay module), imported as a package module.
 
-    A script only gets its OWN directory on sys.path, which is why the demo's
-    host directory goes on explicitly: `replay.py` there imports its siblings
-    (`make_vector`, `recover`, `verify`) by bare name, exactly as it does when
-    you run one of them by hand.
+    `demos.<demo>.host.replay`, and not by file path with the host directory
+    on sys.path, which is how this was written first. Four demos each have a
+    module called `make_vector`, a bare `import make_vector` finds whichever
+    one was imported first, and the second demo then reads the first demo's
+    vector format. That failed as a missing array name three frames deep
+    rather than as an import error, which is the whole reason these are
+    packages.
     """
     demo_dir = os.path.dirname(os.path.dirname(os.path.abspath(vector_path)))
-    host = os.path.join(demo_dir, "host")
-    mod_path = os.path.join(host, "replay.py")
-    if not os.path.exists(mod_path):
-        raise SystemExit("%s has no host/replay.py" % os.path.basename(demo_dir))
-    if host not in sys.path:
-        sys.path.insert(0, host)
-    spec = importlib.util.spec_from_file_location(
-        "demo_replay_%s" % os.path.basename(demo_dir), mod_path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return os.path.basename(demo_dir), mod
+    demo = os.path.basename(demo_dir)
+    if not os.path.exists(os.path.join(demo_dir, "host", "replay.py")):
+        raise SystemExit("%s has no host/replay.py" % demo)
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    return demo, importlib.import_module("demos.%s.host.replay" % demo)
 
 
 def run(vector_path, *, n=None, line_off=None, controls=False, quiet=False,
@@ -97,15 +102,12 @@ def run(vector_path, *, n=None, line_off=None, controls=False, quiet=False,
     say("   conditioned %s: %d traces kept, %s modes, spread %.1f"
         % (i["column"], i["kept"], i["modes"], i["spread"] or float("nan")))
 
-    if controls and hasattr(adapter, "pooled_z"):
-        import numpy as np
-        z, _ = adapter.pooled_z(data, geom, truth)
-        say("   pooled z    %+.2f   (the effect, given the key)" % z)
-        shuffled = dict(data)
-        shuffled["timing"] = np.random.default_rng(0).permutation(data["timing"])
-        zs, _ = adapter.pooled_z(shuffled, geom, truth)
+    if controls:
+        z, zs, zw = stats.controls(data["known_blocks"], data["timing"], truth,
+                                   line_off=g["line_off"],
+                                   line_shift=g["line_shift"])
+        say("   pooled z    %+.2f   (the effect over the 120 pairs, given the key)" % z)
         say("   shuffled    %+.2f   (control: timing permuted)" % zs)
-        zw, _ = adapter.pooled_z(data, geom, bytes(range(16)))
         say("   wrong key   %+.2f   (control: labels from a key that is not it)" % zw)
 
     t0 = time.time()

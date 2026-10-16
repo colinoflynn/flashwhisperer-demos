@@ -20,7 +20,15 @@ import numpy as np
 
 from flashattack import aesref, bruteforce, engine
 
-import verify
+# Run as a script from a shell, and imported as `demos.<demo>.host.recover`
+# by the driver. The first spelling has no package context and the second
+# needs one, so both are tried - and the package one comes first, because a
+# bare `import verify` inside a package would find whichever demo got
+# imported first and silently hand over the wrong module.
+try:
+    from . import verify
+except ImportError:
+    import verify
 
 
 def recover_and_verify(known_blocks, timing, keystreams, *, cand_per_pos=8,

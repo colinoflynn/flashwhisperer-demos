@@ -22,7 +22,15 @@ import sys
 import numpy as np
 
 from flashattack import aesref          # noqa: E402
-import verify                           # noqa: E402
+# Run as a script from a shell, and imported as `demos.<demo>.host.make_vector`
+# by the driver. The first spelling has no package context and the second
+# needs one, so both are tried - and the package one comes first, because a
+# bare `import verify` inside a package would find whichever demo got
+# imported first and silently hand over the wrong module.
+try:
+    from . import verify
+except ImportError:
+    import verify
 
 DEFAULT_KEY = "ffb14e093c94c9cac9471648b4f98710"   # RFC 8613 C.1 server sender key
 DEFAULT_CIV = "4622d4dd6d944168eefb54987c"
