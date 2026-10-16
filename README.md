@@ -15,7 +15,8 @@ hardware.
 
 ```bash
 git clone -c core.longpaths=true <this repo> && cd flashwhisperer-demos
-./deps/fetch.sh --tools              # flashwhisperer and ethtimer, at their pins
+./deps/fetch.sh --tools              # ethtimer, at its pin. flashwhisperer is
+                                     # vendored here while it is private
 pip install -e deps/flashwhisperer
 python demos/00_no_hardware/run.py   # recover a key. No board needed.
 ```

@@ -47,7 +47,7 @@ gain, and `PINS` is what `fetch.sh` reads. So `PINS` is the authority, and
 
 ## flashwhisperer is vendored, for now
 
-It is a squashed **git subtree**: upstream's files are committed in this
+It is a squashed git subtree: upstream's files are committed in this
 repository, under `deps/flashwhisperer`, with no `.git` of their own. That is
 not the shape this repository wants, and it is temporary.
 

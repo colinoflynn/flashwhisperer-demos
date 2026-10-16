@@ -9,9 +9,12 @@
 #     re-does arithmetic on numbers from one.
 #   * NOTHING IS BUILT. No victim firmware is compiled, so nothing here
 #     notices a victim whose table moved, or a Makefile that stopped working.
-#   * It does not check the vendor pins. `deps/fetch.sh --tools` pulls only
-#     our own two repositories; the SDK pins are checked by `tools/verify.sh`
-#     on a machine that has fetched them.
+#   * It does not check the vendor pins. `deps/fetch.sh --tools` pulls
+#     ethtimer and nothing else - flashwhisperer is vendored in the tree while
+#     its upstream is private, and the SDK pins are checked by
+#     `tools/verify.sh` on a machine that has fetched them.
+#   * It cannot check that the vendored flashwhisperer is the commit deps/PINS
+#     names. A subtree has no HEAD; deps/README.md says what that costs.
 #   * A vector is a compression of a capture. The packer verifies that when the
 #     vector is made; this job takes the vector as given.
 name: replay
@@ -32,7 +35,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: the pinned analysis half
+      - name: the analysis half, vendored, plus the pinned instrument
         run: |
           ./deps/fetch.sh --tools
           pip install -e deps/flashwhisperer
