@@ -44,15 +44,7 @@
 # the whole build.
 .DEFAULT_GOAL := all
 
-# The vendor trees are the pinned checkouts under deps/, fetched with
-# `./deps/fetch.sh sbsfu stm32cube-l1`. There is no fetch script in this
-# directory on purpose: deps/fetch.sh already pulls X-CUBE-SBSFU at the pin
-# deps/PINS names, with the sparse list that serves every port here, and a
-# second fetch path would be a second pin to keep in step.
-HERE_MK := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-REPO_ROOT := $(abspath $(HERE_MK)/../../../..)
-SBSFU_ROOT ?= $(REPO_ROOT)/deps/sbsfu
-CUBEL1_ROOT ?= $(REPO_ROOT)/deps/stm32cube-l1
+SBSFU_ROOT ?= $(abspath ../../../sbsfu-src)
 
 STOCK   = $(SBSFU_ROOT)/Projects/B-L475E-IOT01A/Applications/2_Images_ExtFlash
 SE_MW   = $(SBSFU_ROOT)/Middlewares/ST/STM32_Secure_Engine
@@ -139,6 +131,42 @@ $(error PROTECT=$(PROTECT) is not supported by this rig -- only `bench`. \
   B_L475E_IOT01A/2_Images_SECoreBin/Inc/se_low_level.h)
 endif
 
+# --- the instrument, and whether there is one ------------------------------
+# INSTR=0 builds the bus-side target: ST's decrypt path with NOTHING added to
+# it, for a capture taken from a probe on the flash's chip select rather than
+# from the victim's own clock.  It is what the attacker in
+# results/bootloader_spi/l475_bus/ faces.
+#
+# THREE THINGS GO TOGETHER HERE and dropping any one leaves an image that
+# looks stock and is not: patches/0001 and 0002 are not applied, Instr/ is not
+# compiled (its buffer is 12 KB of .bss and its dump is .text -- present in
+# the image is present, whether or not anything calls it), and the variant
+# string records which build this is, because with INSTR=0 the firmware prints
+# no I-BEGIN line and cannot name itself to a capture.  `make instrcheck`
+# asserts all of it, in whichever direction INSTR is set.
+INSTR ?= 1
+
+# TABLEPAD moves the AES tables without touching the code, so two builds can
+# be compared on one row geometry.  See the comment on .rodata in
+# B_L475E_IOT01A/2_Images_SBSFU/l475_sbsfu.ld for what the phases decide.
+#
+# 0 means "wherever this build's size puts them", which is right for a single
+# campaign and wrong for comparing two.  INSTR=0 TABLEPAD=20 reproduces the
+# instrumented build's phases (RT0 mod 32 == 8, mod 8 == 0) in a stock image.
+TABLEPAD ?= 0
+ifeq ($(INSTR),1)
+SKIP_PATCHES =
+INSTRTAG = instr
+else ifeq ($(INSTR),0)
+# By NUMBER, not by name: the number is what the staging loop matches on, and
+# a rename of a patch file then fails loudly instead of quietly instrumenting
+# a stock build.
+SKIP_PATCHES = 0001 0002
+INSTRTAG = stock
+else
+$(error INSTR must be 0 or 1, got $(INSTR))
+endif
+
 # --- the instrument --------------------------------------------------------
 # SLOTS is how many intervals one pass can record.  ST's 512-byte chunk over
 # a 44 KB body is 88; the same body at chunk 16 is 2 816, which is what the
@@ -166,7 +194,7 @@ OPT ?= -O2
 # The variant string the firmware prints with every capture, so a trace file
 # can always name the build that produced it.  Every knob that changes the
 # measurement is in it.
-VARIANT = chunk$(CHUNK)-$(TABLES)-$(PROTECT)-$(subst -O,O,$(OPT))
+VARIANT = chunk$(CHUNK)-$(TABLES)-$(PROTECT)-$(INSTRTAG)-pad$(TABLEPAD)-$(subst -O,O,$(OPT))
 
 # ONE header tree, built by stage_headers.sh, plus the directories nothing
 # is overridden in.  See that script for why the obvious spelling (ST's
@@ -230,9 +258,14 @@ FLAGS_TEXT := $(CFLAGS) | $(STOCK_CFLAGS) | $(LDFLAGS)
 
 # ---------------------------------------------------------------- sources --
 
-# This port's own code.  One file.
+# This port's own code.  One file, and none at all in a stock build -- see
+# INSTR above for why leaving it compiled-but-uncalled would not count.
+ifeq ($(INSTR),1)
 PORT_SRC = \
   $(PORT)/Instr/sfu_instr.c
+else
+PORT_SRC =
+endif
 
 # ST's STM32L4xx HAL, compiled in place and unmodified.  Only the modules
 # this firmware calls -- the list was taken from the HAL_<MODULE>_ symbols
@@ -454,13 +487,17 @@ endif
 # ST source, so make declares it up to date and the old instrumentation
 # stays in the binary.
 define STAGE_RULE
-$(BUILD)/src/$(notdir $(1)): $(STOCK)/$(1) $$(wildcard patches/*$(basename $(notdir $(1)))*.patch) | $(BUILD)/src
+$(BUILD)/src/$(notdir $(1)): $(STOCK)/$(1) $$(wildcard patches/*$(basename $(notdir $(1)))*.patch) $$(FLAGS_STAMP) | $(BUILD)/src
 	@tr -d '\r' < $$< > $$@
 	@for p in patches/*.patch; do \
 	   [ -e "$$$$p" ] || continue; \
 	   case "$$$$(basename $$$$p .patch)" in \
 	     [0-9][0-9][0-9][0-9]-$(basename $(notdir $(1)))-*) ;; \
 	     *) continue ;; \
+	   esac; \
+	   case " $(SKIP_PATCHES) " in \
+	     *" $$$$(basename $$$$p .patch | cut -c1-4) "*) \
+	        echo "  skipping $$$$p (INSTR=$(INSTR))"; continue ;; \
 	   esac; \
 	   echo "  applying $$$$p"; \
 	   patch -s -F0 -o $$@.patched $$@ < "$$$$p" \
@@ -474,13 +511,17 @@ $(foreach s,$(STOCK_SRC),$(eval $(call STAGE_RULE,$(s))))
 # covers some of the vendor sources and not others is one that works until
 # the question you need to answer is in the wrong file.
 define SE_STAGE_RULE
-$(BUILD)/se_src/$(notdir $(1)): $(1) $$(wildcard patches/*$(basename $(notdir $(1)))*.patch) | $(BUILD)/se_src
+$(BUILD)/se_src/$(notdir $(1)): $(1) $$(wildcard patches/*$(basename $(notdir $(1)))*.patch) $$(FLAGS_STAMP) | $(BUILD)/se_src
 	@tr -d '\r' < $$< > $$@
 	@for p in patches/*.patch; do \
 	   [ -e "$$$$p" ] || continue; \
 	   case "$$$$(basename $$$$p .patch)" in \
 	     [0-9][0-9][0-9][0-9]-$(basename $(notdir $(1)))-*) ;; \
 	     *) continue ;; \
+	   esac; \
+	   case " $(SKIP_PATCHES) " in \
+	     *" $$$$(basename $$$$p .patch | cut -c1-4) "*) \
+	        echo "  skipping $$$$p (INSTR=$(INSTR))"; continue ;; \
 	   esac; \
 	   echo "  applying $$$$p"; \
 	   patch -s -F0 -o $$@.patched $$@ < "$$$$p" \
@@ -607,7 +648,7 @@ $(KEYASM):
 # CubeIDE project does not pass it either.  The vectors still come from ST's
 # startup file, because ST's script sets ENTRY(Reset_Handler); crt0's _start
 # is linked and never reached.
-LDFLAGS = $(CPU) -T $(notdir $(LDSCRIPT)) \
+LDFLAGS = $(CPU) -T $(notdir $(LDSCRIPT)) -Wl,--defsym=TABLEPAD=$(TABLEPAD) \
           -L$(dir $(LDSCRIPT)) -L$(PORT)/Linker_Common \
           -L$(STOCK)/Linker_Common/STM32CubeIDE \
           --specs=nano.specs --specs=nosys.specs \
@@ -684,6 +725,39 @@ chunkcheck: $(STAGED_H) | $(BUILD)/src
 # aborted part way leaves directories that exist and are empty, which a
 # plain -d test calls success -- and the HAL landing while the BSP did not
 # is exactly what one interrupted fetch did here.
+# `instrcheck` asserts what INSTR actually did, BOTH WAYS.  A check that can
+# only fail in one direction is how a stock build quietly keeps its
+# instrumentation: at INSTR=0 it requires the two staged sources to be
+# byte-identical to ST's and the image to carry no SFU_INSTR symbol, and at
+# INSTR=1 it requires the opposite of both.  The pair is the point.
+#
+# It compares the STAGED sources rather than the patches, because the staged
+# copy is what the compiler read.
+INSTR_FILES = 2_Images_SBSFU/SBSFU/Target/sfu_low_level_flash_ext.c \
+              2_Images_SBSFU/SBSFU/App/sfu_fwimg_no_swap.c
+
+.PHONY: instrcheck
+instrcheck: $(BUILD)/sbsfu.elf
+	@fail=0; \
+	 for f in $(INSTR_FILES); do \
+	   b=$$(basename $$f); \
+	   if diff -q --strip-trailing-cr "$(STOCK)/$$f" "$(BUILD)/src/$$b" >/dev/null 2>&1; then \
+	     same=yes; else same=no; fi; \
+	   echo "  $$b: identical to ST's = $$same"; \
+	   if [ "$(INSTR)" = "0" ] && [ "$$same" = "no" ]; then \
+	     echo "    FAIL: INSTR=0 but this file is still patched" >&2; fail=1; fi; \
+	   if [ "$(INSTR)" = "1" ] && [ "$$same" = "yes" ]; then \
+	     echo "    FAIL: INSTR=1 but this file was never patched" >&2; fail=1; fi; \
+	 done; \
+	 n=$$($(CROSS)nm $(BUILD)/sbsfu.elf | grep -c SFU_INSTR || true); \
+	 echo "  SFU_INSTR symbols in the image: $$n"; \
+	 if [ "$(INSTR)" = "0" ] && [ "$$n" != "0" ]; then \
+	   echo "    FAIL: a stock image carries the instrument" >&2; fail=1; fi; \
+	 if [ "$(INSTR)" = "1" ] && [ "$$n" = "0" ]; then \
+	   echo "    FAIL: an instrumented image carries no instrument" >&2; fail=1; fi; \
+	 test $$fail -eq 0 || exit 1; \
+	 echo "instrcheck: INSTR=$(INSTR) is consistent, variant $(VARIANT)"
+
 .PHONY: stockcheck
 stockcheck:
 	@test -d "$(STOCK)" || { \

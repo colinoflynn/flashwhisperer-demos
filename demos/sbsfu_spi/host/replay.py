@@ -52,7 +52,15 @@ def load(path, geom):
         "timing": d["cycles"].astype(float),
         "info": {
             "label": str(d["variant"]),
-            "column": "DWT->CYCCNT across one chunk",
+            # The observer is a property of the CAPTURE, not of this
+            # demo: the L475 has a self-timed arm and a bus-side one,
+            # and they are the same schema scored by the same code.
+            # A vector that does not say is the self-timed one, which
+            # is what every vector here was before the bus arm.
+            "column": ("%s, %.3f ns per tick"
+                       % (str(d["observer"]), 1e9 / int(d["tick_hz"]))
+                       if "observer" in d.files
+                       else "DWT->CYCCNT across one chunk, 12.5 ns"),
             "kept": n,
             "modes": "n/a",
             "spread": float(d["cycles"].std()),

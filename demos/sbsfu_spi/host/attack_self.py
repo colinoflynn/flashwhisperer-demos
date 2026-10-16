@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 """Recover SBSFU's AES key from the B-L475E-IOT01A's own cycle counter.
 
-    python demos/sbsfu_spi/host/attack_self.py --check-ref 400000   # first
-    python demos/sbsfu_spi/host/attack_self.py --sim 40000          # no board
-    python demos/sbsfu_spi/host/attack_self.py ladder_b00.npz --control \
+    python results/bootloader_spi/l475/attack.py --check-ref 400000   # first
+    python results/bootloader_spi/l475/attack.py --sim 40000          # no board
+    python results/bootloader_spi/l475/attack.py ladder_b00.npz --control \
         --ladder --rungs 2556 3833 5110 --finish
-    python demos/sbsfu_spi/host/attack_self.py "ladder_b0*.npz" --round last
+    python results/bootloader_spi/l475/attack.py "ladder_b0*.npz" --round last
 
-Input is what the self-timed capture driver wrote: one interval per CHUNK, timed by
+Input is what rigs/host/sbsfu_instr.py wrote: one interval per CHUNK, timed by
 the victim in DWT->CYCCNT, plus the 512 bytes of ciphertext that chunk covered.
 Nothing here reads the target's memory.  The key on disk is used to SCORE the
 result and, in --finish, never at all -- the residual search is resolved against
 a genuine image's known plaintext, which is what an attacker holding a vendor
 update plus the matching public release has.
 
-WHY THIS IS NOT attack_bus.py, THE SCORER NEXT DOOR
+WHY THIS IS NOT results/bootloader_spi/samd21/attack_oracle.py
 --------------------------------------------------------------
 Same bootloader, same cipher, three differences, all of them in
-the demo README, the L475 section:
+results/bootloader_spi/l475/README.md section 4:
 
 1. ONE OBSERVATION IS THIRTY-TWO BLOCKS.  At ST's shipped
    SFU_IMG_CHUNK_SIZE of 512 the interval spans 32 AES-CBC block decryptions
    plus one SHA-256 update, so the observable is a SUM.  The treatment is the
-   chunked-observation case the chunked-oracle simulation models,
+   chunked-observation case results/bootloader_spi/sim_spi_oracle.py models,
    and this file does not re-implement it: `--sim` imports that script and
    calls its own chunk_cycles(), so the model and the scorer cannot drift.
    The sum costs traces and nothing else -- every block in a chunk is credited
@@ -48,7 +48,7 @@ the demo README, the L475 section:
 
 THE INDEX MODEL, which decides everything and is read off this build
 --------------------------------------------------------------------
-victim/l475/build/tables.txt, written by `make`:
+rigs/fw_l475_sbsfu/build/tables.txt, written by `make`:
 
     RT0 0x0802a488 0x400  mod 32 == 8        rounds 1-9, FOUR-byte entries
     RSb 0x0802ac88 0x100  mod 32 == 8        round 10, ONE-byte entries
@@ -82,6 +82,9 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+sys.path.insert(0, REPO)
+sys.path.insert(0, os.path.join(REPO, "flashwhisperer"))
 
 import numpy as np                                            # noqa: E402
 
@@ -95,6 +98,14 @@ GROUND_TRUTH = "4f454d5f4b45595f434f4d50414e5931"
 ORDER = [0, 13, 10, 7, 4, 1, 14, 11, 8, 5, 2, 15, 12, 9, 6, 3]
 ALL_PAIRS = [(i, j) for i in range(16) for j in range(i + 1, 16)]
 
+# The instrumented victim's tables, used when a capture does not carry its
+# own.  A CAPTURE'S OWN ADDRESSES WIN, and must: the bus-side target is built
+# with INSTR=0, which takes about 1.1 KB of .text out and moves the tables --
+# RT0 went to mod 32 == 20, mod 8 == 4, and mod 8 is `line_off`, a scoring
+# parameter.  rigs/host/sbsfu_bus.py therefore reads build/tables.txt and
+# stores rt0_addr/rsb_addr in the .npz, and load_captures() overrides these.
+# (That build now also carries TABLEPAD, so a stock image can be linked to the
+# instrumented one's phases and the two observers compared on one geometry.)
 RT0_ADDR = 0x0802A488
 RSB_ADDR = 0x0802AC88
 
@@ -158,7 +169,7 @@ def geometries(which, rnd):
 def load(paths):
     """Concatenate captures, refusing any pair that is not the same measurement.
 
-    The checks are the ones the demo README, the L475 section 2,
+    The checks are the ones results/bootloader_spi/l475/README.md section 2
     makes the firmware answer, re-made here because a concatenation can break
     them even when every part passed: a different `variant` is a different
     image and therefore a different table address, and a non-zero poll count
@@ -180,6 +191,17 @@ def load(paths):
                                      "%s: %r against %r -- a different image "
                                      "is a different table address"
                                      % (p, k, m[k], meta[k]))
+        # A capture that knows its own table addresses overrides the module
+        # constants, for every capture in the set.  Disagreement between
+        # captures is already caught by the `variant` check above, so this
+        # only has to be consistent with itself.
+        if "rt0_addr" in d.files:
+            global RT0_ADDR, RSB_ADDR
+            RT0_ADDR = int(d["rt0_addr"])
+            RSB_ADDR = int(d["rsb_addr"])
+        if "observer" in d.files:
+            m["observer"] = str(d["observer"])
+            m["tick_hz"] = int(d["tick_hz"])
         nz = int((d["polls"] != 0).sum())
         if nz:
             raise SystemExit("%s: %d intervals carry a busy-poll retry, which "
@@ -600,7 +622,7 @@ def sim_intervals(n_obs, chunk_blocks, noise, seed, key, rnd="first"):
     disagree.
 
     Two things are this image's rather than that script's PARTS row, and both
-    are documented in the demo README, the L475 section:
+    are documented in results/bootloader_spi/l475/README.md section 4:
 
       * ONE table.  MBEDTLS_AES_FEWER_TABLES means all 16 lookups of every
         inverse round hit RT0, where flashsim's "ttable" layout lays out four
@@ -785,7 +807,7 @@ def check_ref(n_blocks, chunk_blocks=32, seed=20260925):
                                 len(pairs)))
     if same != len(pairs):
         raise SystemExit("the scorer DISAGREES with "
-                         "the chunked-oracle simulation on "
+                         "results/bootloader_spi/sim_spi_oracle.py on "
                          "simulated data, which makes it wrong")
     print("  OK -- same guess on every pair, so the chunked-observation "
           "treatment and the round-1 scan are the reference's")
@@ -808,7 +830,7 @@ def ladder_marks(n, rungs):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("npz", nargs="*", help="self-timed captures from the L475 port")
+    ap.add_argument("npz", nargs="*", help="captures from rigs/host/sbsfu_instr.py")
     ap.add_argument("--round", default="first", choices=("first", "last", "both"))
     ap.add_argument("--geometry", default="both", choices=("latch", "cache", "both"))
     ap.add_argument("--pairs", default="all")
@@ -897,8 +919,19 @@ def main():
              meta["variant"]))
     print("  RT0 0x%08x mod 32 == %d    RSb 0x%08x mod 32 == %d"
           % (RT0_ADDR, RT0_ADDR % 32, RSB_ADDR, RSB_ADDR % 32))
-    print("  median %d cycles, sd across chunks %.1f"
-          % (np.median(cyc), np.std(cyc)))
+    # THE UNIT IS NOT ALWAYS A CORE CYCLE.  A self-instrumented capture counts
+    # DWT cycles at 80 MHz; a bus-side one counts F303 timer ticks at 64 MHz,
+    # 15.625 ns each.  Everything downstream is a difference of intervals in
+    # whatever that unit is, so the arithmetic does not care -- but a reader
+    # comparing a per-collision effect between the two does, so the unit is
+    # named here rather than assumed to be cycles.
+    unit, hz = "cycles", 80_000_000
+    if meta.get("observer"):
+        unit, hz = "ticks", meta["tick_hz"]
+        print("  observer %s, %.3f ns per %s"
+              % (meta["observer"], 1e9 / hz, unit))
+    print("  median %d %s, sd across chunks %.1f (%.2f ns)"
+          % (np.median(cyc), unit, np.std(cyc), np.std(cyc) * 1e9 / hz))
 
     y, keep, dr = deskew(cyc, pas, detrend=a.detrend, cut=a.cut)
     if a.cut > 0 or a.detrend:
@@ -990,7 +1023,7 @@ def aes_output(ct, key, chunk):
     """The inverse cipher's own output per block, which round 10 indexes by.
 
     A TAMPERED body decrypts to nothing anyone knows, so this cannot come from
-    the capture: the image builder deletes the .plain for exactly that
+    the capture: rigs/host/sbsfu_image.py deletes the .plain for exactly that
     reason.  It is reconstructed with the key instead, and that is a statement
     about the ADVERSARY rather than about the traces -- a known-plaintext
     attacker holding the vendor's release binary computes the same numbers

@@ -149,9 +149,30 @@ SECTIONS
   } >SB_ROM_region
 
   /* Constant data goes into FLASH */
+  /* L475 PORT: TABLEPAD, defaulting to 0 and defined by the Makefile.
+   *
+   * mbedTLS's tables live in aes.o's .rodata at a fixed offset from the start
+   * of this section, so moving the section moves them -- and WHERE they land
+   * is a scoring parameter twice over on this part: `addr mod 8` decides
+   * which table entries share an 8-byte read latch line (the attack's
+   * `line_off`), and `addr mod 32` decides the data cache's conflict phase
+   * (research/targets/stm32l475.md section 5f).
+   *
+   * It exists because INSTR=0 moves them.  Taking the instrument out shrinks
+   * .text by about 1.1 KB, which took RT0 from mod 32 == 8, mod 8 == 0 to
+   * mod 32 == 20, mod 8 == 4.  A bus-side capture of that image compared with
+   * the self-instrumented one would then differ in the observer AND in the
+   * row geometry at the same time, and the geometry term is worth about 4x in
+   * traces here -- so the comparison would measure the wrong thing.
+   *
+   * Padding changes no instruction in the decrypt path.  `make` prints the
+   * resulting addresses and phases to build/tables.txt either way, and a
+   * capture records them, so an unpadded build is not wrong -- just not
+   * comparable. */
   .rodata :
   {
     . = ALIGN(8);
+    . = . + TABLEPAD;
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(8);

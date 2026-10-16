@@ -2,7 +2,7 @@
   "vector": "l475_ramtwin_5110.npz",
   "what": "the twin: the same bodies, the same passes, the same analysis, with mbedTLS's tables computed into SRAM instead (make RAMTABLES=1, which is ST's shipped default)",
   "victim": {
-    "part": "STM32L4S5VI on a B-L475E-IOT01A",
+    "part": "STM32L475VGT6 on a B-L475E-IOT01A",
     "core_mhz": 80,
     "stack": "X-CUBE-SBSFU v2.7.0, 2_Images_ExtFlash, ST's shipped crypto scheme SECBOOT_ECCDSA_WITH_AES128_CBC_SHA256, mbedTLS as the package ships it",
     "build": "make RAMTABLES=1 - ST's default, tables in .bss",

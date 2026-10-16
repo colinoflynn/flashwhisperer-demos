@@ -2,7 +2,7 @@
   "vector": "l475_flash_5110.npz",
   "what": "B-L475E-IOT01A running X-CUBE-SBSFU's own 2_Images_ExtFlash configuration, self-timed across each 512-byte chunk of a verify pass, 5 110 intervals over 10 passes of a 256 KB body",
   "victim": {
-    "part": "STM32L4S5VI on a B-L475E-IOT01A",
+    "part": "STM32L475VGT6 on a B-L475E-IOT01A",
     "core_mhz": 80,
     "stack": "X-CUBE-SBSFU v2.7.0, 2_Images_ExtFlash, ST's shipped crypto scheme SECBOOT_ECCDSA_WITH_AES128_CBC_SHA256, mbedTLS as the package ships it",
     "build": "MBEDTLS_AES_ROM_TABLES uncommented - mbedTLS's own documented flash-saving option, and the port's largest deviation. make RAMTABLES=1 restores ST's default and is the twin",

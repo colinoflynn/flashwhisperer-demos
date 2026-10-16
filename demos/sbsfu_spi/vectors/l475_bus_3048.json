@@ -1,0 +1,41 @@
+{
+  "vector": "l475_bus_3048.npz",
+  "what": "B-L475E-IOT01A running X-CUBE-SBSFU's own 2_Images_ExtFlash configuration, timed FROM A PROBE ON THE FLASH'S CHIP SELECT with nothing on the victim, 3 048 intervals over 24 passes of a tampered 64 KB body",
+  "victim": {
+    "part": "STM32L475VGT6 on a B-L475E-IOT01A",
+    "core_mhz": 80,
+    "stack": "X-CUBE-SBSFU v2.7.0, 2_Images_ExtFlash, ST's shipped crypto scheme SECBOOT_ECCDSA_WITH_AES128_CBC_SHA256, mbedTLS as the package ships it",
+    "build": "make INSTR=0 TABLEPAD=20 -- NO INSTRUMENTATION: the two patched files are byte-identical to ST's and the image carries no SFU_INSTR symbol, which `make instrcheck` asserts in both directions. MBEDTLS_AES_ROM_TABLES is still uncommented, which remains the port's largest deviation. TABLEPAD=20 pins the tables to the self-instrumented build's phases so the two observers can be compared on one row geometry",
+    "flash_acr": "as SBSFU leaves it at 80 MHz",
+    "table": "mbedTLS RT0, 1 KB, four-byte entries (MBEDTLS_AES_FEWER_TABLES, so RT1..RT3 do not exist)",
+    "table_addr": "0x0802a0c8"
+  },
+  "instrument": {
+    "what": "NUCLEO-F303RE, TIM2 both-edge input capture through DMA, 15.625 ns per tick, on the MX25R6435F's CS# pin",
+    "observable": "nCS rise of chunk k's data read to nCS fall of chunk k+1's first status poll",
+    "note": "This board's status poll is the QUADSPI peripheral's own AUTOMATIC POLLING -- a hardware train of ~0.44 us pulses at about 1.1 MHz -- so the poll/data alternation the SAM D21 and L152 arms look for does not exist and the pass is identified by its data reads. The interval also carries the IP's fixed head and tail, worth 8.7 us against the self-timed arm's 1 798.8 us."
+  },
+  "geometry": {
+    "row_bytes": 8,
+    "entry_bytes": 4,
+    "line_shift": 1,
+    "line_off": 0,
+    "scorer_geometry": "latch",
+    "note": "The 8-byte read latch, two four-byte entries to a line. RT0 lands at 0x0802a0c8, mod 8 == 0 so line_off is 0 and mod 32 == 8 -- the same phases as the self-timed vector, which is what TABLEPAD is for and what makes the two comparable. Scoring at the 32-byte cache period instead finds a real effect four times smaller and leaves 2**53."
+  },
+  "attack": {
+    "direction": "dec",
+    "round": "first",
+    "pair_offsets": null,
+    "conditioning": "none",
+    "column": "cycles",
+    "n": null,
+    "expect_recovery": true,
+    "expect_note": "the key out of 13 of 120 resolved pairs and 16 of 16 masked bytes, then a 2**23 search closed against the genuine image's own plaintext",
+    "note": "The column is called `cycles` for schema compatibility but holds TICKS of a 64 MHz timer, 15.625 ns each; `tick_hz` is in the vector and the scorer names the unit. An interval is not a trace: at ST's 512-byte chunk one interval sums 32 block decryptions, so 3 048 intervals are 97 536 AES blocks. THE LADDER IS NON-MONOTONE -- this same capture gives the key at 3 048 and NOT at its own full 4 064, then gives it again pooled at 6 096 -- so this count is the rung that reproduces and not a floor. Nothing secret is in this vector: there is no key field, and the search is scored against fw.plain, the genuine update an attacker holds."
+  },
+  "truth": {
+    "master_key": "4f454d5f4b45595f434f4d50414e5931",
+    "note": "ST's published demo key, ASCII OEM_KEY_COMPANY1, which is what their prebuild step generates for this project. tools/replay.py compares the recovered key against it; the recovery reaches it through fw.plain and never reads this field."
+  }
+}

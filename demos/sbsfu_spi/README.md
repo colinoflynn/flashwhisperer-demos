@@ -5,18 +5,24 @@ human-edited for that real-life touch and typos.*
 
 ST's X-CUBE-SBSFU stages an encrypted firmware image in an off-chip serial
 flash and reads it back chunk by chunk, decrypting between reads. The victim is
-the bus master: it drives chip-select low, clocks the bytes it wants, drives it
-high, decrypts, and drives it low again. Both delimiters are edges its own code
-produces, and the gap between them contains the AES and nothing else that
-depends on the data. So there is no host on the critical path, no polling loop
-and no USB frame to average out - which is what makes this the cheapest oracle
-in this repository.
+the bus master: chip-select goes low, it clocks the bytes it wants, it goes
+high, the chunk is decrypted, and it goes low again. The gap between those
+edges contains the AES and nothing else that depends on the data - no host on
+the critical path, no polling loop, no USB frame to average out, which is what
+makes this the cheapest oracle in this repository.
+
+**Who drives the edges differs by board, and it decides how the capture is
+taken.** On the SAM D21 and the L152 chip-select is an ordinary GPIO, so the
+driver's own C opens and closes every envelope. On the B-L475E-IOT01A the
+memory is on QUADSPI and the IP drives nCS per command - the envelope is still
+one per read and still visible to a probe, but the victim does not produce the
+edge, and the status "poll" is a hardware train rather than one envelope.
 
 Three ports, and they are not interchangeable:
 
 | port | board | how it is timed | what came out |
 |---|---|---|---|
-| [`victim/l475`](victim/l475) | B-L475E-IOT01A | **the bootloader times itself**, `DWT->CYCCNT` across each chunk | the key, both ends of the cipher. **This is the one you can replay here** |
+| [`victim/l475`](victim/l475) | B-L475E-IOT01A | **both**: the bootloader times itself in `DWT->CYCCNT`, and a NUCLEO-F303RE on the memory's CS pin times a build with **no instrumentation in it** | the key, both ends of the cipher, from either observer. **Both are replayable here** |
 | [`victim/samd21`](victim/samd21) | SAM D21 Xplained Pro | a NUCLEO-F303RE clipped to the serial flash's chip select | the key, with **nothing on the victim** - and this part has no data cache at all |
 | [`victim/l152`](victim/l152) | NUCLEO-L152RE | the same external probe | the key, through SBSFU's realistic install path |
 
@@ -24,7 +30,13 @@ Three ports, and they are not interchangeable:
 
 ```bash
 python tools/replay.py demos/sbsfu_spi/vectors/l475_flash_5110.npz --controls
+python tools/replay.py demos/sbsfu_spi/vectors/l475_bus_3048.npz
 ```
+
+The second is the same board and the same key from **a probe on the chip
+select against a victim with nothing added to it** - `make INSTR=0`, which
+`make instrcheck` asserts leaves both patched files byte-identical to ST's and
+the image carrying no instrumentation symbol.
 
 ```
    geometry    line_off=0 line_shift=1  (row of a lookup is (x+0)>>1)
@@ -41,10 +53,11 @@ published demo key, and the search that finds it is scored against
 [`vectors/fw.plain`](vectors) - the genuine update an attacker holds, not a key
 file. There is no key field in the capture at all.
 
-## The L475 port is self-timed, and that is temporary
+## The L475 port is timed both ways, and the two agree
 
-It needs reading carefully, because it is the port that recovers a key with no
-second board and it is also the one with the weaker claim.
+It was the port that recovers a key with no second board and also the one
+with the weaker claim. It now has both arms, and the weaker one turned out to
+be a good approximation of the stronger.
 
 On the L152 and the SAM D21 the serial flash hangs off an SPI peripheral with
 chip-select on an ordinary GPIO, so the driver's own C opens and closes every
@@ -55,18 +68,32 @@ probe, but the victim cannot produce the edge itself. So this port starts from
 the other side and has the bootloader time its own gap, between the return of
 `BSP_QSPI_Read` and the command that opens the next chunk's status poll.
 
-What that is worth, stated plainly:
+What that is worth, now that both arms exist:
 
 * The software bracket misses a fixed head and a fixed tail - the HAL's
   wait-for-complete before the clock starts, its command setup after it stops.
   A fixed offset is invisible to an attack that scores differences between
-  intervals, so this is an UPPER BOUND on a bus-side attacker: less noise,
-  the same signal.
-* It is NOT the outside measurement. "An attacker outside the package can do
-  this" needs a probe on the line, and this port cannot make that claim. The
-  bus-side version of this board is being instrumented externally now, and
-  when that capture exists it replaces this one as the headline rather than
-  joining it.
+  intervals, so the self-timed arm was argued to be an UPPER BOUND on a
+  bus-side attacker: less noise, the same signal.
+* **That argument has been tested rather than left standing.** Known-key
+  control, same build and same table addresses: **-51.4 ns per collision from
+  the probe against -54.1 ns from the victim's own clock**, residuals
+  1 054.1 ns and 1 031.6 ns. About 5 % of the effect and 2 % of the noise, so
+  the bound was tight. The constant the bracket misses comes out at 8.7 us.
+* **The outside measurement now exists**, against a victim built `INSTR=0`:
+  nothing of this port's is in the decrypt path, and the key comes out. So
+  "an attacker outside the package can do this" is a claim this board can
+  make on its own, at ST's own chunk size.
+* **The comparison needed the tables pinned.** `INSTR=0` takes ~1.1 KB of
+  `.text` out, which moves `RT0` from `mod 8 == 0` to `mod 8 == 4` - and
+  `mod 8` is the attack's `line_off`. `TABLEPAD=20` puts a stock image back on
+  the instrumented build's phases, so the observer is the only difference.
+* **Neither arm's trace floor is a reliable number**, and that is worth more
+  than either floor: the ladder is non-monotone. One bus capture gives the key
+  at 3 048 intervals, NOT at its own full 4 064, and again at 6 096 pooled.
+  The scorer takes a prefix, so those are nested samples and it is the solver
+  landing in a wrong fixed point, not the data. Quote the control, not the
+  first rung that worked.
 * Until then it is the cheapest way to find out whether wiring a probe to this
   board is worth the afternoon, and it is the only route in this demo that
   someone with no probe and no second board can run end to end.
