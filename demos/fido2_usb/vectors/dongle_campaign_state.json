@@ -1,0 +1,329 @@
+{
+  "stages": {
+    "r4-seed-2": {
+      "complete": true,
+      "offset": 244,
+      "relation": {
+        "p": 2,
+        "in_p": 244,
+        "q": 13,
+        "in_q": 0
+      },
+      "kind": "ref",
+      "chain": [],
+      "test": 2,
+      "consistent_pads": {
+        "k[13]": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 2.24,
+      "n_per_class": 1485,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.288
+    },
+    "r4-seed-7": {
+      "complete": true,
+      "offset": 216,
+      "relation": {
+        "p": 7,
+        "in_p": 216,
+        "q": 13,
+        "in_q": 0
+      },
+      "kind": "ref",
+      "chain": [],
+      "test": 7,
+      "consistent_pads": {
+        "k[13]": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 2.85,
+      "n_per_class": 1475,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.279
+    },
+    "r4-chain-1": {
+      "complete": true,
+      "offset": 12,
+      "relation": {
+        "p": 1,
+        "in_p": 12,
+        "q": 2,
+        "in_q": 244
+      },
+      "kind": "chain",
+      "chain": [
+        2
+      ],
+      "test": 1,
+      "consistent_pads": {
+        "chain": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 2.77,
+      "n_per_class": 1469,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.221
+    },
+    "r4-chain-12": {
+      "complete": true,
+      "offset": 208,
+      "relation": {
+        "p": 12,
+        "in_p": 208,
+        "q": 2,
+        "in_q": 244
+      },
+      "kind": "chain",
+      "chain": [
+        2,
+        1
+      ],
+      "test": 12,
+      "consistent_pads": {
+        "chain": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 6.22,
+      "n_per_class": 1480,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.365
+    },
+    "r4-chain-6": {
+      "complete": true,
+      "offset": 24,
+      "relation": {
+        "p": 6,
+        "in_p": 24,
+        "q": 2,
+        "in_q": 244
+      },
+      "kind": "chain",
+      "chain": [
+        2,
+        1,
+        12
+      ],
+      "test": 6,
+      "consistent_pads": {
+        "chain": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 4.75,
+      "n_per_class": 1449,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.297
+    },
+    "r4-link-11": {
+      "complete": true,
+      "offset": 240,
+      "relation": {
+        "p": 11,
+        "in_p": 240,
+        "q": 7,
+        "in_q": 216
+      },
+      "kind": "chain",
+      "chain": [
+        7
+      ],
+      "test": 11,
+      "consistent_pads": {
+        "chain": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 3.48,
+      "n_per_class": 1485,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.281
+    },
+    "r4-link-8": {
+      "complete": true,
+      "offset": 20,
+      "relation": {
+        "p": 8,
+        "in_p": 20,
+        "q": 11,
+        "in_q": 240
+      },
+      "kind": "chain",
+      "chain": [
+        11,
+        7
+      ],
+      "test": 8,
+      "consistent_pads": {
+        "chain": [],
+        "k[14]": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 0.65,
+      "n_per_class": 1546,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.483
+    },
+    "r4-seed-9": {
+      "complete": true,
+      "offset": 12,
+      "relation": {
+        "p": 9,
+        "in_p": 12,
+        "q": 14,
+        "in_q": 0
+      },
+      "kind": "ref",
+      "chain": [],
+      "test": 9,
+      "consistent_pads": {
+        "k[14]": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 2.78,
+      "n_per_class": 1500,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.256
+    },
+    "r4-link-3": {
+      "complete": true,
+      "offset": 216,
+      "relation": {
+        "p": 3,
+        "in_p": 216,
+        "q": 9,
+        "in_q": 12
+      },
+      "kind": "chain",
+      "chain": [
+        9
+      ],
+      "test": 3,
+      "consistent_pads": {
+        "chain": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 3.58,
+      "n_per_class": 1512,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.316
+    },
+    "r4-chain-4": {
+      "complete": true,
+      "offset": 236,
+      "relation": {
+        "p": 4,
+        "in_p": 236,
+        "q": 3,
+        "in_q": 216
+      },
+      "kind": "chain",
+      "chain": [
+        3
+      ],
+      "test": 4,
+      "consistent_pads": {
+        "chain": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 5.36,
+      "n_per_class": 1579,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.399
+    },
+    "r4-chain-10": {
+      "complete": true,
+      "offset": 52,
+      "relation": {
+        "p": 10,
+        "in_p": 52,
+        "q": 3,
+        "in_q": 216
+      },
+      "kind": "chain",
+      "chain": [
+        3,
+        4
+      ],
+      "test": 10,
+      "consistent_pads": {
+        "chain": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 8.81,
+      "n_per_class": 1581,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.58
+    },
+    "r4-chain-5": {
+      "complete": true,
+      "offset": 104,
+      "relation": {
+        "p": 5,
+        "in_p": 104,
+        "q": 3,
+        "in_q": 216
+      },
+      "kind": "chain",
+      "chain": [
+        3,
+        4,
+        10
+      ],
+      "test": 5,
+      "consistent_pads": {
+        "chain": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 4.11,
+      "n_per_class": 1537,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.319
+    },
+    "r4-ref-8": {
+      "complete": true,
+      "offset": 20,
+      "relation": {
+        "p": 8,
+        "in_p": 20,
+        "q": 14,
+        "in_q": 0
+      },
+      "kind": "ref",
+      "chain": [],
+      "test": 8,
+      "consistent_pads": {
+        "k[14]": []
+      },
+      "matched": [],
+      "correct": false,
+      "margin_sigma": 5.95,
+      "n_per_class": 1506,
+      "too_thin": false,
+      "escalations": 0,
+      "delta_vs_others": -0.461
+    }
+  }
+}

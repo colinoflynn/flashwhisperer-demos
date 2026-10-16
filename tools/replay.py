@@ -134,13 +134,30 @@ def run(vector_path, *, n=None, line_off=None, controls=False, quiet=False,
 
     got = master == truth
     want = bool(atk.get("expect_recovery", True))
-    ok = (got == want)
+    kind = "key" if got else "no key"
+
+    # A demo whose replayable half is not a key says so with `expect_kind`, and
+    # the driver then asks the adapter. The FIDO2 ladder is the case: it pins
+    # the key to 2^44 and the search that closes it is twelve minutes of Rust,
+    # so a replay checks the measurement and says RELATIONS. Without this the
+    # only way to express that would be `expect_recovery: false`, which is how
+    # this repository marks a CONTROL - a vector that must stay silent - and
+    # the two mean opposite things.
+    if atk.get("expect_kind") == "relations":
+        ok, line = adapter.check(data, geom)
+        kind = "relations"
+        say("   relations   %s" % line)
+    else:
+        ok = (got == want)
+
     say("   %s  %s in %.0fs"
-        % ("EXACT" if got else "no key", "as expected" if ok else "NOT WHAT THE VECTOR SAYS", dt))
+        % (kind.upper() if kind == "relations" else ("EXACT" if got else "no key"),
+           "as expected" if ok else "NOT WHAT THE VECTOR SAYS", dt))
     if not ok:
         say("   expected    %s" % atk.get("expect_note", ""))
     return ok, {"demo": name, "vector": os.path.basename(vector_path),
-                "recovered": got, "expected": want, "seconds": dt}
+                "recovered": got, "expected": want, "kind": kind,
+                "seconds": dt}
 
 
 def ladder(vector_path, counts, *, line_off=None):

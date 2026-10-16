@@ -1,0 +1,72 @@
+{
+  "what": "constraints recovered by the flash-accelerator timing ladder against RIOT's FIDO2 credential key",
+  "provenance": "measured on an nRF52840 running unmodified RIOT over its own USB",
+  "search_space_bits": 44,
+  "search_space": 17592186044416,
+  "anchor_byte": 1,
+  "diff6": [
+    null,
+    0,
+    62,
+    18,
+    31,
+    62,
+    5,
+    53,
+    33,
+    39,
+    41,
+    63,
+    55,
+    3,
+    36,
+    10
+  ],
+  "unknown_low2_bytes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "known_low2": {},
+  "unreached_bytes": [
+    0
+  ],
+  "oracle": [
+    {
+      "counter_block_hex": "01899162d203bdc7e81828c4d64a0001",
+      "keystream_hex": "cbba5179bfa6aad2ae2d6e9db86efd78"
+    }
+  ],
+  "notes": {
+    "relations_measured": [
+      "(k[1]^k[2])>>2=62",
+      "(k[10]^k[3])>>2=59",
+      "(k[12]^k[2])>>2=9",
+      "(k[4]^k[3])>>2=13",
+      "(k[5]^k[3])>>2=44",
+      "(k[6]^k[2])>>2=59",
+      "(k[11]^k[7])>>2=10",
+      "(k[3]^k[9])>>2=53",
+      "(k[8]^k[11])>>2=30",
+      "(k[8]^k[14])>>2=5",
+      "(k[2]^k[13])>>2=61",
+      "(k[7]^k[13])>>2=54",
+      "(k[9]^k[14])>>2=3",
+      "(k[5]^k[15])>>2=52"
+    ],
+    "information_theoretic_bits": 44,
+    "stranded_relations": 0
+  }
+}

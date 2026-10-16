@@ -1,0 +1,43 @@
+--- a/sys/fido2/ctap/ctap.c	2026-09-23 21:17:03.556573200 -0300
++++ b/sys/fido2/ctap/ctap.c	2026-09-23 21:17:03.728432900 -0300
+@@ -22,6 +22,25 @@
+ #include "string_utils.h"
+ #include "ztimer.h"
+ 
++#if IS_ACTIVE(FW_TRIGGER)
++/* Bench instrumentation, OFF unless -DFW_TRIGGER=1 is on the command line.
++ * Raises a pin around the credential-unwrap loop so the on-chip interval can be
++ * timed directly and compared against what the USB reply timing shows.  The
++ * project's standing lesson is that those are not the same interval, and the
++ * gap between them is the measurement rather than an afterthought. */
++#include "periph/gpio.h"
++#ifndef FW_TRIGGER_PIN
++#define FW_TRIGGER_PIN GPIO_PIN(0, 13)      /* LED1 on the nRF52840-DK */
++#endif
++#define FW_TRIGGER_INIT()  gpio_init(FW_TRIGGER_PIN, GPIO_OUT)
++#define FW_TRIGGER_HIGH()  gpio_set(FW_TRIGGER_PIN)
++#define FW_TRIGGER_LOW()   gpio_clear(FW_TRIGGER_PIN)
++#else
++#define FW_TRIGGER_INIT()  do {} while (0)
++#define FW_TRIGGER_HIGH()  do {} while (0)
++#define FW_TRIGGER_LOW()   do {} while (0)
++#endif
++
+ #include "fido2/ctap/transport/ctap_transport.h"
+ #include "fido2/ctap.h"
+ #include "fido2/ctap/ctap_utils.h"
+@@ -629,11 +648,14 @@
+     }
+ 
+     /* find eligible credentials */
++    FW_TRIGGER_INIT();
++    FW_TRIGGER_HIGH();
+     _assert_state.count = _find_matching_rks(_assert_state.rks,
+                                              CTAP_MAX_EXCLUDE_LIST_SIZE,
+                                              req.allow_list,
+                                              req.allow_list_len, req.rp_id,
+                                              req.rp_id_len);
++    FW_TRIGGER_LOW();
+ 
+     if (fido2_ctap_pin_is_set() && req.pin_auth_present) {
+         /* CTAP specification (version 20190130) section 5.5.8.2 */

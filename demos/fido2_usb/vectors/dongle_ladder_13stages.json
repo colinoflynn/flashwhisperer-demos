@@ -1,0 +1,37 @@
+{
+  "vector": "dongle_ladder_13stages.npz",
+  "what": "nRF52840 Dongle running RIOT's own fido2_ctap_hid unmodified, the gated ladder of 13 stages that pinned the credential key to 2**44 - taken blind, with no debugger on the part and the key unknown to the analyst",
+  "victim": {
+    "part": "nRF52840 (Dongle, no debugger attached)",
+    "core_mhz": 64,
+    "stack": "RIOT's tests/sys/fido2_ctap_hid, unmodified, over the nRF52840's own USB",
+    "build": "upstream RIOT at the pinned commit; nothing added, no trigger pin, no console",
+    "flash_acr": "whatever RIOT leaves; the nRF52840 has no data cache at all",
+    "table": "RIOT's AES Te0, 1 KB, four-byte entries, declared with no alignment attribute",
+    "table_addr": "not read off this part: the ladder's own argmins put it at pad 4"
+  },
+  "geometry": {
+    "row_bytes": 16,
+    "entry_bytes": 4,
+    "line_shift": 2,
+    "line_off": 1,
+    "note": "pad 4 means the line of entry i is (i + 1) >> 2, so a collision is a shared 4-entry WINDOW rather than an XOR class. Same six bits of information, different algebra - and the constraint file the search reads can only express the XOR form, which is why host/constraints_from_campaign.py says in its own docstring that its diff6 values are valid at pad 0 only. The 2**44 figure comes from the window algebra, not from that file."
+  },
+  "attack": {
+    "direction": "enc",
+    "round": "first",
+    "pair_offsets": null,
+    "conditioning": "none",
+    "column": "polls",
+    "n": null,
+    "expect_recovery": false,
+    "expect_kind": "relations",
+    "shuffle_seed": 7,
+    "expect_note": "all 13 stages reproduce the delta class their record names, none of them does with the labels shuffled, and the weakest stage is 0.65 sigma",
+    "note": "A replay checks the MEASUREMENT half. The 2**44 search that turns these relations into the key is in ../search and is not run here: it is CPU-only Rust at about 3 Gcandidate/s, an hour and a half on ten cores. That is why this vector reports RELATIONS rather than a key, and why expect_recovery is false without the vector being a control - the demo README has the distinction."
+  },
+  "truth": {
+    "master_key": "353bc17144c02ceebca79dc4e634ab13",
+    "note": "RIOT's cred_key on that Dongle, as the search returned it and as a captured credential's unwrap confirmed. It was NOT known while the ladder ran - that is what blind means here - and nothing in the replay reads it."
+  }
+}

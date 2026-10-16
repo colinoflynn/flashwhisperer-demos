@@ -63,8 +63,9 @@ def main():
     for ok, s in rows:
         print("   %-14s %-28s %-9s %-9s %4.0fs  %s"
               % (s["demo"], s["vector"],
-                 "key" if s["recovered"] else "no key",
-                 "expected" if s["expected"] else "control",
+                 s.get("kind", "key" if s["recovered"] else "no key"),
+                 ("relations" if s.get("kind") == "relations"
+                  else "expected" if s["expected"] else "control"),
                  s["seconds"], "ok" if ok else "FAILED"))
     if bad:
         print("\n%d of %d vectors did not do what they say." % (bad, len(rows)))
