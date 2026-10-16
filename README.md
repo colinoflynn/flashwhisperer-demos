@@ -105,4 +105,3 @@ Every vector therefore carries its geometry in a `.json` beside it, and
 | [flashwhisperer](https://github.com/colinoflynn/flashwhisperer) | the toolkit: the simulator, the attack engine, the scoring rule, the row geometry. Every recovery here goes through it |
 | [flashwhisperer-crypto-eval](https://github.com/colinoflynn/flashwhisperer-crypto-eval) | the same question on the bare metal: one part, one library, the victim's own cycle counter. That is where a demo's **on-chip floor** comes from, and it needs only a dev board |
 | [ethtimer](https://github.com/colinoflynn/ethtimer) | the Ethernet instrument, firmware and host in one project |
-| [wolfssl-flash-leakage-demo](https://github.com/colinoflynn/wolfssl-flash-leakage-demo) | one library, three demos, the reproduction kit shape this repository copies |
