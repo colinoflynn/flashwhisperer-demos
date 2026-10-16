@@ -27,6 +27,9 @@
 #   * That a pinned commit is still published upstream. A force push or a
 #     deleted mirror would leave a checkout here that nobody else can
 #     reproduce; only a fresh clone on another machine finds that.
+#   * That a `subtree` dependency is at the commit deps/PINS names. A subtree
+#     has no HEAD of its own, so the check does not exist for it at all - see
+#     the note at the top of the dependency loop below.
 #   * That anything was BUILT, let alone built with the flags a demo needs.
 #     Nothing here compiles. `make` in a demo directory is its own check.
 #   * That a capture is a capture of what it says. The instrument's own
@@ -74,6 +77,27 @@ echo "== dependencies: fetched, at the pin, and pristine =="
 while read -r name url pin version kind; do
     dir="$ROOT/deps/$name"
 
+    # A subtree is IN this repository: upstream's files, committed here, with
+    # no .git of their own. So the two checks below do not apply to it and
+    # cannot be made to - there is no HEAD to compare against the pin. What
+    # can be checked is that the files are here; what cannot is that they are
+    # the ones deps/PINS names. That weaker check is the price of vendoring,
+    # and it is why these go back to being submodules once the upstream is
+    # public. deps/README.md says how.
+    if [ "$kind" = subtree ]; then
+        s="$(sentinel_for "$name")"
+        if [ -n "$s" ] && [ ! -e "$dir/$s" ]; then
+            printf '  %-15s MISSING - %s is not here, so this is a partial\n' "$name" "$s"
+            echo "                  checkout rather than a vendored subtree."
+            fail=1
+        else
+            printf '  %-15s vendored as a subtree, recorded as %s\n' \
+                "$name" "$(echo "$pin" | cut -c1-9)"
+            echo "                  (not verifiable here: see deps/README.md)"
+        fi
+        continue
+    fi
+
     if [ ! -e "$dir/.git" ]; then
         if [ "$kind" = tool ] || [ "$all" = 1 ]; then
             printf '  %-15s NOT FETCHED - run ./deps/fetch.sh %s\n' "$name" "$name"
@@ -113,7 +137,7 @@ while read -r name url pin version kind; do
 
     # The gitlink the parent records has to agree with PINS, or a clone of
     # this repository gets a different version than this checkout has.
-    if [ "$kind" != mirror ]; then
+    if [ "$kind" != mirror ] && [ "$kind" != subtree ]; then
         link=$(git -C "$ROOT" ls-tree HEAD "deps/$name" | awk '{print $3}')
         if [ -n "$link" ] && [ "$link" != "$pin" ]; then
             echo "    FAIL: the committed gitlink is ${link:0:9}, PINS says ${pin:0:9}."

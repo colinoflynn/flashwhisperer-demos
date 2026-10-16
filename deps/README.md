@@ -4,7 +4,8 @@
 human-edited for that real-life touch and typos.*
 
 ```bash
-./deps/fetch.sh --tools          # flashwhisperer + ethtimer. Enough for demo 00
+./deps/fetch.sh --tools          # ethtimer. Enough for demo 00, with the
+                                 # vendored flashwhisperer already here
 ./deps/fetch.sh                  # those plus every vendor SDK a demo builds
 ./deps/fetch.sh x-cube-subg2     # just one
 ./deps/fetch.sh --size           # what is on disk
@@ -37,12 +38,60 @@ The `.gitmodules` entries are still real, and where the parent records a
 gitlink it agrees with `PINS` - `verify.sh` checks that, because a clone would
 otherwise get a different version than this checkout has.
 
-Only the two `tool` dependencies carry a committed gitlink, because they are
-the ones every clone needs. The vendor SDKs are pinned in `PINS` and nowhere
-else, deliberately: a gitlink for a tree you have fetched and nobody else has
-shows up as a diff in your working copy for no gain, and `PINS` is what
-`fetch.sh` reads. So `PINS` is the authority, and `git add -A` after a fetch is
-not supposed to add anything under `deps/`.
+`deps/ethtimer` is the only committed gitlink, because it is the only
+dependency that is both public and needed by every clone. The vendor SDKs are
+pinned in `PINS` and nowhere else, deliberately: a gitlink for a tree you have
+fetched and nobody else has shows up as a diff in your working copy for no
+gain, and `PINS` is what `fetch.sh` reads. So `PINS` is the authority, and
+`git add -A` after a fetch is not supposed to add anything under `deps/`.
+
+## flashwhisperer is vendored, for now
+
+It is a squashed **git subtree**: upstream's files are committed in this
+repository, under `deps/flashwhisperer`, with no `.git` of their own. That is
+not the shape this repository wants, and it is temporary.
+
+The reason is that its upstream is private while this is being written. A
+gitlink to a private repository is worse than useless - it hands a recipient an
+empty directory and CI an authentication failure, and the first of those looks
+like a partial checkout while the second looks like a broken workflow. Vendoring
+removes both, and `demos/00_no_hardware/run.py` then works for anyone holding a
+copy, with no credentials anywhere.
+
+What it costs, stated plainly:
+
+* `tools/verify.sh` cannot check that it is at the commit `PINS` names. A
+  subtree has no HEAD, so the pin is a record and not an assertion. That is
+  the real price, and it is why this is temporary.
+* the squashed upstream tree stays in this repository's history, one squash
+  commit per update, even after it goes back to being a submodule.
+* `./deps/fetch.sh` will not move it. `git subtree pull` does.
+
+### Updating a subtree
+
+```bash
+git subtree pull --prefix deps/flashwhisperer     https://github.com/colinoflynn/flashwhisperer.git main --squash
+```
+
+Then update that row's commit in [`PINS`](PINS), because nothing derives it
+from the subtree and a stale record is worse than none. The commit each squash
+came from is also in the squash-merge message, which is the only other place it
+is written down.
+
+### Putting it back as a submodule
+
+The day the upstream is public, one commit:
+
+```bash
+git rm -r deps/flashwhisperer
+# restore the [submodule "flashwhisperer"] stanza in .gitmodules
+# set its kind back to `tool` in PINS
+./deps/fetch.sh flashwhisperer
+git add .gitmodules deps/PINS deps/flashwhisperer
+```
+
+`verify.sh` needs nothing: it reads the kind out of `PINS` and goes back to
+checking HEAD against the pin on its own.
 
 ## The vendor's own code, as the vendor ships it
 

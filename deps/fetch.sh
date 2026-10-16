@@ -3,7 +3,8 @@
 #
 #   ./deps/fetch.sh                # everything except the `optional` ones
 #   ./deps/fetch.sh flashwhisperer ethtimer
-#   ./deps/fetch.sh --tools        # just the two this repo cannot run without
+#   ./deps/fetch.sh --tools        # just what demo 00 needs: ethtimer, and a
+#                                 # word about the vendored flashwhisperer
 #   ./deps/fetch.sh --size         # report what is on disk, fetch nothing
 #
 # WHY NOT `git submodule update --init --depth 1`. That clones the default
@@ -179,11 +180,22 @@ fetch_one() {
 
 rc=0
 while read -r name url pin version kind; do
+    named=0
     if [ ${#want[@]} -gt 0 ]; then
         printf '%s\n' "${want[@]}" | grep -qx "$name" || continue
+        named=1
     else
         [ "$kind" = optional ] && continue
-        [ "$only_tools" = 1 ] && [ "$kind" != tool ] && continue
+        [ "$only_tools" = 1 ] && [ "$kind" != tool ] && [ "$kind" != subtree ] && continue
+    fi
+    # A subtree is already in this repository: upstream's files are committed
+    # here, so there is nothing to fetch and fetching would be the wrong thing
+    # anyway. `git subtree pull` is how it moves; deps/README.md has it.
+    if [ "$kind" = subtree ]; then
+        echo "== $name $version  ${pin:0:9}"
+        echo "   vendored in this repository as a subtree - nothing to fetch"
+        [ "$named" = 1 ] && echo "   to move it: see 'Updating a subtree' in deps/README.md"
+        continue
     fi
     fetch_one "$name" "$url" "$pin" "$version" || rc=1
 done < <(pins)

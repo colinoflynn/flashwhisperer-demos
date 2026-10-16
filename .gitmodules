@@ -12,10 +12,13 @@
 ;
 ; Harmony 3 is not here either: MPLAB X installs it, one versioned component at
 ; a time, so there is no commit to pin.
-
-[submodule "flashwhisperer"]
-	path = deps/flashwhisperer
-	url = https://github.com/colinoflynn/flashwhisperer.git
+;
+; deps/flashwhisperer is not here EITHER, and it is the one that will come
+; back. While its upstream is private a gitlink is worse than useless - it
+; hands a recipient an empty directory and CI an authentication failure - so
+; it is vendored as a squashed git subtree instead. deps/PINS records the
+; commit it was taken from and deps/README.md has the two commands for
+; putting this stanza back once the upstream is public.
 
 [submodule "ethtimer"]
 	path = deps/ethtimer

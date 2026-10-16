@@ -2,9 +2,10 @@
 Build/
 build/
 
-# Fetched dependencies. deps/PINS is the authority on what each one is, and
-# only the two `tool` ones carry a committed gitlink (deps/README.md says why),
-# so everything else a fetch puts here is ignored rather than half-tracked.
+# Fetched dependencies. deps/PINS is the authority on what each one is.
+# deps/ethtimer is a gitlink, deps/flashwhisperer is a vendored subtree whose
+# files ARE tracked (deps/README.md says why, and why that is temporary), and
+# everything else a fetch puts here is ignored rather than half-tracked.
 deps/*
 !deps/PINS
 !deps/README.md

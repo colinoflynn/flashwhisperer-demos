@@ -12,11 +12,22 @@
 #   sdk       a vendor package, sparse checkout of only what a victim compiles
 #   mirror    NOT the vendor's own git - see the X-CUBE-SBSFU note below
 #   optional  fetched only when named by hand; no demo needs it to run
+#   subtree   upstream's files are COMMITTED IN THIS REPOSITORY, so there is
+#             nothing to fetch. The commit below is what they were taken from,
+#             and it is a record rather than something tools/verify.sh can
+#             check - a subtree has no HEAD of its own. Temporary: it goes
+#             back to being a submodule when its upstream is public.
 #
 # Why each one is what it is, which is not a detail:
 #
 #   flashwhisperer   the analysis half: the scoring rule, the row geometry, the
 #                    AES reference. Every recovery here goes through it.
+#                    VENDORED AS A SUBTREE while its upstream is private: a
+#                    gitlink to a private repository hands a recipient an empty
+#                    directory and hands CI an authentication failure, and both
+#                    look like something else. It becomes a submodule again on
+#                    the day the upstream goes public - deps/README.md has the
+#                    two commands, and it is one commit either way.
 #   ethtimer         the Ethernet instrument, firmware and host in one project.
 #                    It IS the attacker board for the four wired demos, which
 #                    is why this repo ships no attacker firmware and no
@@ -69,7 +80,7 @@
 #   because v6.25 dropped support for that board's Gen-3 PKOB debugger. The
 #   component versions get recorded with the Harmony demo when it lands, beside
 #   its patches, rather than invented here.
-flashwhisperer https://github.com/colinoflynn/flashwhisperer.git             0d9d3d0c89b970632a74c088df3bf1976b764c1f main     tool
+flashwhisperer https://github.com/colinoflynn/flashwhisperer.git             0d9d3d0c89b970632a74c088df3bf1976b764c1f main     subtree
 ethtimer       https://github.com/colinoflynn/ethtimer.git                   e0f7cf01dbe349f8155299b71fc5b76fb8a75cca main     tool
 crypto-eval    https://github.com/colinoflynn/flashwhisperer-crypto-eval.git a99c04a740c3e961e20d9bc0a194e662ab8cb06b main     optional
 stm32cube-f4   https://github.com/STMicroelectronics/STM32CubeF4.git         89e6d4466578bc9eab83de8fcd1e397ceb5e5cc9 V1.28.3  sdk
