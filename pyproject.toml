@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flashwhisperer"
+version = "0.1.0"
+description = "Flash-accelerator timing side-channel toolkit: simulator, target-agnostic recovery engine, static analyser, memory-hierarchy mapper, arbitration probe"
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.20"]
+
+# The distribution is `flashwhisperer`; the five import packages keep their own
+# names. docs/PACKAGING.md asked which of the two the distribution should take
+# and this is the answer: the repository is flashwhisperer, so the wheel is
+# too, and `flashattack` stays the console script because that spelling is in
+# every capture script written against it.
+[project.optional-dependencies]
+serial = ["pyserial>=3.5"]
+dev = ["pytest>=7"]
+
+[project.scripts]
+flashattack = "flashattack.cli:main"
+
+[tool.setuptools]
+packages = ["flashattack", "flashsim", "flashleak", "flashmap", "flasharb"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]

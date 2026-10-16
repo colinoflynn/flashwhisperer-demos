@@ -1,0 +1,984 @@
+{
+ "part": "STM32F429ZI",
+ "meta": {
+  "protocol": "memmap/1",
+  "part": "STM32F429ZI",
+  "core": "cortex-m4",
+  "clk_hz": 16000000,
+  "timer": "systick",
+  "timer_hz": 16000000,
+  "caps": [
+   "icache",
+   "dcache",
+   "waitstates",
+   "ramfunc"
+  ],
+  "banner": "memmap/1 STM32F429ZI cortex-m4 16000000 systick 16000000 icache,dcache,waitstates,ramfunc",
+  "regions": [
+   {
+    "name": "flash",
+    "base": 134225920,
+    "size": 65536,
+    "kind": "flash"
+   },
+   {
+    "name": "sram",
+    "base": 536875008,
+    "size": 65536,
+    "kind": "sram"
+   }
+  ],
+  "flash_region": "flash",
+  "twin_region": "sram",
+  "twin_kind": "sram",
+  "knobs": [
+   {
+    "name": "waitstates",
+    "values": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "reset": 5
+   },
+   {
+    "name": "icache",
+    "values": [
+     0,
+     1
+    ],
+    "reset": 1
+   },
+   {
+    "name": "dcache",
+    "values": [
+     0,
+     1
+    ],
+    "reset": 1
+   },
+   {
+    "name": "prefetch",
+    "values": [
+     0,
+     1
+    ],
+    "reset": 1
+   }
+  ],
+  "reps": 7,
+  "captured": "2026-09-18T08:41:55",
+  "warnings": [],
+  "elapsed_s": 306.8
+ },
+ "claims": {
+  "read_width": {
+   "name": "read_width",
+   "value": 16,
+   "known": true,
+   "confidence": "high",
+   "basis": "Cold forward stride walk, flash minus its own SRAM twin. The per-access cost rises with the number of distinct flash words touched and saturates at one word per access; the saturating stride is the array's read width.",
+   "evidence": [
+    "  waitstates=5 icache=0 dcache=0 prefetch=0: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=0 prefetch=1: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=1 prefetch=0: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=1 prefetch=1: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=0 prefetch=0: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=0 prefetch=1: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=1 prefetch=0: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=1 prefetch=1: saturates at stride 16, 5.00 cyc/access",
+    "  fitted on the 8-configuration cross-product at one reference wait state; the 22 wait-state-sweep cell(s) are excluded, because they exist to measure a slope and include LATENCY 0, where every flash structure reads flat whether or not it is there",
+    "  invariant across all 8 knob settings measured -- consistent with a property of the flash array, not of the accelerator"
+   ],
+   "caveats": [],
+   "data": {
+    "per_word_cycles": 5.0,
+    "by_config": {
+     "waitstates=5 icache=0 dcache=0 prefetch=0": 16,
+     "waitstates=5 icache=0 dcache=0 prefetch=1": 16,
+     "waitstates=5 icache=0 dcache=1 prefetch=0": 16,
+     "waitstates=5 icache=0 dcache=1 prefetch=1": 16,
+     "waitstates=5 icache=1 dcache=0 prefetch=0": 16,
+     "waitstates=5 icache=1 dcache=0 prefetch=1": 16,
+     "waitstates=5 icache=1 dcache=1 prefetch=0": 16,
+     "waitstates=5 icache=1 dcache=1 prefetch=1": 16
+    },
+    "invariant": true
+   }
+  },
+  "fill_unit": {
+   "name": "fill_unit",
+   "value": null,
+   "known": false,
+   "confidence": "none",
+   "basis": "Largest saturating stride across knob settings: where a knob makes the walk saturate later than the array's read width, that later stride is the unit the cache fills.",
+   "evidence": [
+    "  waitstates=5 icache=0 dcache=0 prefetch=0: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=0 prefetch=1: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=1 prefetch=0: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=1 prefetch=1: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=0 prefetch=0: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=0 prefetch=1: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=1 prefetch=0: saturates at stride 16, 5.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=1 prefetch=1: saturates at stride 16, 5.00 cyc/access"
+   ],
+   "caveats": [
+    "Every knob setting saturates at the same stride, so no separate fill unit is distinguishable from the read width."
+   ],
+   "data": {}
+  },
+  "latch": {
+   "name": "latch",
+   "value": {
+    "present": true,
+    "granularity_bytes": 16,
+    "entries": 1,
+    "depth": 1,
+    "indexed_on": null,
+    "knob_reaches_it": false,
+    "model_determined": true,
+    "equivalent_models": [
+     "16Bx1"
+    ],
+    "differential_cycles": 5.0,
+    "differential_at": "waitstates=5 icache=0 dcache=0 prefetch=0"
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "reread sweep (read A, read A+off, re-read A) fitted against a model family {granularity g, entries k, index = (A>>log2 g) mod k, target alignment a}; depth from `evict` at a spacing that maps to the same entry; reachability by repeating the sweep at every knob combination",
+   "evidence": [
+    "  waitstates=1 icache=0 dcache=0 prefetch=0: 6/6 offsets fit granularity 16 B x 1 entry, differential 1 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=10 icache=0 dcache=0 prefetch=0: 6/6 offsets fit granularity 16 B x 1 entry, differential 10 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=12 icache=0 dcache=0 prefetch=0: 6/6 offsets fit granularity 16 B x 1 entry, differential 12 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=15 icache=0 dcache=0 prefetch=0: 6/6 offsets fit granularity 16 B x 1 entry, differential 15 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=2 icache=0 dcache=0 prefetch=0: 6/6 offsets fit granularity 16 B x 1 entry, differential 2 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=3 icache=0 dcache=0 prefetch=0: 6/6 offsets fit granularity 16 B x 1 entry, differential 3 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=4 icache=0 dcache=0 prefetch=0: 6/6 offsets fit granularity 16 B x 1 entry, differential 4 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=5 icache=0 dcache=0 prefetch=0: 89/89 offsets fit granularity 16 B x 1 entry, differential 5 cyc  [discriminating: this sweep admits only 16Bx1]",
+    "  waitstates=5 icache=0 dcache=0 prefetch=1: 89/89 offsets fit granularity 16 B x 1 entry, differential 5 cyc  [discriminating: this sweep admits only 16Bx1]",
+    "  waitstates=5 icache=1 dcache=0 prefetch=0: 89/89 offsets fit granularity 16 B x 1 entry, differential 5 cyc  [discriminating: this sweep admits only 16Bx1]",
+    "  waitstates=5 icache=1 dcache=0 prefetch=1: 89/89 offsets fit granularity 16 B x 1 entry, differential 5 cyc  [discriminating: this sweep admits only 16Bx1]",
+    "  waitstates=6 icache=0 dcache=0 prefetch=0: 6/6 offsets fit granularity 16 B x 1 entry, differential 6 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=7 icache=0 dcache=0 prefetch=0: 6/6 offsets fit granularity 16 B x 1 entry, differential 7 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=8 icache=0 dcache=0 prefetch=0: 6/6 offsets fit granularity 16 B x 1 entry, differential 8 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  -> intersecting what each configuration is consistent with leaves 16 B x 1 entry; the fit is taken from the 14 configuration(s) that admit it, not from a majority of per-configuration best fits",
+    "  aligned-block model 100% vs proximity model 92% over 89 offsets (41 of them negative) -- it is a latch holding one aligned 16-byte flash word, not a +/-16 byte neighbourhood",
+    "  depth: 1 -- at spacing 16 B (which maps to the same entry) the target is lost after 1 intervening distinct word(s), in 4 config(s)",
+    "  no knob setting removed it: the latch resolved in 14 setting(s) and in the remaining 14 the probe read uniformly *fast*, which is a larger structure masking it, not its absence",
+    "  sub-cycle cross-check: `alt` off=16 over 200 reps gives 7.985 cyc/iteration against off=0, at 1/200-cycle resolution (single-shot `reread` sits on the counter's floor)"
+   ],
+   "caveats": [
+    "2 configuration(s) are SILENT on this claim rather than evidence for or against it: waitstates=0 icache=0 dcache=0 prefetch=0, waitstates=0 icache=1 dcache=1 prefetch=1. In each the positive control fails -- a hit and a miss differ by 0 cycles here (the same walk at `waitstates = 0`, where a flash access is known to cost no more than an SRAM one), below the 1-cycle resolution of an integer counter, so this configuration could not have shown a structure whether or not one is present -- at LATENCY 0 in particular every flash structure reads flat by construction (MEASURING_CHANNELS B3) -- so the flat column they produced is the resolution floor, not a register. A configuration that could not have shown the opposite does not get a vote.",
+    "14 knob setting(s) re-read fast at every offset. That is consistent with both the latch and a cache holding both probe addresses, so those settings do not discriminate; the latch is inferred there, not measured."
+   ],
+   "data": {
+    "per_config": {
+     "waitstates=5 icache=0 dcache=0 prefetch=0": "resolved",
+     "waitstates=5 icache=0 dcache=0 prefetch=1": "resolved",
+     "waitstates=5 icache=0 dcache=1 prefetch=0": "all-hit",
+     "waitstates=5 icache=0 dcache=1 prefetch=1": "all-hit",
+     "waitstates=5 icache=1 dcache=0 prefetch=0": "resolved",
+     "waitstates=5 icache=1 dcache=0 prefetch=1": "resolved",
+     "waitstates=5 icache=1 dcache=1 prefetch=0": "all-hit",
+     "waitstates=5 icache=1 dcache=1 prefetch=1": "all-hit",
+     "waitstates=0 icache=0 dcache=0 prefetch=0": "no-resolution",
+     "waitstates=1 icache=0 dcache=0 prefetch=0": "resolved",
+     "waitstates=2 icache=0 dcache=0 prefetch=0": "resolved",
+     "waitstates=3 icache=0 dcache=0 prefetch=0": "resolved",
+     "waitstates=4 icache=0 dcache=0 prefetch=0": "resolved",
+     "waitstates=6 icache=0 dcache=0 prefetch=0": "resolved",
+     "waitstates=7 icache=0 dcache=0 prefetch=0": "resolved",
+     "waitstates=8 icache=0 dcache=0 prefetch=0": "resolved",
+     "waitstates=10 icache=0 dcache=0 prefetch=0": "resolved",
+     "waitstates=12 icache=0 dcache=0 prefetch=0": "resolved",
+     "waitstates=15 icache=0 dcache=0 prefetch=0": "resolved",
+     "waitstates=0 icache=1 dcache=1 prefetch=1": "no-resolution",
+     "waitstates=1 icache=1 dcache=1 prefetch=1": "all-hit",
+     "waitstates=2 icache=1 dcache=1 prefetch=1": "all-hit",
+     "waitstates=3 icache=1 dcache=1 prefetch=1": "all-hit",
+     "waitstates=4 icache=1 dcache=1 prefetch=1": "all-hit",
+     "waitstates=6 icache=1 dcache=1 prefetch=1": "all-hit",
+     "waitstates=7 icache=1 dcache=1 prefetch=1": "all-hit",
+     "waitstates=8 icache=1 dcache=1 prefetch=1": "all-hit",
+     "waitstates=10 icache=1 dcache=1 prefetch=1": "all-hit",
+     "waitstates=12 icache=1 dcache=1 prefetch=1": "all-hit",
+     "waitstates=15 icache=1 dcache=1 prefetch=1": "all-hit"
+    },
+    "fit_score": 1.0,
+    "rival_distance_score": 0.9213483146067416,
+    "align": 0
+   }
+  },
+  "cache": {
+   "name": "cache",
+   "value": {
+    "present": true,
+    "ways": 8,
+    "ways_candidates": [
+     8
+    ],
+    "geometry_candidates": [],
+    "conflict_period_bytes": 16,
+    "capacity_bytes": 128,
+    "capacity_bytes_min": 124,
+    "line_bytes": 16,
+    "sets": 1,
+    "capacity_entries": 8,
+    "capacity_entries_min": 7,
+    "fully_associative": true,
+    "geometry_unique": true,
+    "threshold_model_holds": true,
+    "index_bits": null,
+    "capacity_unit": "not applicable",
+    "enabled_in": "waitstates=5 icache=0 dcache=1 prefetch=0"
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "`evict n spacing` over a spacing sweep. N_evict(spacing) is fitted against an exact enumeration of which walk addresses land in the target's set, which yields the ways and the conflict period (sets x line) with no special case for sub-line, line-sized or aliasing spacings. The line used is the measured fetch granularity; where the period is larger, the split between sets and line is reported as undetermined rather than assumed",
+   "evidence": [
+    "  waitstates=5 icache=0 dcache=1 prefetch=0: N_evict 4:32 8:16 16:8 32:8 64:8 128:8 256:8 512:8 1024:8 2048:8 4096:8 8192:5+  -> 8-way, conflict period 16 B, 128 B (10/10 exact)",
+    "  waitstates=5 icache=0 dcache=1 prefetch=1: N_evict 4:32 8:16 16:8 32:8 64:8 128:8 256:8 512:8 1024:8 2048:8 4096:8 8192:5+  -> 8-way, conflict period 16 B, 128 B (10/10 exact)",
+    "  waitstates=5 icache=1 dcache=1 prefetch=0: N_evict 4:32 8:16 16:8 32:8 64:8 128:8 256:8 512:8 1024:8 2048:8 4096:8 8192:5+  -> 8-way, conflict period 16 B, 128 B (10/10 exact)",
+    "  waitstates=5 icache=1 dcache=1 prefetch=1: N_evict 4:32 8:16 16:8 32:8 64:8 128:8 256:8 512:8 1024:8 2048:8 4096:8 8192:5+  -> 8-way, conflict period 16 B, 128 B (10/10 exact)",
+    "  waitstates=5 icache=0 dcache=0 prefetch=0: N_evict 4:4 8:2 16:1 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1 4096:1 8192:1  -> 1-way, conflict period 16 B, 16 B (10/10 exact)",
+    "  waitstates=5 icache=0 dcache=0 prefetch=1: N_evict 4:4 8:2 16:1 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1 4096:1 8192:1  -> 1-way, conflict period 16 B, 16 B (10/10 exact)",
+    "  waitstates=5 icache=1 dcache=0 prefetch=0: N_evict 4:4 8:2 16:1 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1 4096:1 8192:1  -> 1-way, conflict period 16 B, 16 B (10/10 exact)",
+    "  waitstates=5 icache=1 dcache=0 prefetch=1: N_evict 4:4 8:2 16:1 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1 4096:1 8192:1  -> 1-way, conflict period 16 B, 16 B (10/10 exact)",
+    "  fully associative: the conflict period (16 B) equals the fetch granularity, so one line IS the whole index space -- N_evict is flat at 8 for every spacing from 16 B upward and no address bits select a set",
+    "  tags vs bytes: with a 16 B fetch and a 16 B conflict period the two models predict the same number (8), so the test cannot discriminate and no claim is made",
+    "  4 configuration(s) hold nothing above the latch at all (waitstates=5 icache=0 dcache=0 prefetch=0, waitstates=5 icache=0 dcache=0 prefetch=1, waitstates=5 icache=1 dcache=0 prefetch=0 ...): there the cache is switched off, which is a knob working rather than a geometry disagreeing",
+    "  capacity floor: the target is first lost at a working-set span of 128 B (spacing 4 B, n = 32) and is never lost below that in 57 further rows, the largest of which spans 124 B. For a uniform walk the loss span is `ways x sets x line` for every spacing that divides the conflict period, so that smallest loss span IS the capacity, whatever the (ways, sets) split"
+   ],
+   "caveats": [],
+   "data": {
+    "fit": {
+     "ways": 8,
+     "sets": 1,
+     "line": 16,
+     "period": 16,
+     "capacity_bytes": 128,
+     "capacity_entries": 8,
+     "alternatives": [
+      [
+       8,
+       1
+      ]
+     ],
+     "ways_unique": true,
+     "capacity_unique": true,
+     "exact": 10,
+     "pinned": 9,
+     "total": 10,
+     "score": 1.0,
+     "err": 0.0
+    },
+    "fetch_granularity": 16,
+    "per_config": {
+     "waitstates=5 icache=0 dcache=1 prefetch=0": {
+      "ways": 8,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 128,
+      "capacity_entries": 8,
+      "alternatives": [
+       [
+        8,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 10,
+      "pinned": 9,
+      "total": 10,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=0 dcache=1 prefetch=1": {
+      "ways": 8,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 128,
+      "capacity_entries": 8,
+      "alternatives": [
+       [
+        8,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 10,
+      "pinned": 9,
+      "total": 10,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=1 dcache=1 prefetch=0": {
+      "ways": 8,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 128,
+      "capacity_entries": 8,
+      "alternatives": [
+       [
+        8,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 10,
+      "pinned": 9,
+      "total": 10,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=1 dcache=1 prefetch=1": {
+      "ways": 8,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 128,
+      "capacity_entries": 8,
+      "alternatives": [
+       [
+        8,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 10,
+      "pinned": 9,
+      "total": 10,
+      "score": 1.0,
+      "err": 0.0
+     }
+    },
+    "per_config_sizing": {
+     "waitstates=5 icache=0 dcache=1 prefetch=0": {
+      "ways": 8,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 128,
+      "capacity_entries": 8,
+      "alternatives": [
+       [
+        8,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 10,
+      "pinned": 9,
+      "total": 10,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=0 dcache=1 prefetch=1": {
+      "ways": 8,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 128,
+      "capacity_entries": 8,
+      "alternatives": [
+       [
+        8,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 10,
+      "pinned": 9,
+      "total": 10,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=1 dcache=1 prefetch=0": {
+      "ways": 8,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 128,
+      "capacity_entries": 8,
+      "alternatives": [
+       [
+        8,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 10,
+      "pinned": 9,
+      "total": 10,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=1 dcache=1 prefetch=1": {
+      "ways": 8,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 128,
+      "capacity_entries": 8,
+      "alternatives": [
+       [
+        8,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 10,
+      "pinned": 9,
+      "total": 10,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=0 dcache=0 prefetch=0": {
+      "ways": 1,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 16,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 10,
+      "pinned": 10,
+      "total": 10,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=0 dcache=0 prefetch=1": {
+      "ways": 1,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 16,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 10,
+      "pinned": 10,
+      "total": 10,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=1 dcache=0 prefetch=0": {
+      "ways": 1,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 16,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 10,
+      "pinned": 10,
+      "total": 10,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=1 dcache=0 prefetch=1": {
+      "ways": 1,
+      "sets": 1,
+      "line": 16,
+      "period": 16,
+      "capacity_bytes": 16,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 10,
+      "pinned": 10,
+      "total": 10,
+      "score": 1.0,
+      "err": 0.0
+     }
+    },
+    "per_config_broken": []
+   }
+  },
+  "replacement_policy": {
+   "name": "replacement_policy",
+   "value": "lru",
+   "known": true,
+   "confidence": "high",
+   "basis": "`evict n spacing -k*spacing` walks THROUGH the target, so one access in the middle of the interference is a hit. LRU promotes the line and loses it at ways+k+1; FIFO ignores the hit and loses it at ways+1. The spacing is the measured conflict period of that configuration and k is chosen below its measured associativity, so the probe is sized from the geometry rather than from a constant",
+   "evidence": [
+    "  eviction-step sharpness over 36 series at spacings that conflict: median 1.000, worst 1.000 (1.000 = every n below N_evict hits and every n at or above it misses)",
+    "    waitstates=5 icache=0 dcache=1 prefetch=0 spacing 16: N_evict 8, sharpness 1.000",
+    "    waitstates=5 icache=0 dcache=1 prefetch=0 spacing 32: N_evict 8, sharpness 1.000",
+    "    waitstates=5 icache=0 dcache=1 prefetch=0 spacing 64: N_evict 8, sharpness 1.000",
+    "    waitstates=5 icache=0 dcache=1 prefetch=0 spacing 128: N_evict 8, sharpness 1.000",
+    "    waitstates=5 icache=0 dcache=1 prefetch=0 spacing 256: N_evict 8, sharpness 1.000",
+    "    waitstates=5 icache=0 dcache=1 prefetch=0 spacing 512: N_evict 8, sharpness 1.000",
+    "  waitstates=5 icache=0 dcache=1 prefetch=0: cyclic chase at stride 16 B (a multiple of the measured 16 B conflict period): 8 lines -> 0.12 miss/access, 9 lines -> 1.00, 65 lines -> 1.00. One line over the knee reaches 100% of a full thrash",
+    "  waitstates=5 icache=0 dcache=1 prefetch=0: evict walk re-touching the target after k=1 conflicts (spacing 16, 8-way) loses it at n=10; LRU predicts 10, FIFO predicts 9  [step sharpness 1.000]",
+    "  waitstates=5 icache=0 dcache=1 prefetch=0: evict walk re-touching the target after k=4 conflicts (spacing 16, 8-way) loses it at n=13; LRU predicts 13, FIFO predicts 9  [step sharpness 1.000]",
+    "  waitstates=5 icache=0 dcache=1 prefetch=0: evict walk re-touching the target after k=7 conflicts (spacing 16, 8-way) loses it at n=16; LRU predicts 16, FIFO predicts 9  [step sharpness 1.000]",
+    "  -> every re-touch position lands on the LRU prediction and none on the FIFO one. The hit promoted the line, so the victim is chosen by recency"
+   ],
+   "caveats": [
+    "This uses the optional third argument to `evict`, which `flashmap/PROTOCOL.md` documents as an addendum. The host verifies the shim honours it by checking that the CHECKSUM changes, not the timing -- a shim that silently ignored the argument would return the default walk and read as FIFO."
+   ],
+   "data": {}
+  },
+  "knob_map": {
+   "name": "knob_map",
+   "value": {
+    "icache": {
+     "read_width": {
+      "verdict": "no effect",
+      "pairs": 4,
+      "value": 16,
+      "why": "identical in all 4 matched pairs"
+     },
+     "latch": {
+      "verdict": "no effect",
+      "pairs": 4,
+      "value": "16Bx1",
+      "why": "identical in all 4 matched pairs"
+     },
+     "data_reuse": {
+      "verdict": "no effect",
+      "pairs": 4,
+      "value": "1-way/period 16 B/16 B",
+      "why": "identical in all 4 matched pairs"
+     }
+    },
+    "dcache": {
+     "read_width": {
+      "verdict": "no effect",
+      "pairs": 4,
+      "value": 16,
+      "why": "identical in all 4 matched pairs"
+     },
+     "latch": {
+      "verdict": "masks",
+      "pairs": 4,
+      "changed": 4,
+      "from": "16Bx1",
+      "to": "all-hit",
+      "why": "4 of 4 matched pairs moved, 16Bx1 -> all-hit -- the probe reads uniformly fast, which hides the latch rather than removing it"
+     },
+     "data_reuse": {
+      "verdict": "controls",
+      "pairs": 4,
+      "changed": 4,
+      "from": "1-way/period 16 B/16 B",
+      "to": "8-way/period 16 B/128 B",
+      "why": "4 of 4 matched pairs moved, 1-way/period 16 B/16 B -> 8-way/period 16 B/128 B"
+     }
+    },
+    "prefetch": {
+     "read_width": {
+      "verdict": "no effect",
+      "pairs": 4,
+      "value": 16,
+      "why": "identical in all 4 matched pairs"
+     },
+     "latch": {
+      "verdict": "no effect",
+      "pairs": 4,
+      "value": "16Bx1",
+      "why": "identical in all 4 matched pairs"
+     },
+     "data_reuse": {
+      "verdict": "no effect",
+      "pairs": 4,
+      "value": "1-way/period 16 B/16 B",
+      "why": "identical in all 4 matched pairs"
+     }
+    }
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "the full cross-product: for each knob, every pair of measured configurations that differ in that knob alone is compared on three metrics (walk saturation, the fitted latch model, and the fitted cache geometry (ways, conflict period, capacity)). A knob 'controls' a structure when a matched pair moves it, 're-indexes' it when the geometry moves at constant capacity, and 'masks' it when the probe stops being able to see it",
+   "evidence": [
+    "  icache    -> read_width : no effect    identical in all 4 matched pairs",
+    "  icache    -> latch      : no effect    identical in all 4 matched pairs",
+    "  icache    -> data_reuse : no effect    identical in all 4 matched pairs",
+    "  dcache    -> read_width : no effect    identical in all 4 matched pairs",
+    "  dcache    -> latch      : masks        4 of 4 matched pairs moved, 16Bx1 -> all-hit -- the probe reads uniformly fast, which hides the latch rather than removing it",
+    "  dcache    -> data_reuse : controls     4 of 4 matched pairs moved, 1-way/period 16 B/16 B -> 8-way/period 16 B/128 B",
+    "  prefetch  -> read_width : no effect    identical in all 4 matched pairs",
+    "  prefetch  -> latch      : no effect    identical in all 4 matched pairs",
+    "  prefetch  -> data_reuse : no effect    identical in all 4 matched pairs",
+    "  -> read width is moved by no knob, which is what makes it a property of the flash array rather than of the accelerator",
+    "  -> no knob reaches the latch; dcache only masks it",
+    "  -> multi-line data reuse is controlled by dcache and by nothing else",
+    "  -> `icache` moved none of the three metrics. Every primitive here is a data access, so an instruction cache that does not share a structure with the data path is invisible to this probe by construction -- this is the expected reading for a separate I-cache, and it is not evidence that the register is inert. The instruction side is not measured: see the cache claim's caveats."
+   ],
+   "caveats": [],
+   "data": {
+    "controllers": {
+     "read_width": [],
+     "latch": [],
+     "data_reuse": [
+      "dcache"
+     ]
+    },
+    "reindexers": []
+   }
+  },
+  "waitstate_scaling": {
+   "name": "waitstate_scaling",
+   "value": 1.0,
+   "known": true,
+   "confidence": "high",
+   "basis": "linear fit of the per-access cost against the `waitstates` knob, in each configuration separately; the headline coefficient is the latch differential in configuration 'dcache=0 icache=0 prefetch=0'",
+   "evidence": [
+    "  dcache=0 icache=0 prefetch=0: latch differential = 1.000 x WS + 0.000, R2=1.0000, worst residual 0.00 cyc (n=12)",
+    "      points: 0:0 1:1 2:2 3:3 4:4 5:5 6:6 7:7 8:8 10:10 12:12 15:15",
+    "  dcache=0 icache=0 prefetch=0: cold per-word cost = 1.000 x WS + 0.000, R2=1.0000 (n=12)",
+    "  dcache=1 icache=1 prefetch=1: latch differential = 0.000 x WS + 0.000, R2=1.0000, worst residual 0.00 cyc (n=12)",
+    "      points: 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0 8:0 10:0 12:0 15:0",
+    "  dcache=1 icache=1 prefetch=1: cold per-word cost = 1.000 x WS + 0.000, R2=1.0000 (n=12)"
+   ],
+   "caveats": [
+    "A wait-state setting of 0 contributes a legitimate zero to this fit and must not be read as an absent structure: at LATENCY = 0 a hit and a miss cost the same cycle, so the structure is still there and simply worth nothing (MEASURING_CHANNELS B3).",
+    "At least one configuration shows a flat-zero differential at every wait state. That is the masking configuration (a cache holding both probe addresses), not evidence against the scaling."
+   ],
+   "data": {
+    "fits": {
+     "dcache=0 icache=0 prefetch=0": {
+      "latch": {
+       "slope": 1.0,
+       "intercept": 0.0,
+       "r2": 1.0,
+       "max_resid": 0.0,
+       "n": 12
+      },
+      "walk": {
+       "slope": 1.0,
+       "intercept": 0.0,
+       "r2": 1.0,
+       "max_resid": 0.0,
+       "n": 12
+      },
+      "latch_points": [
+       [
+        0,
+        0.0
+       ],
+       [
+        1,
+        1.0
+       ],
+       [
+        2,
+        2.0
+       ],
+       [
+        3,
+        3.0
+       ],
+       [
+        4,
+        4.0
+       ],
+       [
+        5,
+        5.0
+       ],
+       [
+        6,
+        6.0
+       ],
+       [
+        7,
+        7.0
+       ],
+       [
+        8,
+        8.0
+       ],
+       [
+        10,
+        10.0
+       ],
+       [
+        12,
+        12.0
+       ],
+       [
+        15,
+        15.0
+       ]
+      ],
+      "walk_points": [
+       [
+        0,
+        0.0
+       ],
+       [
+        1,
+        1.0
+       ],
+       [
+        2,
+        2.0
+       ],
+       [
+        3,
+        3.0
+       ],
+       [
+        4,
+        4.0
+       ],
+       [
+        5,
+        5.0
+       ],
+       [
+        6,
+        6.0
+       ],
+       [
+        7,
+        7.0
+       ],
+       [
+        8,
+        8.0
+       ],
+       [
+        10,
+        10.0
+       ],
+       [
+        12,
+        12.0
+       ],
+       [
+        15,
+        15.0
+       ]
+      ]
+     },
+     "dcache=1 icache=1 prefetch=1": {
+      "latch": {
+       "slope": 0.0,
+       "intercept": 0.0,
+       "r2": 1.0,
+       "max_resid": 0.0,
+       "n": 12
+      },
+      "walk": {
+       "slope": 1.0,
+       "intercept": 0.0,
+       "r2": 1.0,
+       "max_resid": 0.0,
+       "n": 12
+      },
+      "latch_points": [
+       [
+        0,
+        0.0
+       ],
+       [
+        1,
+        0.0
+       ],
+       [
+        2,
+        0.0
+       ],
+       [
+        3,
+        0.0
+       ],
+       [
+        4,
+        0.0
+       ],
+       [
+        5,
+        0.0
+       ],
+       [
+        6,
+        0.0
+       ],
+       [
+        7,
+        0.0
+       ],
+       [
+        8,
+        0.0
+       ],
+       [
+        10,
+        0.0
+       ],
+       [
+        12,
+        0.0
+       ],
+       [
+        15,
+        0.0
+       ]
+      ],
+      "walk_points": [
+       [
+        0,
+        0.0
+       ],
+       [
+        1,
+        1.0
+       ],
+       [
+        2,
+        2.0
+       ],
+       [
+        3,
+        3.0
+       ],
+       [
+        4,
+        4.0
+       ],
+       [
+        5,
+        5.0
+       ],
+       [
+        6,
+        6.0
+       ],
+       [
+        7,
+        7.0
+       ],
+       [
+        8,
+        8.0
+       ],
+       [
+        10,
+        10.0
+       ],
+       [
+        12,
+        12.0
+       ],
+       [
+        15,
+        15.0
+       ]
+      ]
+     }
+    }
+   }
+  },
+  "twin_calibration": {
+   "name": "twin_calibration",
+   "value": {
+    "cyc_per_access": 0.0,
+    "config": "waitstates=0 icache=0 dcache=0 prefetch=0",
+    "body": "walk",
+    "isolated": true
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "the cold walk's `flash - twin` per-access cost measured at `waitstates = 0`, where a flash access is known to cost no more than an SRAM one, so anything left over is the harness. Computed per configuration and per loop body and never pooled across either; the headline is the isolated configuration, which is the one the structural claims are measured in",
+   "evidence": [
+    "  waitstates=0 icache=0 dcache=0 prefetch=0: `reread` body over 6 point(s) -> flash-twin = +0.000 cyc/access",
+    "  waitstates=0 icache=0 dcache=0 prefetch=0: `walk` body over 3 point(s) -> flash-twin = +0.000 cyc/access",
+    "  waitstates=0 icache=1 dcache=1 prefetch=1: `reread` body over 6 point(s) -> flash-twin = +0.000 cyc/access",
+    "  waitstates=0 icache=1 dcache=1 prefetch=1: `walk` body over 3 point(s) -> flash-twin = +0.000 cyc/access",
+    "  -> the twin is a clean zero on this part: with no wait states to pay, the flash walk and the identically shaped SRAM walk agree to better than 0.1 cycles per access, so `flash - twin` is an unbiased estimator of the flash penalty"
+   ],
+   "caveats": [],
+   "data": {
+    "per_config": {
+     "waitstates=0 icache=0 dcache=0 prefetch=0/walk": {
+      "body": "walk",
+      "value": 0.0,
+      "spread": 0.0,
+      "n": 3,
+      "isolated": true
+     },
+     "waitstates=0 icache=0 dcache=0 prefetch=0/reread": {
+      "body": "reread",
+      "value": 0.0,
+      "spread": 0.0,
+      "n": 6,
+      "isolated": true
+     },
+     "waitstates=0 icache=1 dcache=1 prefetch=1/walk": {
+      "body": "walk",
+      "value": 0.0,
+      "spread": 0.0,
+      "n": 3,
+      "isolated": true
+     },
+     "waitstates=0 icache=1 dcache=1 prefetch=1/reread": {
+      "body": "reread",
+      "value": 0.0,
+      "spread": 0.0,
+      "n": 6,
+      "isolated": true
+     }
+    },
+    "per_access": 0.0
+   }
+  }
+ },
+ "notes": [
+  "Cross-check: the latch granularity equals the flash read width (16 B), as it does on every part in this repository.",
+  "SCOPE: every `evict` and `chase` row in this capture was taken at `waitstates = 5`, so the cache claim is a claim about that one setting. Nothing here suggests the geometry moves with the latency, and nothing here tests it either."
+ ]
+}

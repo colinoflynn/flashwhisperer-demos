@@ -1,0 +1,1274 @@
+{
+ "part": "stm32h723zg",
+ "meta": {
+  "protocol": "memmap/1",
+  "part": "stm32h723zg",
+  "core": "cortex-m7",
+  "clk_hz": 64000000,
+  "timer": "systick",
+  "timer_hz": 64000000,
+  "caps": [
+   "icache",
+   "dcache",
+   "waitstates",
+   "ramfunc"
+  ],
+  "banner": "memmap/1 stm32h723zg cortex-m7 64000000 systick 64000000 icache,dcache,waitstates,ramfunc",
+  "regions": [
+   {
+    "name": "flash",
+    "base": 134225920,
+    "size": 65536,
+    "kind": "flash"
+   },
+   {
+    "name": "dtcm",
+    "base": 536875008,
+    "size": 65536,
+    "kind": "dtcm"
+   },
+   {
+    "name": "axisram",
+    "base": 603983872,
+    "size": 65536,
+    "kind": "axisram"
+   },
+   {
+    "name": "itcm",
+    "base": 4096,
+    "size": 16384,
+    "kind": "itcm"
+   }
+  ],
+  "flash_region": "flash",
+  "twin_region": "dtcm",
+  "twin_kind": "dtcm",
+  "knobs": [
+   {
+    "name": "waitstates",
+    "values": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "reset": 5
+   },
+   {
+    "name": "icache",
+    "values": [
+     0,
+     1
+    ],
+    "reset": 0
+   },
+   {
+    "name": "dcache",
+    "values": [
+     0,
+     1
+    ],
+    "reset": 0
+   },
+   {
+    "name": "wrhighfreq",
+    "values": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "reset": 3
+   }
+  ],
+  "reps": 7,
+  "captured": "2026-09-18T09:40:00",
+  "warnings": [
+   "warm-up outlier: evict(192, 256) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(64, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(65, 512) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(96, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(17, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(18, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(21, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(22, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(25, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(8, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(9, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(10, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(11, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(12, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(192, 256) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(64, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(65, 512) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(96, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(17, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(18, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(21, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(22, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(25, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(8, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(9, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(10, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(11, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(12, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(192, 256) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(64, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(65, 512) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(96, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(17, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(18, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(21, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(22, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(25, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(8, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(9, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(10, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(11, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(12, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(192, 256) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(64, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(65, 512) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(96, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(17, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(18, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(21, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(22, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(25, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(8, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(9, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(10, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(11, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(12, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(1024, 32) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(1025, 32) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(192, 256) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(64, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(65, 512) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(96, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(17, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(18, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(21, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(22, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(25, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(8, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(9, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(10, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(11, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(12, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(1024, 32) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(1025, 32) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(192, 256) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(64, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(65, 512) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(96, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(17, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(18, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(21, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(22, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(25, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(8, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(9, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(10, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(11, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(12, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(1024, 32) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(1025, 32) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(192, 256) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(64, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(65, 512) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(96, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(17, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(18, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(21, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(22, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(25, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(8, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(9, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(10, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(11, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(12, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(1024, 32) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(1025, 32) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(192, 256) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(64, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(65, 512) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(96, 512) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(17, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(18, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(21, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(22, 2048) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(25, 2048) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(8, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(9, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(10, 4096) on flash first=18 median-of-rest=11",
+   "warm-up outlier: evict(11, 4096) on flash first=11 median-of-rest=18",
+   "warm-up outlier: evict(12, 4096) on flash first=18 median-of-rest=11"
+  ],
+  "elapsed_s": 509.7
+ },
+ "claims": {
+  "read_width": {
+   "name": "read_width",
+   "value": 32,
+   "known": true,
+   "confidence": "high",
+   "basis": "Cold forward stride walk, flash minus its own SRAM twin. The per-access cost rises with the number of distinct flash words touched and saturates at one word per access; the saturating stride is the array's read width.",
+   "evidence": [
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=0: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=1: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=2: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=3: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=1 wrhighfreq=0: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=1 wrhighfreq=1: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=1 wrhighfreq=2: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=1 wrhighfreq=3: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=0: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=1: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=2: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=3: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=1 wrhighfreq=0: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=1 wrhighfreq=1: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=1 wrhighfreq=2: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=1 wrhighfreq=3: saturates at stride 32, 9.00 cyc/access",
+    "  fitted on the 16-configuration cross-product at one reference wait state; the 22 wait-state-sweep cell(s) are excluded, because they exist to measure a slope and include LATENCY 0, where every flash structure reads flat whether or not it is there",
+    "  invariant across all 16 knob settings measured -- consistent with a property of the flash array, not of the accelerator"
+   ],
+   "caveats": [],
+   "data": {
+    "per_word_cycles": 9.0,
+    "by_config": {
+     "waitstates=5 icache=0 dcache=0 wrhighfreq=0": 32,
+     "waitstates=5 icache=0 dcache=0 wrhighfreq=1": 32,
+     "waitstates=5 icache=0 dcache=0 wrhighfreq=2": 32,
+     "waitstates=5 icache=0 dcache=0 wrhighfreq=3": 32,
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=0": 32,
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=1": 32,
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=2": 32,
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=3": 32,
+     "waitstates=5 icache=1 dcache=0 wrhighfreq=0": 32,
+     "waitstates=5 icache=1 dcache=0 wrhighfreq=1": 32,
+     "waitstates=5 icache=1 dcache=0 wrhighfreq=2": 32,
+     "waitstates=5 icache=1 dcache=0 wrhighfreq=3": 32,
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=0": 32,
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=1": 32,
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=2": 32,
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=3": 32
+    },
+    "invariant": true
+   }
+  },
+  "fill_unit": {
+   "name": "fill_unit",
+   "value": null,
+   "known": false,
+   "confidence": "none",
+   "basis": "Largest saturating stride across knob settings: where a knob makes the walk saturate later than the array's read width, that later stride is the unit the cache fills.",
+   "evidence": [
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=0: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=1: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=2: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=3: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=1 wrhighfreq=0: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=1 wrhighfreq=1: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=1 wrhighfreq=2: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=0 dcache=1 wrhighfreq=3: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=0: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=1: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=2: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=3: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=1 wrhighfreq=0: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=1 wrhighfreq=1: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=1 wrhighfreq=2: saturates at stride 32, 9.00 cyc/access",
+    "  waitstates=5 icache=1 dcache=1 wrhighfreq=3: saturates at stride 32, 9.00 cyc/access"
+   ],
+   "caveats": [
+    "Every knob setting saturates at the same stride, so no separate fill unit is distinguishable from the read width."
+   ],
+   "data": {}
+  },
+  "latch": {
+   "name": "latch",
+   "value": {
+    "present": true,
+    "granularity_bytes": 32,
+    "entries": 1,
+    "depth": 1,
+    "indexed_on": null,
+    "knob_reaches_it": false,
+    "model_determined": true,
+    "equivalent_models": [
+     "32Bx1"
+    ],
+    "differential_cycles": 5.0,
+    "differential_at": "waitstates=5 icache=0 dcache=0 wrhighfreq=0"
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "reread sweep (read A, read A+off, re-read A) fitted against a model family {granularity g, entries k, index = (A>>log2 g) mod k, target alignment a}; depth from `evict` at a spacing that maps to the same entry; reachability by repeating the sweep at every knob combination",
+   "evidence": [
+    "  waitstates=1 icache=0 dcache=0 wrhighfreq=0: 6/6 offsets fit granularity 32 B x 1 entry, differential 1 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=10 icache=0 dcache=0 wrhighfreq=0: 6/6 offsets fit granularity 32 B x 1 entry, differential 10 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=12 icache=0 dcache=0 wrhighfreq=0: 6/6 offsets fit granularity 32 B x 1 entry, differential 12 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=15 icache=0 dcache=0 wrhighfreq=0: 6/6 offsets fit granularity 32 B x 1 entry, differential 15 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=2 icache=0 dcache=0 wrhighfreq=0: 6/6 offsets fit granularity 32 B x 1 entry, differential 2 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=3 icache=0 dcache=0 wrhighfreq=0: 6/6 offsets fit granularity 32 B x 1 entry, differential 3 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=4 icache=0 dcache=0 wrhighfreq=0: 6/6 offsets fit granularity 32 B x 1 entry, differential 4 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=0: 89/89 offsets fit granularity 32 B x 1 entry (align 1), differential 5 cyc  [discriminating: this sweep admits only 32Bx1]",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=1: 89/89 offsets fit granularity 32 B x 1 entry (align 1), differential 5 cyc  [discriminating: this sweep admits only 32Bx1]",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=2: 89/89 offsets fit granularity 32 B x 1 entry (align 1), differential 5 cyc  [discriminating: this sweep admits only 32Bx1]",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=3: 89/89 offsets fit granularity 32 B x 1 entry (align 1), differential 5 cyc  [discriminating: this sweep admits only 32Bx1]",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=0: 89/89 offsets fit granularity 32 B x 1 entry (align 1), differential 5 cyc  [discriminating: this sweep admits only 32Bx1]",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=1: 89/89 offsets fit granularity 32 B x 1 entry (align 1), differential 5 cyc  [discriminating: this sweep admits only 32Bx1]",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=2: 89/89 offsets fit granularity 32 B x 1 entry (align 1), differential 5 cyc  [discriminating: this sweep admits only 32Bx1]",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=3: 89/89 offsets fit granularity 32 B x 1 entry (align 1), differential 5 cyc  [discriminating: this sweep admits only 32Bx1]",
+    "  waitstates=6 icache=0 dcache=0 wrhighfreq=0: 6/6 offsets fit granularity 32 B x 1 entry, differential 6 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=7 icache=0 dcache=0 wrhighfreq=0: 6/6 offsets fit granularity 32 B x 1 entry, differential 7 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  waitstates=8 icache=0 dcache=0 wrhighfreq=0: 6/6 offsets fit granularity 32 B x 1 entry, differential 8 cyc  [6 granularity x entries combinations fit it equally well -- it does not discriminate]",
+    "  -> intersecting what each configuration is consistent with leaves 32 B x 1 entry; the fit is taken from the 18 configuration(s) that admit it, not from a majority of per-configuration best fits",
+    "  aligned-block model 100% vs proximity model 85% over 89 offsets (41 of them negative) -- it is a latch holding one aligned 32-byte flash word, not a +/-32 byte neighbourhood",
+    "  depth: 1 -- at spacing 32 B (which maps to the same entry) the target is lost after 1 intervening distinct word(s), in 8 config(s)",
+    "  no knob setting removed it: the latch resolved in 18 setting(s) and in the remaining 18 the probe read uniformly *fast*, which is a larger structure masking it, not its absence",
+    "  sub-cycle cross-check: `alt` off=32 over 200 reps gives 9.975 cyc/iteration against off=0, at 1/200-cycle resolution (single-shot `reread` sits on the counter's floor)"
+   ],
+   "caveats": [
+    "2 configuration(s) are SILENT on this claim rather than evidence for or against it: waitstates=0 icache=0 dcache=0 wrhighfreq=0, waitstates=0 icache=1 dcache=1 wrhighfreq=3. In each the positive control fails -- a hit and a miss differ by 0 cycles here (the same walk at `waitstates = 0`, where a flash access is known to cost no more than an SRAM one), below the 1-cycle resolution of an integer counter, so this configuration could not have shown a structure whether or not one is present -- at LATENCY 0 in particular every flash structure reads flat by construction (MEASURING_CHANNELS B3) -- so the flat column they produced is the resolution floor, not a register. A configuration that could not have shown the opposite does not get a vote.",
+    "18 knob setting(s) re-read fast at every offset. That is consistent with both the latch and a cache holding both probe addresses, so those settings do not discriminate; the latch is inferred there, not measured."
+   ],
+   "data": {
+    "per_config": {
+     "waitstates=5 icache=0 dcache=0 wrhighfreq=0": "resolved",
+     "waitstates=5 icache=0 dcache=0 wrhighfreq=1": "resolved",
+     "waitstates=5 icache=0 dcache=0 wrhighfreq=2": "resolved",
+     "waitstates=5 icache=0 dcache=0 wrhighfreq=3": "resolved",
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=0": "all-hit",
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=1": "all-hit",
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=2": "all-hit",
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=3": "all-hit",
+     "waitstates=5 icache=1 dcache=0 wrhighfreq=0": "resolved",
+     "waitstates=5 icache=1 dcache=0 wrhighfreq=1": "resolved",
+     "waitstates=5 icache=1 dcache=0 wrhighfreq=2": "resolved",
+     "waitstates=5 icache=1 dcache=0 wrhighfreq=3": "resolved",
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=0": "all-hit",
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=1": "all-hit",
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=2": "all-hit",
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=3": "all-hit",
+     "waitstates=0 icache=0 dcache=0 wrhighfreq=0": "no-resolution",
+     "waitstates=1 icache=0 dcache=0 wrhighfreq=0": "resolved",
+     "waitstates=2 icache=0 dcache=0 wrhighfreq=0": "resolved",
+     "waitstates=3 icache=0 dcache=0 wrhighfreq=0": "resolved",
+     "waitstates=4 icache=0 dcache=0 wrhighfreq=0": "resolved",
+     "waitstates=6 icache=0 dcache=0 wrhighfreq=0": "resolved",
+     "waitstates=7 icache=0 dcache=0 wrhighfreq=0": "resolved",
+     "waitstates=8 icache=0 dcache=0 wrhighfreq=0": "resolved",
+     "waitstates=10 icache=0 dcache=0 wrhighfreq=0": "resolved",
+     "waitstates=12 icache=0 dcache=0 wrhighfreq=0": "resolved",
+     "waitstates=15 icache=0 dcache=0 wrhighfreq=0": "resolved",
+     "waitstates=0 icache=1 dcache=1 wrhighfreq=3": "no-resolution",
+     "waitstates=1 icache=1 dcache=1 wrhighfreq=3": "all-hit",
+     "waitstates=2 icache=1 dcache=1 wrhighfreq=3": "all-hit",
+     "waitstates=3 icache=1 dcache=1 wrhighfreq=3": "all-hit",
+     "waitstates=4 icache=1 dcache=1 wrhighfreq=3": "all-hit",
+     "waitstates=6 icache=1 dcache=1 wrhighfreq=3": "all-hit",
+     "waitstates=7 icache=1 dcache=1 wrhighfreq=3": "all-hit",
+     "waitstates=8 icache=1 dcache=1 wrhighfreq=3": "all-hit",
+     "waitstates=10 icache=1 dcache=1 wrhighfreq=3": "all-hit",
+     "waitstates=12 icache=1 dcache=1 wrhighfreq=3": "all-hit",
+     "waitstates=15 icache=1 dcache=1 wrhighfreq=3": "all-hit"
+    },
+    "fit_score": 1.0,
+    "rival_distance_score": 0.8539325842696629,
+    "align": 1
+   }
+  },
+  "cache": {
+   "name": "cache",
+   "value": {
+    "present": true,
+    "ways": null,
+    "ways_candidates": [
+     1,
+     2,
+     4,
+     8,
+     16,
+     32,
+     64
+    ],
+    "geometry_candidates": [
+     "1-way x 1024 sets x 32 B line",
+     "2-way x 512 sets x 32 B line",
+     "4-way x 256 sets x 32 B line",
+     "8-way x 128 sets x 32 B line",
+     "16-way x 64 sets x 32 B line",
+     "32-way x 32 sets x 32 B line",
+     "64-way x 16 sets x 32 B line"
+    ],
+    "conflict_period_bytes": null,
+    "capacity_bytes": 32768,
+    "capacity_bytes_min": 32736,
+    "line_bytes": 32,
+    "sets": null,
+    "capacity_entries": 1024,
+    "capacity_entries_min": 1023,
+    "fully_associative": null,
+    "geometry_unique": false,
+    "threshold_model_holds": false,
+    "index_bits": null,
+    "capacity_unit": "not applicable",
+    "enabled_in": "waitstates=5 icache=0 dcache=1 wrhighfreq=0"
+   },
+   "known": true,
+   "confidence": "low",
+   "basis": "`evict n spacing` over a spacing sweep. N_evict(spacing) is fitted against an exact enumeration of which walk addresses land in the target's set, which yields the ways and the conflict period (sets x line) with no special case for sub-line, line-sized or aliasing spacings. The line used is the measured fetch granularity; where the period is larger, the split between sets and line is reported as undetermined rather than assumed",
+   "evidence": [
+    "  waitstates=5 icache=0 dcache=1 wrhighfreq=0: N_evict 4:1536+ 8:1536+ 16:1536+ 32:1536 64:768+ 128:384+ 256:192+ 1024:32 8192:5+  -> 1-way, conflict period 65536 B, 65536 B (4/6 exact)",
+    "  waitstates=5 icache=0 dcache=1 wrhighfreq=1: N_evict 4:1536+ 8:1536+ 16:1536+ 32:1536 64:768+ 128:384+ 256:192+ 1024:32 8192:5+  -> 1-way, conflict period 65536 B, 65536 B (4/6 exact)",
+    "  waitstates=5 icache=0 dcache=1 wrhighfreq=2: N_evict 4:1536+ 8:1536+ 16:1536+ 32:1536 64:768+ 128:384+ 256:192+ 1024:32 8192:5+  -> 1-way, conflict period 65536 B, 65536 B (4/6 exact)",
+    "  waitstates=5 icache=0 dcache=1 wrhighfreq=3: N_evict 4:1536+ 8:1536+ 16:1536+ 32:1536 64:768+ 128:384+ 256:192+ 1024:32 8192:5+  -> 1-way, conflict period 65536 B, 65536 B (4/6 exact)",
+    "  waitstates=5 icache=1 dcache=1 wrhighfreq=0: N_evict 4:1536+ 8:1536+ 16:1536+ 32:1025 64:768+ 128:384+ 256:192+ 1024:32 8192:5+  -> 1-way, conflict period 65536 B, 65536 B (4/6 exact)",
+    "  waitstates=5 icache=1 dcache=1 wrhighfreq=1: N_evict 4:1536+ 8:1536+ 16:1536+ 32:1025 64:768+ 128:384+ 256:192+ 1024:32 8192:5+  -> 1-way, conflict period 65536 B, 65536 B (4/6 exact)",
+    "  waitstates=5 icache=1 dcache=1 wrhighfreq=2: N_evict 4:1536+ 8:1536+ 16:1536+ 32:1025 64:768+ 128:384+ 256:192+ 1024:32 8192:5+  -> 1-way, conflict period 65536 B, 65536 B (4/6 exact)",
+    "  waitstates=5 icache=1 dcache=1 wrhighfreq=3: N_evict 4:1536+ 8:1536+ 16:1536+ 32:1025 64:768+ 128:384+ 256:192+ 1024:32 8192:5+  -> 1-way, conflict period 65536 B, 65536 B (4/6 exact)",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=0: N_evict 4:8 8:4 16:2 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1 4096:1 8192:1  -> 1-way, conflict period 32 B, 32 B (9/9 exact)",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=1: N_evict 4:8 8:4 16:2 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1 4096:1 8192:1  -> 1-way, conflict period 32 B, 32 B (9/9 exact)",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=2: N_evict 4:8 8:4 16:2 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1 4096:1 8192:1  -> 1-way, conflict period 32 B, 32 B (9/9 exact)",
+    "  waitstates=5 icache=0 dcache=0 wrhighfreq=3: N_evict 4:8 8:4 16:2 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1 4096:1 8192:1  -> 1-way, conflict period 32 B, 32 B (9/9 exact)",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=0: N_evict 4:8 8:4 16:2 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1 4096:1 8192:1  -> 1-way, conflict period 32 B, 32 B (9/9 exact)",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=1: N_evict 4:8 8:4 16:2 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1 4096:1 8192:1  -> 1-way, conflict period 32 B, 32 B (9/9 exact)",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=2: N_evict 4:8 8:4 16:2 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1 4096:1 8192:1  -> 1-way, conflict period 32 B, 32 B (9/9 exact)",
+    "  waitstates=5 icache=1 dcache=0 wrhighfreq=3: N_evict 4:8 8:4 16:2 32:1 64:1 128:1 256:1 512:1 1024:1 2048:1 4096:1 8192:1  -> 1-way, conflict period 32 B, 32 B (9/9 exact)",
+    "  tags vs bytes: with a 32 B fetch and a 65536 B conflict period the two models predict the same number (1), so the test cannot discriminate and no claim is made",
+    "  8 configuration(s) hold nothing above the latch at all (waitstates=5 icache=0 dcache=0 wrhighfreq=0, waitstates=5 icache=0 dcache=0 wrhighfreq=1, waitstates=5 icache=0 dcache=0 wrhighfreq=2 ...): there the cache is switched off, which is a knob working rather than a geometry disagreeing",
+    "  capacity floor: the target is first lost at a working-set span of 32768 B (spacing 512 B, n = 64) and is never lost below that in 417 further rows, the largest of which spans 32736 B. For a uniform walk the loss span is `ways x sets x line` for every spacing that divides the conflict period, so that smallest loss span IS the capacity, whatever the (ways, sets) split"
+   ],
+   "caveats": [
+    "120 `evict` row(s) in this capture had their DISCARDED warm-up repetition disagree with the kept ones, in both directions (e.g. warm-up outlier: evict(192, 256) on flash first=18 median-of-rest=11). The discarded value is not in `obs[].raw`, so the kept repeats read `min == max` for rows the instrument itself reported as unstable. Every eviction-derived number here is a median of a filtered sample, and `min == max` on these rows is not evidence of reproducibility.",
+    "The eviction surface in waitstates=5 icache=0 dcache=1 wrhighfreq=0 is NOT a step function, so no (ways, sets, line) geometry is reported from it. At spacing 512 B the target is lost at n = 64 and present again at n = 65; 3 of 12 spacings behave that way. A threshold model is what `N_evict` means, and this configuration's own data falsifies it, so the ways, the sets and the conflict period are `unknown` rather than a fit to a model that does not hold. The CAPACITY survives, because it is read off the smallest loss span rather than fitted: that uses only the bottom edge of the surface, below every non-monotone row.",
+    "Two things look like this and they are not the same finding: a NON-DETERMINISTIC victim choice (the target survives past capacity some of the time), or an address-dependent effect the (ways, sets, line) family cannot express (the outcome depends on WHICH lines the walk ends on, not how many). They are separable by repeatability, and this capture cannot settle it: its own warnings record the DISCARDED warm-up repetition disagreeing with the kept ones on `evict` rows, so `min == max` over the stored repeats is a statement about a filtered sample. The replay control -- the same row re-measured later and in the opposite order -- is what settles it, not more repeats of one row.",
+    "The capacity is measured (32768 B) and the (ways, sets) split is NOT: 1-way x 1024 sets, 2-way x 512 sets, 4-way x 256 sets, 8-way x 128 sets, 16-way x 64 sets, 32-way x 32 sets, 64-way x 16 sets all predict the same loss span at every spacing this capture used, because a uniform walk at or below the conflict period loses the target after exactly `ways x sets x line` bytes however the two factors divide it. Separating them needs a spacing ABOVE the largest candidate period (32768 B), where the loss lands at n = ways directly: `evict n 65536` with n reaching 64, i.e. a probe region of at least 4259840 B -- or 589824 B to separate only the associativities an L1 plausibly has (<= 8-way, an architectural prior, stated here rather than applied silently). This shim's `evict` reaches 51200 B. The published geometry of this part is in the family; the tool does not pick from it."
+   ],
+   "data": {
+    "fit": {
+     "ways": 1,
+     "sets": 2048,
+     "line": 32,
+     "period": 65536,
+     "capacity_bytes": 65536,
+     "capacity_entries": 2048,
+     "alternatives": [
+      [
+       1,
+       2048
+      ]
+     ],
+     "ways_unique": true,
+     "capacity_unique": true,
+     "exact": 4,
+     "pinned": 0,
+     "total": 6,
+     "score": 0.6666666666666666,
+     "err": 1.9730258498824216
+    },
+    "fetch_granularity": 32,
+    "per_config": {},
+    "per_config_sizing": {
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=0": {
+      "ways": 1,
+      "sets": 2048,
+      "line": 32,
+      "period": 65536,
+      "capacity_bytes": 65536,
+      "capacity_entries": 2048,
+      "alternatives": [
+       [
+        1,
+        2048
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 4,
+      "pinned": 0,
+      "total": 6,
+      "score": 0.6666666666666666,
+      "err": 1.9730258498824216
+     },
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=1": {
+      "ways": 1,
+      "sets": 2048,
+      "line": 32,
+      "period": 65536,
+      "capacity_bytes": 65536,
+      "capacity_entries": 2048,
+      "alternatives": [
+       [
+        1,
+        2048
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 4,
+      "pinned": 0,
+      "total": 6,
+      "score": 0.6666666666666666,
+      "err": 1.9730258498824216
+     },
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=2": {
+      "ways": 1,
+      "sets": 2048,
+      "line": 32,
+      "period": 65536,
+      "capacity_bytes": 65536,
+      "capacity_entries": 2048,
+      "alternatives": [
+       [
+        1,
+        2048
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 4,
+      "pinned": 0,
+      "total": 6,
+      "score": 0.6666666666666666,
+      "err": 1.9730258498824216
+     },
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=3": {
+      "ways": 1,
+      "sets": 2048,
+      "line": 32,
+      "period": 65536,
+      "capacity_bytes": 65536,
+      "capacity_entries": 2048,
+      "alternatives": [
+       [
+        1,
+        2048
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 4,
+      "pinned": 0,
+      "total": 6,
+      "score": 0.6666666666666666,
+      "err": 1.9730258498824216
+     },
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=0": {
+      "ways": 1,
+      "sets": 2048,
+      "line": 32,
+      "period": 65536,
+      "capacity_bytes": 65536,
+      "capacity_entries": 2048,
+      "alternatives": [
+       [
+        1,
+        2048
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 4,
+      "pinned": 0,
+      "total": 6,
+      "score": 0.6666666666666666,
+      "err": 1.8773526539405254
+     },
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=1": {
+      "ways": 1,
+      "sets": 2048,
+      "line": 32,
+      "period": 65536,
+      "capacity_bytes": 65536,
+      "capacity_entries": 2048,
+      "alternatives": [
+       [
+        1,
+        2048
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 4,
+      "pinned": 0,
+      "total": 6,
+      "score": 0.6666666666666666,
+      "err": 1.8773526539405254
+     },
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=2": {
+      "ways": 1,
+      "sets": 2048,
+      "line": 32,
+      "period": 65536,
+      "capacity_bytes": 65536,
+      "capacity_entries": 2048,
+      "alternatives": [
+       [
+        1,
+        2048
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 4,
+      "pinned": 0,
+      "total": 6,
+      "score": 0.6666666666666666,
+      "err": 1.8773526539405254
+     },
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=3": {
+      "ways": 1,
+      "sets": 2048,
+      "line": 32,
+      "period": 65536,
+      "capacity_bytes": 65536,
+      "capacity_entries": 2048,
+      "alternatives": [
+       [
+        1,
+        2048
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 4,
+      "pinned": 0,
+      "total": 6,
+      "score": 0.6666666666666666,
+      "err": 1.8773526539405254
+     },
+     "waitstates=5 icache=0 dcache=0 wrhighfreq=0": {
+      "ways": 1,
+      "sets": 1,
+      "line": 32,
+      "period": 32,
+      "capacity_bytes": 32,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 9,
+      "pinned": 9,
+      "total": 9,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=0 dcache=0 wrhighfreq=1": {
+      "ways": 1,
+      "sets": 1,
+      "line": 32,
+      "period": 32,
+      "capacity_bytes": 32,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 9,
+      "pinned": 9,
+      "total": 9,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=0 dcache=0 wrhighfreq=2": {
+      "ways": 1,
+      "sets": 1,
+      "line": 32,
+      "period": 32,
+      "capacity_bytes": 32,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 9,
+      "pinned": 9,
+      "total": 9,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=0 dcache=0 wrhighfreq=3": {
+      "ways": 1,
+      "sets": 1,
+      "line": 32,
+      "period": 32,
+      "capacity_bytes": 32,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 9,
+      "pinned": 9,
+      "total": 9,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=1 dcache=0 wrhighfreq=0": {
+      "ways": 1,
+      "sets": 1,
+      "line": 32,
+      "period": 32,
+      "capacity_bytes": 32,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 9,
+      "pinned": 9,
+      "total": 9,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=1 dcache=0 wrhighfreq=1": {
+      "ways": 1,
+      "sets": 1,
+      "line": 32,
+      "period": 32,
+      "capacity_bytes": 32,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 9,
+      "pinned": 9,
+      "total": 9,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=1 dcache=0 wrhighfreq=2": {
+      "ways": 1,
+      "sets": 1,
+      "line": 32,
+      "period": 32,
+      "capacity_bytes": 32,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 9,
+      "pinned": 9,
+      "total": 9,
+      "score": 1.0,
+      "err": 0.0
+     },
+     "waitstates=5 icache=1 dcache=0 wrhighfreq=3": {
+      "ways": 1,
+      "sets": 1,
+      "line": 32,
+      "period": 32,
+      "capacity_bytes": 32,
+      "capacity_entries": 1,
+      "alternatives": [
+       [
+        1,
+        1
+       ]
+      ],
+      "ways_unique": true,
+      "capacity_unique": true,
+      "exact": 9,
+      "pinned": 9,
+      "total": 9,
+      "score": 1.0,
+      "err": 0.0
+     }
+    },
+    "per_config_broken": [
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=0",
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=1",
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=2",
+     "waitstates=5 icache=0 dcache=1 wrhighfreq=3",
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=0",
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=1",
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=2",
+     "waitstates=5 icache=1 dcache=1 wrhighfreq=3"
+    ]
+   }
+  },
+  "replacement_policy": {
+   "name": "replacement_policy",
+   "value": null,
+   "known": false,
+   "confidence": "none",
+   "basis": "eviction-step sharpness and cyclic chase",
+   "evidence": [
+    "  the eviction surface is not monotone in the working-set size in the configuration with the most reuse, and every repeat of those rows carries no repeat information"
+   ],
+   "caveats": [
+    "LRU and FIFO are NOT separable with `memmap/1`'s two-argument primitives, and that is a property of the primitives rather than of the part. `walk` and `evict` produce a monotone reference string and `chase` a cyclic one, and on a cyclic string over capacity+1 lines LRU and FIFO evict exactly the same line at every step. Separating them needs a reference string that re-touches an already-resident line before bringing in a new one -- which is what the optional third `evict` argument provides, and what a shim that does not implement it leaves unreachable.",
+    "The cache claim reports no geometry here, so nothing below is sized from a measured associativity -- the probes are sized from a provisional fit and fire only if it happens to be close. Read a negative result as 'the instrument did not run', not as a property of the part. And the repeats cannot settle what the non-monotonicity means: this capture's own warnings record the DISCARDED warm-up repetition disagreeing with the kept ones on several `evict` rows, so `min == max` over the kept sample is not evidence that the measurement is reproducible. What settles it is the replay control -- the same row re-measured later and in the opposite order -- not more repeats of one row.",
+    "No eviction series in a set-associative configuration had both a determined transition and a spacing that is a multiple of the measured conflict period, so the step-sharpness instrument did not run.",
+    "The cyclic-chase discriminator did not run: it needs `chase` at two ADJACENT working-set sizes with a stride that is a multiple of the measured conflict period, in an isolated configuration. A chase whose stride is smaller than the conflict period never produces a conflict however large the working set, so it cannot reach the knee; and it needs a third, much larger working set to calibrate what a full thrash costs.",
+    "The re-touch probe (`evict n spacing -k*spacing`) contributed no usable row: either the shim does not honour the optional walk start, or no row was taken at a spacing that is a multiple of the measured conflict period with k below the measured associativity. Without it LRU and FIFO are not separable and neither is claimed.",
+    "The instruments did not agree, or none of them ran, so the policy is reported as unresolved rather than rounded to the nearer answer."
+   ],
+   "data": {}
+  },
+  "knob_map": {
+   "name": "knob_map",
+   "value": {
+    "icache": {
+     "read_width": {
+      "verdict": "no effect",
+      "pairs": 8,
+      "value": 32,
+      "why": "identical in all 8 matched pairs"
+     },
+     "latch": {
+      "verdict": "no effect",
+      "pairs": 8,
+      "value": "32Bx1",
+      "why": "identical in all 8 matched pairs"
+     },
+     "data_reuse": {
+      "verdict": "no effect",
+      "pairs": 8,
+      "value": "1-way/period 32 B/32 B",
+      "why": "identical in all 8 matched pairs"
+     }
+    },
+    "dcache": {
+     "read_width": {
+      "verdict": "no effect",
+      "pairs": 8,
+      "value": 32,
+      "why": "identical in all 8 matched pairs"
+     },
+     "latch": {
+      "verdict": "masks",
+      "pairs": 8,
+      "changed": 8,
+      "from": "32Bx1",
+      "to": "all-hit",
+      "why": "8 of 8 matched pairs moved, 32Bx1 -> all-hit -- the probe reads uniformly fast, which hides the latch rather than removing it"
+     },
+     "data_reuse": {
+      "verdict": "controls",
+      "pairs": 8,
+      "changed": 8,
+      "from": "1-way/period 32 B/32 B",
+      "to": "reuse beyond the latch, geometry not determined",
+      "why": "8 of 8 matched pairs moved, 1-way/period 32 B/32 B -> reuse beyond the latch, geometry not determined"
+     }
+    },
+    "wrhighfreq": {
+     "read_width": {
+      "verdict": "no effect",
+      "pairs": 12,
+      "value": 32,
+      "why": "identical in all 12 matched pairs"
+     },
+     "latch": {
+      "verdict": "no effect",
+      "pairs": 12,
+      "value": "32Bx1",
+      "why": "identical in all 12 matched pairs"
+     },
+     "data_reuse": {
+      "verdict": "no effect",
+      "pairs": 12,
+      "value": "1-way/period 32 B/32 B",
+      "why": "identical in all 12 matched pairs"
+     }
+    }
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "the full cross-product: for each knob, every pair of measured configurations that differ in that knob alone is compared on three metrics (walk saturation, the fitted latch model, and the fitted cache geometry (ways, conflict period, capacity)). A knob 'controls' a structure when a matched pair moves it, 're-indexes' it when the geometry moves at constant capacity, and 'masks' it when the probe stops being able to see it",
+   "evidence": [
+    "  icache    -> read_width : no effect    identical in all 8 matched pairs",
+    "  icache    -> latch      : no effect    identical in all 8 matched pairs",
+    "  icache    -> data_reuse : no effect    identical in all 8 matched pairs",
+    "  dcache    -> read_width : no effect    identical in all 8 matched pairs",
+    "  dcache    -> latch      : masks        8 of 8 matched pairs moved, 32Bx1 -> all-hit -- the probe reads uniformly fast, which hides the latch rather than removing it",
+    "  dcache    -> data_reuse : controls     8 of 8 matched pairs moved, 1-way/period 32 B/32 B -> reuse beyond the latch, geometry not determined",
+    "  wrhighfreq -> read_width : no effect    identical in all 12 matched pairs",
+    "  wrhighfreq -> latch      : no effect    identical in all 12 matched pairs",
+    "  wrhighfreq -> data_reuse : no effect    identical in all 12 matched pairs",
+    "  -> read width is moved by no knob, which is what makes it a property of the flash array rather than of the accelerator",
+    "  -> no knob reaches the latch; dcache only masks it",
+    "  -> multi-line data reuse is controlled by dcache and by nothing else",
+    "  -> `icache` moved none of the three metrics. Every primitive here is a data access, so an instruction cache that does not share a structure with the data path is invisible to this probe by construction -- this is the expected reading for a separate I-cache, and it is not evidence that the register is inert. The instruction side is not measured: see the cache claim's caveats."
+   ],
+   "caveats": [],
+   "data": {
+    "controllers": {
+     "read_width": [],
+     "latch": [],
+     "data_reuse": [
+      "dcache"
+     ]
+    },
+    "reindexers": []
+   }
+  },
+  "waitstate_scaling": {
+   "name": "waitstate_scaling",
+   "value": 1.0,
+   "known": true,
+   "confidence": "high",
+   "basis": "linear fit of the per-access cost against the `waitstates` knob, in each configuration separately; the headline coefficient is the latch differential in configuration 'dcache=0 icache=0 wrhighfreq=0'",
+   "evidence": [
+    "  dcache=0 icache=0 wrhighfreq=0: latch differential = 1.000 x WS + 0.000, R2=1.0000, worst residual 0.00 cyc (n=12)",
+    "      points: 0:0 1:1 2:2 3:3 4:4 5:5 6:6 7:7 8:8 10:10 12:12 15:15",
+    "  dcache=0 icache=0 wrhighfreq=0: cold per-word cost = 1.000 x WS + 4.000, R2=1.0000 (n=12)",
+    "  dcache=1 icache=1 wrhighfreq=3: latch differential = 0.000 x WS + 0.000, R2=1.0000, worst residual 0.00 cyc (n=12)",
+    "      points: 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0 8:0 10:0 12:0 15:0",
+    "  dcache=1 icache=1 wrhighfreq=3: cold per-word cost = 1.000 x WS + 4.000, R2=1.0000 (n=12)"
+   ],
+   "caveats": [
+    "A wait-state setting of 0 contributes a legitimate zero to this fit and must not be read as an absent structure: at LATENCY = 0 a hit and a miss cost the same cycle, so the structure is still there and simply worth nothing (MEASURING_CHANNELS B3).",
+    "At least one configuration shows a flat-zero differential at every wait state. That is the masking configuration (a cache holding both probe addresses), not evidence against the scaling."
+   ],
+   "data": {
+    "fits": {
+     "dcache=0 icache=0 wrhighfreq=0": {
+      "latch": {
+       "slope": 1.0,
+       "intercept": 0.0,
+       "r2": 1.0,
+       "max_resid": 0.0,
+       "n": 12
+      },
+      "walk": {
+       "slope": 0.9999999999999999,
+       "intercept": 4.000000000000002,
+       "r2": 1.0,
+       "max_resid": 1.7763568394002505e-15,
+       "n": 12
+      },
+      "latch_points": [
+       [
+        0,
+        0.0
+       ],
+       [
+        1,
+        1.0
+       ],
+       [
+        2,
+        2.0
+       ],
+       [
+        3,
+        3.0
+       ],
+       [
+        4,
+        4.0
+       ],
+       [
+        5,
+        5.0
+       ],
+       [
+        6,
+        6.0
+       ],
+       [
+        7,
+        7.0
+       ],
+       [
+        8,
+        8.0
+       ],
+       [
+        10,
+        10.0
+       ],
+       [
+        12,
+        12.0
+       ],
+       [
+        15,
+        15.0
+       ]
+      ],
+      "walk_points": [
+       [
+        0,
+        4.0
+       ],
+       [
+        1,
+        5.0
+       ],
+       [
+        2,
+        6.0
+       ],
+       [
+        3,
+        7.0
+       ],
+       [
+        4,
+        8.0
+       ],
+       [
+        5,
+        9.0
+       ],
+       [
+        6,
+        10.0
+       ],
+       [
+        7,
+        11.0
+       ],
+       [
+        8,
+        12.0
+       ],
+       [
+        10,
+        14.0
+       ],
+       [
+        12,
+        16.0
+       ],
+       [
+        15,
+        19.0
+       ]
+      ]
+     },
+     "dcache=1 icache=1 wrhighfreq=3": {
+      "latch": {
+       "slope": 0.0,
+       "intercept": 0.0,
+       "r2": 1.0,
+       "max_resid": 0.0,
+       "n": 12
+      },
+      "walk": {
+       "slope": 0.9999999999999999,
+       "intercept": 4.000000000000002,
+       "r2": 1.0,
+       "max_resid": 1.7763568394002505e-15,
+       "n": 12
+      },
+      "latch_points": [
+       [
+        0,
+        0.0
+       ],
+       [
+        1,
+        0.0
+       ],
+       [
+        2,
+        0.0
+       ],
+       [
+        3,
+        0.0
+       ],
+       [
+        4,
+        0.0
+       ],
+       [
+        5,
+        0.0
+       ],
+       [
+        6,
+        0.0
+       ],
+       [
+        7,
+        0.0
+       ],
+       [
+        8,
+        0.0
+       ],
+       [
+        10,
+        0.0
+       ],
+       [
+        12,
+        0.0
+       ],
+       [
+        15,
+        0.0
+       ]
+      ],
+      "walk_points": [
+       [
+        0,
+        4.0
+       ],
+       [
+        1,
+        5.0
+       ],
+       [
+        2,
+        6.0
+       ],
+       [
+        3,
+        7.0
+       ],
+       [
+        4,
+        8.0
+       ],
+       [
+        5,
+        9.0
+       ],
+       [
+        6,
+        10.0
+       ],
+       [
+        7,
+        11.0
+       ],
+       [
+        8,
+        12.0
+       ],
+       [
+        10,
+        14.0
+       ],
+       [
+        12,
+        16.0
+       ],
+       [
+        15,
+        19.0
+       ]
+      ]
+     }
+    }
+   }
+  },
+  "twin_calibration": {
+   "name": "twin_calibration",
+   "value": {
+    "cyc_per_access": 4.0,
+    "config": "waitstates=0 icache=0 dcache=0 wrhighfreq=0",
+    "body": "walk",
+    "isolated": true
+   },
+   "known": true,
+   "confidence": "high",
+   "basis": "the cold walk's `flash - twin` per-access cost measured at `waitstates = 0`, where a flash access is known to cost no more than an SRAM one, so anything left over is the harness. Computed per configuration and per loop body and never pooled across either; the headline is the isolated configuration, which is the one the structural claims are measured in",
+   "evidence": [
+    "  waitstates=0 icache=0 dcache=0 wrhighfreq=0: `reread` body over 6 point(s) -> flash-twin = +3.000 cyc/access",
+    "  waitstates=0 icache=0 dcache=0 wrhighfreq=0: `walk` body over 2 point(s) -> flash-twin = +4.000 cyc/access",
+    "  waitstates=0 icache=1 dcache=1 wrhighfreq=3: `reread` body over 6 point(s) -> flash-twin = +1.000 cyc/access",
+    "  waitstates=0 icache=1 dcache=1 wrhighfreq=3: `walk` body over 2 point(s) -> flash-twin = +4.000 cyc/access"
+   ],
+   "caveats": [
+    "The twin is NOT a zero here: at `waitstates = 0`, where a flash access cannot cost more than an SRAM one, `flash - twin` still reads +4.000 cycles per access in waitstates=0 icache=0 dcache=0 wrhighfreq=0. A POSITIVE value means the flash path costs more than the dtcm twin even where the flash is free of wait states -- a fixed access cost that is not a flash structure. It is what a tightly-coupled twin looks like: a DTCM or similar zero-wait memory is not on the same fabric as the flash, so the subtraction leaves a constant behind rather than cancelling. It is large enough to matter: on this part it swallowed a one- and two-cycle latch differential whole, until the classification was moved inside the flash column. Every figure derived by subtracting the twin in this configuration carries that bias, and correcting means subtracting it. The instrument-neutral quantity is `flash(LATENCY) - flash(0)` at the same stride, which cancels the loop entirely.",
+    "The single-`reread` body reads +3.000 cycles in the same configuration, against +4.000 for the `walk` body. One number per (configuration, loop body) is the smallest honest unit: a longer loop body has idle cycles for an extra bus beat to hide in, so the two bodies are not interchangeable and are not averaged into one figure."
+   ],
+   "data": {
+    "per_config": {
+     "waitstates=0 icache=0 dcache=0 wrhighfreq=0/walk": {
+      "body": "walk",
+      "value": 4.0,
+      "spread": 0.0,
+      "n": 2,
+      "isolated": true
+     },
+     "waitstates=0 icache=0 dcache=0 wrhighfreq=0/reread": {
+      "body": "reread",
+      "value": 3.0,
+      "spread": 0.0,
+      "n": 6,
+      "isolated": true
+     },
+     "waitstates=0 icache=1 dcache=1 wrhighfreq=3/walk": {
+      "body": "walk",
+      "value": 4.0,
+      "spread": 0.0,
+      "n": 2,
+      "isolated": true
+     },
+     "waitstates=0 icache=1 dcache=1 wrhighfreq=3/reread": {
+      "body": "reread",
+      "value": 1.0,
+      "spread": 0.0,
+      "n": 6,
+      "isolated": true
+     }
+    },
+    "per_access": 4.0
+   }
+  }
+ },
+ "notes": [
+  "UNDETERMINED: capacity is measured at 32768 B, but the split between ways and sets is not -- candidates 1/2/4/8/16/32/64 way. See the cache caveats for the measurement that would settle it.",
+  "Cross-check: the latch granularity equals the flash read width (32 B), as it does on every part in this repository.",
+  "INSTRUMENT: in waitstates=0 icache=0 dcache=0 wrhighfreq=0 the dtcm twin is offset by +4.000 cycles per access at zero wait states, so every twin-subtracted figure measured in that configuration carries that bias -- correcting means subtracting it. The offset is NOT the same in every configuration and is not pooled; see the twin_calibration claim for the per-configuration table.",
+  "INSTRUMENT: 2 measurement(s) taken twice in this capture with the same configuration and arguments did not come back the same number (e.g. waitstates=5 icache=0 dcache=0 wrhighfreq=0 alt(0, 200): 2413 then 2418). A probe whose result is not a function of its arguments cannot be read as a property of the part; see the cache claim, which refuses a geometry when the rows it would be fitted to are among them.",
+  "INSTRUMENT: 120 warning(s) record the DISCARDED warm-up repetition disagreeing with the kept ones. That reading is not in `obs[].raw`, so `min == max` over the stored repeats is not evidence that those rows are reproducible -- the disagreeing sample is the one that was filtered out. A shim capture should carry the warm-up reading in `obs[]` rather than in prose.",
+  "Capture warnings: warm-up outlier: evict(192, 256) on flash first=18 median-of-rest=11; warm-up outlier: evict(64, 512) on flash first=11 median-of-rest=18; warm-up outlier: evict(65, 512) on flash first=18 median-of-rest=11; warm-up outlier: evict(96, 512) on flash first=11 median-of-rest=18; warm-up outlier: evict(17, 2048) on flash first=11 median-of-rest=18; warm-up outlier: evict(18, 2048) on flash first=18 median-of-rest=11; warm-up outlier: evict(21, 2048) on flash first=11 median-of-rest=18; warm-up outlier: evict(22, 2048) on flash first=18 median-of-rest=11",
+  "SCOPE: every `evict` and `chase` row in this capture was taken at `waitstates = 5`, so the cache claim is a claim about that one setting. Nothing here suggests the geometry moves with the latency, and nothing here tests it either."
+ ]
+}

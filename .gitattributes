@@ -1,0 +1,21 @@
+# Line endings are LF, in the repository AND in the working tree.
+#
+# `eol=lf` IS LOAD-BEARING AND IS NOT THE DEFAULT. `text=auto` on its own
+# stores LF in the object database but converts on CHECKOUT to `core.eol`,
+# which defaults to `native` - CRLF on Windows. `core.autocrlf=false` does NOT
+# prevent that: autocrlf is the legacy fallback and is ignored once a path has
+# an explicit `text` attribute. So the checkout side is pinned rather than left
+# to the platform.
+#
+# This was not theoretical here. The first clone taken to extract this
+# repository checked out CRLF, because .gitattributes had not been committed
+# yet, and a scripted edit matching a two-line pattern silently found nothing.
+* text=auto eol=lf
+
+# Test vectors: timing arrays with seed-regenerated material. Small and
+# tracked on purpose so the replay tests travel with the package - but never
+# converted, and never diffed as text.
+*.npz binary
+*.npy binary
+*.bin binary
+*.elf binary

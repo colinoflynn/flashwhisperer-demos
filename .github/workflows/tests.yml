@@ -1,0 +1,42 @@
+# Two tiers, same as locally: the quick suite and the slow one. The slow tier
+# runs in CI because it is three minutes rather than three hours, and it is
+# the tier that replays the captured trace vectors - the half that would
+# notice a scoring regression.
+#
+# WHAT A GREEN RUN HERE DOES NOT CHECK, which matters more than that it is
+# green: the tests that need firmware assets SKIP, and there are enough of
+# them to matter. Nothing in CI compiles a rig, reads a linker script or
+# replays a flashmap capture, because none of those live in this repository.
+# Read the skip count, not just the colour.
+#
+# The structural rules - no module-level `import serial`, no back edges in
+# the package graph - are tests/test_layering.py, so they run here and
+# locally rather than only in a workflow nobody runs by hand.
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --upgrade pip
+      # No [serial] extra on purpose: the suite must pass without pyserial,
+      # and tests/test_layering.py checks that it can.
+      - run: pip install -e .[dev]
+      - name: quick
+        run: python -m pytest -q
+      - name: slow
+        run: python -m pytest -q --runslow
