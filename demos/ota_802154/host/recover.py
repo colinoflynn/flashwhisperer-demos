@@ -136,11 +136,11 @@ def recover(ct, y, known, *, line_off, line_shift=LINE_SHIFT, pairs="all",
     master, hit = verify_batch(rk10[None, :], known)
     if hit[0]:
         notes.append("verified straight from the vote, 1 candidate key")
-        return bytes(master[0]), notes, {"M": M, "surfaces": surfs, "pops": 1}
+        return bytes(master[0]), notes, {"M": M, "surfaces": surfs, "candidates": 1}
 
     if vote_only:
         notes.append("vote only: no escalation attempted")
-        return None, notes, {"M": M, "surfaces": surfs, "pops": 1}
+        return None, notes, {"M": M, "surfaces": surfs, "candidates": 1}
 
     # Escalate: the vote is wrong on a few bytes, so take the least confident
     # `weak` positions and try every combination of up to `wrong` of them over

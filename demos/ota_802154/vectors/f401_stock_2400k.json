@@ -32,8 +32,7 @@
     "depth": 64,
     "wrong": 3,
     "expect_recovery": true,
-    "slow": true,
-    "expect_note": "13 of 16 round-10 bytes from the vote, and the three it gets wrong are inside the six least confident, so about 3.6 M candidate keys settle it"
+    "expect_note": "13 of 16 round-10 bytes from the vote, and the three it gets wrong are inside the six least confident, so about 560 000 candidate keys settle it. Pooled z -27.76."
   },
   "truth": {
     "master_key": "101112131415161718191a1b9c1d1e1f",

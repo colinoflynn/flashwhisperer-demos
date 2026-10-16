@@ -98,6 +98,10 @@ is (frames, candidate keys), because a byte count cannot tell a near miss from
 a recovery:
 
 ```bash
+# the vote column, in one pass
+python tools/replay.py demos/ota_802154/vectors/f401_blind_2500k.npz \
+    --ladder 1200000,1600000,2000000,2500000
+# and one rung with the search behind it
 python tools/replay.py demos/ota_802154/vectors/f401_blind_2500k.npz --n 1600000
 ```
 
@@ -139,8 +143,9 @@ Scoring all 120 pairs instead, standardising each surface and summing what each
 one says about each byte on its own, constrains every byte with the fifteen
 pairs it appears in rather than with one. On the blind capture at 2.5 M frames
 that puts all sixteen round-10 bytes at rank 1: **one** candidate key, settled
-by one AES block, 32 seconds of arithmetic. The stock capture needs about 3.6
-million candidates at 2.4 M frames, against 59.1 million for the same data.
+by one AES block, 32 seconds of arithmetic. The stock capture is 13 of 16 from
+the vote and takes about 560 000 candidates at 2.4 M frames, against 59.1
+million for the same data.
 
 Two things worth saying about that. The mean along the other byte, which is the
 obvious way to marginalise, is much worse than the minimum - 3 of 16 bytes at
@@ -227,7 +232,8 @@ demos/ota_802154/victim/build_rig.sh --key 000102030405060708090a0b0c0d0e0f
 
 python instruments/sniff802154/capture.py --port COM25 --log passive.log \
     --n 3000000 --wall 86400
-python demos/ota_802154/host/campaign.py --log passive.log --line-off 4 \
+python demos/ota_802154/host/campaign.py --log passive.log \
+    --elf build/ota_802154/out/victim/S2915A1_UDP_Client.elf \
     --ladder 500000,1000000,1500000,2000000,2500000,3000000
 
 python demos/ota_802154/host/make_vector.py passive.log \

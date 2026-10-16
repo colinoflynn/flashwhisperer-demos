@@ -113,10 +113,11 @@ def main():
         # in any padded image, so searching for it would pass whether or not
         # NODE_MAC_FIXED took effect.  A check that cannot fail is worse than no
         # check.  The addresses are verified ON AIR instead, where they are
-        # unambiguous:
-        #     python rigs/rig3.py sniff     (decodes dst/src from a frame)
-        # and that is the authoritative test anyway, since it confirms what the
-        # running node actually transmits rather than what was linked.
+        # unambiguous: capture a few hundred records with
+        # instruments/sniff802154/capture.py and decode one frame's addresses
+        # with demos/ota_802154/host/frames.py.  That is the authoritative test
+        # anyway, since it confirms what the running node transmits rather than
+        # what was linked.
 
         # What IS worth asserting about the victim: it carries no instrumentation.
         if role == "victim":

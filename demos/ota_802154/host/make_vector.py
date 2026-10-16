@@ -121,8 +121,15 @@ def known_pair(path, index=0):
 
     The input is the counter block, which the frame carries in the clear, and
     the output is the keystream, which is the payload XOR the known plaintext.
-    Nothing secret is involved, so the search can use this and still be an
-    attack rather than a rehearsal.
+    Nothing in either is secret, which is what lets the search verify a
+    candidate and still be an attack rather than a rehearsal.
+
+    Say the obvious thing about it though: this regenerates the pair from the
+    key, for exactly the reason the vector regenerates every other block, so
+    the pair in a replay comes out of the file rather than off the air.
+    `frames.verification_pairs()` is the same pair read straight out of a raw
+    log with no key involved, and that is what the capture that recovered this
+    key actually used. The two agree by construction.
     """
     d = np.load(path, allow_pickle=False)
     fc = int(d["fc0"]) + (0 if index == 0

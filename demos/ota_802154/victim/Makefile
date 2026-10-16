@@ -1,7 +1,11 @@
 # Command-line build of the X-CUBE-SUBG2 Contiki-NG applications
 # (IEEE 802.15.4 / 6LoWPAN over the S2-LP radio) with arm-none-eabi-gcc.
 #
-#   make BOARD=NUCLEO-F401RE APP=S2915A1_UDP_Server
+#   make BOARD=NUCLEO-F401RE APP=S2915A1_UDP_Server PKG=../../deps/x-cube-subg2
+#
+# build_rig.sh copies this file and cubeproj.py into the build directory and
+# passes PKG itself, which is the way to run it: the recipe below resolves
+# every source path relative to the directory make runs in.
 #   make list                # board/app combinations in the package
 #   make pair                # coordinator (RPL root) + end node
 #   make V=1 ...             # show full command lines
@@ -14,7 +18,7 @@ BOARD  ?= NUCLEO-F401RE
 APP    ?= S2915A1_UDP_Server
 CONFIG ?= release
 
-PKG      := ../x-cube-subg2
+PKG      ?= ../../deps/x-cube-subg2
 # Applications/Contiki-NG holds the 6LoWPAN stack apps; Examples holds the bare
 # S2-LP ones (P2P, CLI, FIFO) with no Contiki in them.  Look in both so APP=
 # takes any name `make list` prints.

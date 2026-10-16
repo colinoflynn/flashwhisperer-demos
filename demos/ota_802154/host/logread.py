@@ -103,7 +103,7 @@ def read_log(log_path, *, limit=None, skip=0, probe=20000, verbose=True):
     gaps = []
     gbuf = np.empty(1 << 16, np.int64)
     hex_fc, hex_pay = [], []
-    srcs, secs = set(), set()
+    srcs, secs = {}, {}
     m = total = wrong_len = 0
     with io.open(log_path, encoding="ascii", errors="replace") as fh:
         for line in fh:
@@ -128,8 +128,10 @@ def read_log(log_path, *, limit=None, skip=0, probe=20000, verbose=True):
             gbuf[m] = (ack - rx) % W32
             hex_fc.append(h[2 * (aux_off + 1):2 * (aux_off + 5)])
             hex_pay.append(h[2 * ct_off:2 * (ct_off + 16)])
-            srcs.add(h[2 * src_at:2 * (src_at + 8)])
-            secs.add(h[2 * aux_off:2 * (aux_off + 1)])
+            s_hex = h[2 * src_at:2 * (src_at + 8)]
+            c_hex = h[2 * aux_off:2 * (aux_off + 1)]
+            srcs[s_hex] = srcs.get(s_hex, 0) + 1
+            secs[c_hex] = secs.get(c_hex, 0) + 1
             m += 1
             if m == len(gbuf):
                 gaps.append(gbuf)
@@ -140,10 +142,22 @@ def read_log(log_path, *, limit=None, skip=0, probe=20000, verbose=True):
     if not gaps:
         raise SystemExit("no usable records of length %d in %s" % (L, log_path))
     gap = np.concatenate(gaps)
-    if len(srcs) != 1 or len(secs) != 1:
-        raise SystemExit("this capture mixes %d source addresses and %d "
-                         "security levels; the packer assumes one of each"
-                         % (len(srcs), len(secs)))
+    # One link, so one source address and one security level. A log can still
+    # carry a few records that disagree, because at 921600 baud over USB CDC a
+    # line arrives mangled now and then - two in 2.6 million on the capture
+    # here. So take the dominant value rather than refusing, and let
+    # make_vector's regeneration check drop the odd records: a block built on a
+    # corrupted header cannot reproduce. Refuse only if the split is big enough
+    # to mean this is two captures in one file.
+    src_hex, src_n = max(srcs.items(), key=lambda kv: kv[1])
+    sec_hex, sec_n = max(secs.items(), key=lambda kv: kv[1])
+    for what, n, total_kept in (("source addresses", src_n, len(gap)),
+                                ("security levels", sec_n, len(gap))):
+        if n < total_kept - max(16, total_kept // 10000):
+            raise SystemExit(
+                "this capture mixes %s: the commonest covers %d of %d records, "
+                "which is too many to be corrupt lines. One link per log."
+                % (what, n, total_kept))
 
     fc4 = np.frombuffer(bytes.fromhex("".join(hex_fc)), np.uint8).reshape(-1, 4)
     fc = fc4.astype(np.int64) @ np.array([1, 1 << 8, 1 << 16, 1 << 24], np.int64)
@@ -153,7 +167,7 @@ def read_log(log_path, *, limit=None, skip=0, probe=20000, verbose=True):
         print("  %d records scanned, %d of length %d usable (%d other lengths)"
               % (total, len(gap), L, wrong_len))
     return {"gap": gap, "frame_counter": fc, "payload": pay,
-            "src": bytes.fromhex(srcs.pop()), "sec_level": int(secs.pop(), 16) & 7,
+            "src": bytes.fromhex(src_hex), "sec_level": int(sec_hex, 16) & 7,
             "frame_len": L, "ct_off": ct_off, "scanned": total,
             "other_lengths": wrong_len}
 

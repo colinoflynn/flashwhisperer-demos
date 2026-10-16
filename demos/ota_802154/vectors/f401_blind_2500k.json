@@ -31,7 +31,6 @@
     "weak": 6,
     "depth": 64,
     "expect_recovery": true,
-    "slow": true,
     "expect_note": "all sixteen round-10 bytes at rank 1, so the key comes out of the vote and one AES block confirms it",
     "wrong": 3
   },
