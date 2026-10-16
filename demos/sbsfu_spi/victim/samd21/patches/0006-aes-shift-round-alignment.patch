@@ -1,0 +1,58 @@
+Shift the inverse cipher's instructions by one halfword.
+
+THIS IS AN EXPERIMENT, NOT A FIX, AND IT IS NOT PART OF ANY RESULT.  It
+exists to test one claim and should be removed afterwards, or kept only
+beside the capture it produced.
+
+The claim.  This part's recovery saturates at 11 of 16 key bytes, and
+the five it never gets are not under-sampled -- no usable byte pair
+touches them, and their best pair sits at the noise floor while every
+covered byte's best is 68-80.  What the five share is that four of them
+are the table loads whose own instruction is the LAST HALFWORD OF AN
+8-BYTE LINE, so the next instruction fetch must come from the next
+line.  All four such loads are dark and none of the other twelve is,
+except byte 0.  p = 0.003.  The proposed mechanism is that this cache is
+unified, so the instruction line fetched in the load's shadow absorbs
+its miss cost and the load stops changing the block time.
+
+The test.  Move the instructions without changing them, so a DIFFERENT
+four loads land at the end of a line, and see whether the dark set
+moves with them.  A `nop` at the top of the function displaces
+everything after it by two bytes, which is the smallest shift that
+changes every offset mod 8.
+
+Why not an alignment flag.  -falign-functions can only make an address
+MORE aligned, so every shift it can produce is a multiple of 8 and
+every load keeps its offset within the line.  The function already sits
+at 0x0f40, which is 64-byte aligned, so those flags are no-ops here.
+The shift has to come from inside.
+
+Why a patch and not an edit.  aes.c compiles out of the pinned checkout,
+which is never written to.  Until this experiment the build had no way
+to patch mbedTLS at all -- the mechanism covered the SBSFU sources and
+the Secure Engine and stopped there, which is the trap of a patch
+mechanism that reaches half a vendor tree.  The Makefile now stages
+mbedTLS the same way.
+
+READ THE EMITTED ORDER AFTER APPLYING THIS.  A `nop` cannot change what
+the function computes, but gcc may still schedule the round differently
+around it, so which loads end a line has to be measured rather than
+assumed:
+
+  arm-none-eabi-objdump -d --no-show-raw-insn build/sbsfu.elf > build/sbsfu.dis
+  python ../../results/bootloader_spi/l152_realistic/emitted_order.py \
+      build/sbsfu.dis --isa thumb1 ...
+
+If the same four loads still end a line, this patch has not performed
+the experiment and the capture would prove nothing.
+
+--- a/aes.c
++++ b/aes.c
+@@ -946,6 +946,7 @@
+                                  const unsigned char input[16],
+                                  unsigned char output[16])
+ {
++    __asm__ volatile ("nop");
+     int i;
+     uint32_t *RK = ctx->buf + ctx->rk_offset;
+     struct {

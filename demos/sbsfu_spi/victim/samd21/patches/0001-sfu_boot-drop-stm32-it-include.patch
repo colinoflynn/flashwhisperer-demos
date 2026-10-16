@@ -1,0 +1,25 @@
+Drop the STM32 interrupt header from sfu_boot.c.
+
+sfu_boot.c includes "stm32l4xx_it.h" with the comment "required for the HAL
+Cube callbacks", and then uses NOTHING from it -- no handler, no RtcHandle.
+Checked by grep against the whole file.
+
+The alternative was to put a file named stm32l4xx_it.h on the include path of
+a Microchip port, which would have kept ST's file untouched at the cost of
+leaving a header named after an STM32 sitting in a SAM D21 build.  This
+repository has written enough memos about exactly that kind of trap.  One
+visible deleted line is the smaller lie.
+
+Applied at BUILD time into build/patched/, never to the checkout itself, so
+the fetched tree stays pristine and diff_vs_stock.sh keeps meaning something.
+
+--- a/sfu_boot.c
++++ b/sfu_boot.c
+@@ -32,7 +32,6 @@
+ #include "sfu_low_level.h"
+ #include "sfu_fsm_states.h"
+ #include "sfu_error.h"
+-#include "stm32l4xx_it.h" /* required for the HAL Cube callbacks */
+ /*
+  * The sfu_com init is provided by the sfu_com_trace module by default.
+  * If not, then it is taken from the sfu_com_loader module.

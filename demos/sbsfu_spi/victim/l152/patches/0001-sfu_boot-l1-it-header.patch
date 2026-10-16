@@ -1,0 +1,36 @@
+Point sfu_boot.c's interrupt header at this family.
+
+sfu_boot.c:35 reads `#include "stm32l4xx_it.h"`.  That is the only place in
+ST's SBSFU application sources that names an STM32 family, and so the only
+one a port cannot resolve through configuration or the include path --
+everything else reaches the target through main.h or through the Target/
+directory, both of which this port owns.
+
+IT IS NOT A DEAD INCLUDE HERE, which is where this port and the SAM D21 one
+diverge.  That port's 0001 patch DELETES the line, having checked that
+sfu_boot.c uses nothing from the header.  On this build it is used: ST
+redirects the memory-fault vector into sfu_boot.c with
+
+    sfu_low_level_security.h:299
+      #define SFU_CALLBACK_MEMORYFAULT(void) MemManage_Handler(void)
+
+so sfu_boot.c:1592 DEFINES MemManage_Handler, and the header is what
+declares it first.  Substituting the family keeps that prototype;
+Core/Inc/stm32l1xx_it.h supplies it, and Core/Src/stm32l1xx_it.c defines
+the handlers ST's boot module does not claim.
+
+Applied by the Makefile's STAGE_RULE with -F0, so if ST's line ever moves
+the build stops rather than patching something approximate into a
+bootloader.
+
+--- sfu_boot.c
++++ sfu_boot.c
+@@ -32,7 +32,7 @@
+ #include "sfu_low_level.h"
+ #include "sfu_fsm_states.h"
+ #include "sfu_error.h"
+-#include "stm32l4xx_it.h" /* required for the HAL Cube callbacks */
++#include "stm32l1xx_it.h" /* required for the HAL Cube callbacks */
+ /*
+  * The sfu_com init is provided by the sfu_com_trace module by default.
+  * If not, then it is taken from the sfu_com_loader module.

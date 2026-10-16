@@ -1,0 +1,46 @@
+Do not let the Secure Engine initialise the whole image's RAM a second time.
+
+THIS ONE WAS MEASURED ON SILICON, not predicted.  With the call in place the
+bootloader came up, ran, and printed one garbage byte.  Under the debugger:
+SystemCoreClock read 4 000 000 while RCC_CFGR said the core was running off
+the 80 MHz PLL, and USART1's BRR was 35 -- which is 115 200 baud at 4 MHz and
+2.3 Mbaud at 80.  The UART was configured for a clock the part had left
+behind twenty times over.
+
+What __gcc_data_init does is not an SE-sized job.  ST's
+2_Images_SECoreBin/STM32CubeIDE/Application/User/data_init.c zeroes
+_sbss.._ebss and copies _sidata into _sdata.._edata -- the WHOLE image's
+.bss and .data, as the linker symbols define them.  In ST's build those
+symbols belong to the SECoreBin binary and cover the Secure Engine's RAM
+alone, which is the point: SECoreBin is loaded as a blob, nothing else
+initialises it, so it initialises itself on its first call.
+
+In this rig's single ELF those same symbols cover the bootloader's RAM too,
+and SE_CORE_Startup runs on the first SE call -- after SystemClock_Config
+has set SystemCoreClock and after the bootloader has set up its own state.
+So the first SE call silently rolled back every initialised variable in the
+image and zeroed every uninitialised one.  SystemCoreClock was simply the
+one that announced itself.
+
+The call is redundant here rather than merely harmful: ST's startup_stm32l475xx.s
+did exactly this copy-and-zero for the whole image before main(), the Secure
+Engine's RAM included.
+
+With the call gone, data_init.c is unreferenced and the Makefile no longer
+builds it -- which also retires the patch that was needed to get it to
+compile at all (it includes "stdint-gcc.h", a header this toolchain does not
+ship).
+
+Applied by the Makefile's SE_STAGE_RULE with -F0.
+--- se_startup.c
++++ se_startup.c
+@@ -73,7 +73,9 @@
+ #elif defined (__ARMCC_VERSION)
+   __arm_data_init();
+ #elif defined(__GNUC__)
++#if !defined(PORT_SINGLE_IMAGE)
+   __gcc_data_init();
++#endif /* !PORT_SINGLE_IMAGE */
+ #endif /* __ICCARM__ */
+ 
+   /*NOTE : other initialization may be added here */

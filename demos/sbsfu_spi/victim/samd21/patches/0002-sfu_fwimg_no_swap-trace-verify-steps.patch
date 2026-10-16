@@ -1,0 +1,129 @@
+Report what VerifyFwSignatureBeforeDecrypt does, step by step.
+
+DIAGNOSTIC PATCH.  It adds TRACE lines and changes no logic; every one is
+under SFU_VERBOSE_DEBUG_MODE, so a non-verbose build is identical to stock.
+
+VerifyFwSignatureBeforeDecrypt is static, so it cannot be called or
+instrumented from outside sfu_fwimg_no_swap.c, and it collapses several
+distinct outcomes -- SE_Decrypt_Init failed, SE_AuthenticateFW_Init failed,
+the loop never entered, a chunk read failed, a decrypt failed, a hash
+update failed, the tag did not match -- into one SFU_ERROR.  ST's caller
+then prints "Fw signature check error", which names only the last of them
+and is emitted for all of them.
+
+On this port the symptom was: both SE init calls return SE_SUCCESS with
+FwSize 102400 and chunk 64, the loop bound (512 < 102912) is plainly true,
+the loop IS entered -- and it runs exactly one iteration.  Every component
+works when called from main() against the same image.  The traces added
+here bracket the loop and then each of the three steps inside it, for the
+first two iterations only, so the trace cannot dominate the timing of the
+pass it is reporting on.
+
+GENERATED WITH diff, NOT BY HAND.  The first version of this patch was
+hand-written and its hunk header understated the added lines; `patch`
+applied PART of the hunk and reported success, so only one of the two
+TRACEs existed -- and the missing one was the informative one.  That is the
+failure the Makefile's -F0 is supposed to prevent and does not, because the
+context still matched.  scratchpad/mkpatch.py regenerates this file, and
+asserts that every anchor meant to fire once actually matched.
+
+--- a/sfu_fwimg_no_swap.c
++++ b/sfu_fwimg_no_swap.c
+@@ -374,21 +374,43 @@
+   /* Decryption process initialization
+      ================================= */
+   se_ret_status = SE_Decrypt_Init(&e_se_status, pFwImageHeader, SE_FW_IMAGE_COMPLETE);
++#if defined(SFU_VERBOSE_DEBUG_MODE)
++  TRACE("\r\n\t  [VFY] Decrypt_Init=%d st=%d FwSize=%d chunk=%d",
++        (int)se_ret_status, (int)e_se_status,
++        (int)pFwImageHeader->FwSize, (int)SFU_IMG_CHUNK_SIZE);
++#endif /* SFU_VERBOSE_DEBUG_MODE */
+   if (se_ret_status == SE_SUCCESS)
+   {
+ #if (SECBOOT_CRYPTO_SCHEME != SECBOOT_AES128_GCM_AES128_GCM_AES128_GCM)
+     se_ret_status = SE_AuthenticateFW_Init(&e_se_status, pFwImageHeader, SE_FW_IMAGE_COMPLETE);
++#if defined(SFU_VERBOSE_DEBUG_MODE)
++    TRACE("\r\n\t  [VFY] AuthFW_Init=%d st=%d",
++          (int)se_ret_status, (int)e_se_status);
++#endif /* SFU_VERBOSE_DEBUG_MODE */
+ #endif /* (SECBOOT_CRYPTO_SCHEME != SECBOOT_AES128_GCM_AES128_GCM_AES128_GCM) */
+ 
+     /* Skip header : no decryption needed */
+     fw_index = SFU_IMG_IMAGE_OFFSET;
+ 
+     e_ret_status = SFU_SUCCESS;
++#if defined(SFU_VERBOSE_DEBUG_MODE)
++    TRACE("\r\n\t  [VFY] pre-loop idx=%d limit=%d e=%d se=%d",
++          (int)fw_index,
++          (int)(pFwImageHeader->FwSize + SFU_IMG_IMAGE_OFFSET),
++          (int)e_ret_status, (int)se_ret_status);
++#endif /* SFU_VERBOSE_DEBUG_MODE */
+     while ((e_ret_status == SFU_SUCCESS) && (se_ret_status == SE_SUCCESS) &&
+            (fw_index < (pFwImageHeader->FwSize + SFU_IMG_IMAGE_OFFSET)))
+     {
+       /* Set size of reading/decryption */
+       size = SFU_IMG_CHUNK_SIZE;
++#if defined(SFU_VERBOSE_DEBUG_MODE)
++      if (fw_index < (SFU_IMG_IMAGE_OFFSET + (3U * SFU_IMG_CHUNK_SIZE)))
++      {
++        TRACE("\r\n\t  [VFY] iter idx=%d src=%08x", (int)fw_index,
++              (unsigned)(SlotStartAdd[DwlSlot] + fw_index));
++      }
++#endif /* SFU_VERBOSE_DEBUG_MODE */
+ 
+       /* Last pass ? */
+       if (((pFwImageHeader->FwSize + SFU_IMG_IMAGE_OFFSET) - fw_index) < size)
+@@ -400,11 +422,26 @@
+       /* read then decrypt phase
+        ======================= */
+       e_ret_status = SFU_LL_FLASH_Read(fw_encrypted_chunk, (uint8_t *)(SlotStartAdd[DwlSlot] + fw_index), size);
++#if defined(SFU_VERBOSE_DEBUG_MODE)
++      if (fw_index < (SFU_IMG_IMAGE_OFFSET + (2U * SFU_IMG_CHUNK_SIZE)))
++      {
++        TRACE("\r\n\t  [VFY]   read=%d size=%d", (int)e_ret_status,
++              (int)size);
++      }
++#endif /* SFU_VERBOSE_DEBUG_MODE */
+       if (e_ret_status == SFU_SUCCESS)
+       {
+         fw_decrypted_chunk_size = size;
+         se_ret_status = SE_Decrypt_Append(&e_se_status, fw_encrypted_chunk, (int32_t)size, fw_decrypted_chunk,
+                                           (int32_t *)&fw_decrypted_chunk_size);
++#if defined(SFU_VERBOSE_DEBUG_MODE)
++        if (fw_index < (SFU_IMG_IMAGE_OFFSET + (2U * SFU_IMG_CHUNK_SIZE)))
++        {
++          TRACE("\r\n\t  [VFY]   decrypt=%d st=%d out=%d",
++                (int)se_ret_status, (int)e_se_status,
++                (int)fw_decrypted_chunk_size);
++        }
++#endif /* SFU_VERBOSE_DEBUG_MODE */
+ 
+         if (se_ret_status == SE_SUCCESS)
+         {
+@@ -412,6 +449,14 @@
+           fw_authenticated_chunk_size = sizeof(fw_authenticated_chunk);
+           se_ret_status = SE_AuthenticateFW_Append(&e_se_status, fw_decrypted_chunk, (int32_t)size,
+                                                    fw_authenticated_chunk, (int32_t *)&fw_authenticated_chunk_size);
++#if defined(SFU_VERBOSE_DEBUG_MODE)
++          if (fw_index < (SFU_IMG_IMAGE_OFFSET + (2U * SFU_IMG_CHUNK_SIZE)))
++          {
++            TRACE("\r\n\t  [VFY]   auth=%d st=%d out=%d",
++                  (int)se_ret_status, (int)e_se_status,
++                  (int)fw_authenticated_chunk_size);
++          }
++#endif /* SFU_VERBOSE_DEBUG_MODE */
+ #endif /* (SECBOOT_CRYPTO_SCHEME != SECBOOT_AES128_GCM_AES128_GCM_AES128_GCM) */
+           fw_index += size;
+         }
+@@ -419,6 +464,11 @@
+     }
+   }
+ 
++#if defined(SFU_VERBOSE_DEBUG_MODE)
++  TRACE("\r\n\t  [VFY] post-loop idx=%d e=%d se=%d st=%d",
++        (int)fw_index, (int)e_ret_status, (int)se_ret_status,
++        (int)e_se_status);
++#endif /* SFU_VERBOSE_DEBUG_MODE */
+   /* Do the Finalization, check the authentication TAG
+      ================================================= */
+   if ((se_ret_status == SE_SUCCESS) && (e_ret_status == SFU_SUCCESS))

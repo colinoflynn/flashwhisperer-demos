@@ -1,0 +1,62 @@
+Have the victim time its own decrypt loop, at the two points the bus-side
+rigs read as chip-select edges.
+
+On the SAM D21 and the L152 the observable is on the wire: chip-select rise
+of chunk k's data read to chip-select fall of chunk k+1's status poll, timed
+by an F303 clipped to the chip-select line.  On THIS board the MX25R6435F is
+on QUADSPI and nCS is driven by the IP per command, so the victim never
+writes that pin and cannot produce the edge itself.  This rig therefore
+times the same span from inside:
+
+    GapStart  immediately after BSP_QSPI_Read() returns, so the clock starts
+              just after nCS has risen
+    GapEnd    immediately before BSP_QSPI_GetStatus() issues the next
+              chunk's command, so the clock stops just before nCS falls
+
+What the software bracket excludes -- the HAL's wait-for-complete at the
+head and its command setup at the tail -- is a fixed instruction sequence
+either side, so it adds a constant to every interval.  Instr/sfu_instr.h has
+the full argument and says why that makes this an upper bound on a bus-side
+attacker rather than a different measurement.
+
+PollAgain() counts the times ST's status loop found the memory BUSY.  That
+is normally zero, and an interval that saw one contains a whole extra
+chip-select envelope -- tens of microseconds against a signal of a cycle or
+two.  Counting them per interval is what lets the host drop those rather
+than average them in.
+
+The calls do nothing unless SFU_INSTR_PassBegin has run, so the header
+reads, the VerifySlot scan and the install copy -- which come through this
+same function -- are not recorded.
+
+Applied by the Makefile's STAGE_RULE with -F0, so if ST's lines ever move
+the build stops rather than instrumenting the wrong place.
+--- sfu_low_level_flash_ext.c
++++ sfu_low_level_flash_ext.c
+@@ -23,6 +23,7 @@
+ #include "sfu_low_level_flash_ext.h"
+ #include "sfu_low_level_security.h"
+ #include "stm32l475e_iot01_qspi.h"
++#include "sfu_instr.h"
+ 
+ /* Private defines -----------------------------------------------------------*/
+ #define ERASE_BLOC_SIZE           0x10000U           /*!< 64 Kbytes */
+@@ -123,8 +124,10 @@
+   /* ensure previous operation is finished (erase/write) : GetStatus()
+      such verification is done (inside BSP driver) at the beginning of erase or write operation  but
+      not for read operation ==> in order to maximise BSP driver execution timing efficiency */
++  SFU_INSTR_GapEnd();
+   while (BSP_QSPI_GetStatus() !=  QSPI_OK)
+   {
++    SFU_INSTR_PollAgain();
+   }
+ 
+   /* flash address to read is the offset from begin of external flash */
+@@ -134,6 +137,7 @@
+   }
+   else
+   {
++    SFU_INSTR_GapStart();
+     return SFU_SUCCESS;
+   }
+ }

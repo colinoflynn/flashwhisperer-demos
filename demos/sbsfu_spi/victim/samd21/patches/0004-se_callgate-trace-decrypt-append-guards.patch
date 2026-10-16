@@ -1,0 +1,123 @@
+Say which of the call gate's guards rejected a decrypt-append.
+
+DIAGNOSTIC PATCH, off unless -DPORT_SE_CRYPTO_TRACE is passed
+(CRYPTO_TRACE=1 in the Makefile).  It adds printf calls and changes no
+logic.
+
+SE_CallGateService's SE_CRYPTO_LL_DECRYPT_APPEND_ID case runs its guards
+twice each -- ST repeats them deliberately, as a fault-injection
+countermeasure -- and each one fails identically: assign SE_ERROR, break.
+peSE_Status has already been set to SE_OK by then, so a caller that gets
+SE_ERROR with status SE_OK knows only that SOME guard fired.
+
+The symptom this was written for: ST's installer gets SE_ERROR from the
+first SE_Decrypt_Append of the verify pass while main() makes the same call
+successfully, and 0003's trace shows SE_CRYPTO_Decrypt_Append is never
+entered on the failing path -- so the guard is in the gate, and the two
+callers differ only in where their buffers live (main() uses statics, ST's
+loop uses stack).
+
+GENERATED WITH diff, NOT BY HAND -- see
+patches/0002-sfu_fwimg_no_swap-trace-verify-steps.patch for why.
+scratchpad/mkpatch4.py regenerates this file and asserts every guard it
+means to mark was found.
+
+--- a/se_callgate.c
++++ b/se_callgate.c
+@@ -491,12 +491,18 @@
+       IS_SE_LOCKED_SERVICES();
+ 
+       /* Retrieve argument(s) */
++#if defined(PORT_SE_CRYPTO_TRACE)
++      printf("\r\n\t  [GATE] enter");
++#endif /* PORT_SE_CRYPTO_TRACE */
+       input_buffer = va_arg(arguments, const uint8_t *);
+       input_size = va_arg(arguments, int32_t);
+       output_buffer = va_arg(arguments, uint8_t *);
+       output_size = va_arg(arguments, int32_t *);
+ 
+       /* CRC configuration may have been changed by application */
++#if defined(PORT_SE_CRYPTO_TRACE)
++      printf("\r\n\t  [GATE] %s", "crc");
++#endif /* PORT_SE_CRYPTO_TRACE */
+       if (SE_LL_CRC_Config() == SE_ERROR)
+       {
+         e_ret_status = SE_ERROR;
+@@ -504,21 +510,33 @@
+       }
+ 
+       /* Check the pointers allocation */
++#if defined(PORT_SE_CRYPTO_TRACE)
++      printf("\r\n\t  [GATE] %s", "size");
++#endif /* PORT_SE_CRYPTO_TRACE */
+       if (input_size <= 0)
+       {
+         e_ret_status = SE_ERROR;
+         break;
+       }
++#if defined(PORT_SE_CRYPTO_TRACE)
++      printf("\r\n\t  [GATE] %s", "buf-in");
++#endif /* PORT_SE_CRYPTO_TRACE */
+       if (SE_LL_Buffer_in_SBSFU_ram(input_buffer, (uint32_t)input_size) != SE_SUCCESS)
+       {
+         e_ret_status = SE_ERROR;
+         break;
+       }
++#if defined(PORT_SE_CRYPTO_TRACE)
++      printf("\r\n\t  [GATE] %s", "buf-osz");
++#endif /* PORT_SE_CRYPTO_TRACE */
+       if (SE_LL_Buffer_in_SBSFU_ram(output_size, sizeof(*output_size)) != SE_SUCCESS)
+       {
+         e_ret_status = SE_ERROR;
+         break;
+       }
++#if defined(PORT_SE_CRYPTO_TRACE)
++      printf("\r\n\t  [GATE] %s", "buf-out");
++#endif /* PORT_SE_CRYPTO_TRACE */
+       if (SE_LL_Buffer_in_SBSFU_ram(output_buffer, (uint32_t)input_size) != SE_SUCCESS)
+       {
+         e_ret_status = SE_ERROR;
+@@ -529,21 +547,33 @@
+       IS_SE_LOCKED_SERVICES();
+ 
+       /* Double Check to avoid basic fault injection : Check the pointers allocation */
++#if defined(PORT_SE_CRYPTO_TRACE)
++      printf("\r\n\t  [GATE] %s", "size");
++#endif /* PORT_SE_CRYPTO_TRACE */
+       if (input_size <= 0)
+       {
+         e_ret_status = SE_ERROR;
+         break;
+       }
++#if defined(PORT_SE_CRYPTO_TRACE)
++      printf("\r\n\t  [GATE] %s", "buf-in");
++#endif /* PORT_SE_CRYPTO_TRACE */
+       if (SE_LL_Buffer_in_SBSFU_ram(input_buffer, (uint32_t)input_size) != SE_SUCCESS)
+       {
+         e_ret_status = SE_ERROR;
+         break;
+       }
++#if defined(PORT_SE_CRYPTO_TRACE)
++      printf("\r\n\t  [GATE] %s", "buf-osz");
++#endif /* PORT_SE_CRYPTO_TRACE */
+       if (SE_LL_Buffer_in_SBSFU_ram(output_size, sizeof(*output_size)) != SE_SUCCESS)
+       {
+         e_ret_status = SE_ERROR;
+         break;
+       }
++#if defined(PORT_SE_CRYPTO_TRACE)
++      printf("\r\n\t  [GATE] %s", "buf-out");
++#endif /* PORT_SE_CRYPTO_TRACE */
+       if (SE_LL_Buffer_in_SBSFU_ram(output_buffer, (uint32_t)input_size) != SE_SUCCESS)
+       {
+         e_ret_status = SE_ERROR;
+@@ -551,6 +581,9 @@
+       }
+ 
+       /* Call SE CRYPTO function */
++#if defined(PORT_SE_CRYPTO_TRACE)
++      printf("\r\n\t  [GATE] %s", "call");
++#endif /* PORT_SE_CRYPTO_TRACE */
+       e_ret_status = SE_CRYPTO_Decrypt_Append(input_buffer, input_size, output_buffer, output_size);
+ #endif /* !KMS_ENABLED */
+       break;

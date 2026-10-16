@@ -1,0 +1,37 @@
+{
+  "vector": "l475_ramtwin_5110.npz",
+  "what": "the twin: the same bodies, the same passes, the same analysis, with mbedTLS's tables computed into SRAM instead (make RAMTABLES=1, which is ST's shipped default)",
+  "victim": {
+    "part": "STM32L4S5VI on a B-L475E-IOT01A",
+    "core_mhz": 80,
+    "stack": "X-CUBE-SBSFU v2.7.0, 2_Images_ExtFlash, ST's shipped crypto scheme SECBOOT_ECCDSA_WITH_AES128_CBC_SHA256, mbedTLS as the package ships it",
+    "build": "make RAMTABLES=1 - ST's default, tables in .bss",
+    "flash_acr": "as SBSFU leaves it at 80 MHz",
+    "table": "mbedTLS RT0, 1 KB, four-byte entries, in SRAM",
+    "table_addr": "SRAM; the flash latch does not apply"
+  },
+  "geometry": {
+    "row_bytes": 8,
+    "entry_bytes": 4,
+    "line_shift": 1,
+    "line_off": 0,
+    "scorer_geometry": "latch",
+    "note": "Scored at the flash vector's own geometry on purpose. A control has to fail at the attack's settings, not at settings chosen to make it fail."
+  },
+  "attack": {
+    "direction": "dec",
+    "round": "first",
+    "pair_offsets": null,
+    "conditioning": "none",
+    "column": "cycles",
+    "n": null,
+    "expect_recovery": false,
+    "expect_note": "no key: across-chunk spread falls to the instrument floor and the pairs stop resolving",
+    "note": "Byte-identical bodies to the flash vector, one documented #define apart. Across-chunk spread is 83.1 cycles with the tables in flash against 22.5 with them in SRAM, on an instrument floor of 18.5. Marked slow: a control pays for the whole 2**23 residual before it can say no, which is about five minutes, where the flash vector finds the key in fifteen seconds. `run.py --fast` skips it.",
+    "slow": true
+  },
+  "truth": {
+    "master_key": "4f454d5f4b45595f434f4d50414e5931",
+    "note": "ST's published demo key, ASCII OEM_KEY_COMPANY1, which is what their prebuild step generates for this project. tools/replay.py compares the recovered key against it; the recovery reaches it through fw.plain and never reads this field."
+  }
+}

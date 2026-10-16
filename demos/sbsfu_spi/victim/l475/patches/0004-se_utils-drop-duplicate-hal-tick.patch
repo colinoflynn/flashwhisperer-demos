@@ -1,0 +1,41 @@
+Drop the Secure Engine's HAL_GetTick and HAL_Delay, and keep the rest of
+se_utils.c.
+
+ST's own comment on HAL_GetTick says what it is for: "This function
+overwrites the one declared as __weak in HAL ... time is counted without
+using SysTick timer interrupts."  Behind the firewall the Secure Engine
+cannot reach the application's tick, so it derives one from SysTick->VAL by
+hand.  This rig links one ELF with the firewall off
+(B_L475E_IOT01A/2_Images_SECoreBin/Inc/se_low_level.h), so ST's HAL supplies
+both symbols and keeping se_utils' pair is a duplicate definition.
+
+WHY NOT SIMPLY LEAVE THE FILE OUT, which is what this rig did at first: it
+also defines SE_SetSystemCoreClock, which se_callgate.c:410 calls and
+nothing else provides.  Excluding the file links everything else and fails
+on that one symbol.
+
+The behaviour the SE gets instead is the HAL's: a tick incremented by the
+SysTick interrupt rather than one computed from the counter's value.  For
+this rig that is the better of the two -- it is the same tick the rest of
+the bootloader reads -- and neither is in the timed path, which is counted
+in DWT cycles and not in milliseconds.
+
+Applied by the Makefile's SE_STAGE_RULE with -F0.
+--- se_utils.c
++++ se_utils.c
+@@ -58,6 +58,7 @@
+   m_uSE_SystemCoreClock = uSystemCoreClock;
+ }
+ 
++#if !defined(PORT_SINGLE_IMAGE)
+ /**
+   * @brief Provide a tick value in millisecond.
+   * @note This function overwrites the one declared as __weak in HAL.
+@@ -112,6 +113,7 @@
+   {
+   }
+ }
++#endif /* !PORT_SINGLE_IMAGE */
+ 
+ /**
+   * @}

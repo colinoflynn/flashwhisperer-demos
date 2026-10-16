@@ -1,0 +1,53 @@
+Mark the boundaries of the pass being timed, and dump the intervals once it
+is over.
+
+VerifyFwSignatureBeforeDecrypt is the first of the install's two decrypts --
+the one that reads every chunk of the staged image over QSPI, decrypts it
+and hashes the plaintext, and checks the tag only after the loop has run
+out.  It is the pass the whole campaign targets
+(results/bootloader_spi/PROTOCOL.md section 1).
+
+PassBegin clears the buffer, starts DWT->CYCCNT and PROVES it is running
+before anything is recorded; a frozen cycle counter yields intervals of
+exactly zero, which reads as a clean constant-time result rather than as a
+broken instrument.  PassEnd stops recording and prints.
+
+BOTH CALLS SIT OUTSIDE THE LOOP.  Nothing in this patch prints, allocates
+or branches inside the region being timed -- the dump runs after the pass,
+on the UART the host is already attached to, because a diagnostic inside the
+loop is not a diagnostic: a 1 Hz console line on another rig in this
+repository corrupted whole groups of measurements and produced a wrong
+conclusion about the instrument that printed it.
+
+PassBegin goes after ST's header-presence check rather than at the top of
+the function, so the early return cannot leave a pass open.
+
+Applied by the Makefile's STAGE_RULE with -F0.
+--- sfu_fwimg_no_swap.c
++++ sfu_fwimg_no_swap.c
+@@ -33,6 +33,7 @@
+ #include "sfu_fwimg_internal.h"
+ #include "sfu_trace.h"
+ #include "sfu_boot.h"
++#include "sfu_instr.h"
+ 
+ 
+ #if  defined(SFU_NO_SWAP)
+@@ -371,6 +372,8 @@
+     return e_ret_status;
+   }
+ 
++  SFU_INSTR_PassBegin(SFU_IMG_CHUNK_SIZE, pFwImageHeader->FwSize);
++
+   /* Decryption process initialization
+      ================================= */
+   se_ret_status = SE_Decrypt_Init(&e_se_status, pFwImageHeader, SE_FW_IMAGE_COMPLETE);
+@@ -451,6 +454,8 @@
+     e_ret_status = SFU_ERROR;
+   }
+ 
++  SFU_INSTR_PassEnd();
++
+   return e_ret_status;
+ }
+ 

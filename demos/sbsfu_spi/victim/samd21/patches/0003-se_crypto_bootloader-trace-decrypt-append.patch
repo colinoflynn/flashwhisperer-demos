@@ -1,0 +1,60 @@
+Report why SE_CRYPTO_Decrypt_Append failed.
+
+DIAGNOSTIC PATCH, off unless -DPORT_SE_CRYPTO_TRACE is passed (SE_PROBE=1
+in the Makefile does not enable it; CRYPTO_TRACE=1 does).  It adds two
+printf calls and changes no logic.
+
+SE_CRYPTO_Decrypt_Append returns a bare SE_ERROR for a NULL pointer, for a
+negative size, and for any mbedTLS failure, and it does not set the
+SE_StatusTypeDef, so the caller's trace cannot tell them apart.
+
+The symptom this was written for: ST's installer gets SE_ERROR from the
+first SE_Decrypt_Append of the verify pass, while main() makes the same
+five calls -- Decrypt_Init, AuthenticateFW_Init, SFU_LL_FLASH_Read,
+Decrypt_Append, AuthenticateFW_Append -- against the same image, with the
+same chunk size, and every one succeeds.  mbedtls_cipher_update returns
+without writing *olen on exactly one path, cipher_info == NULL, and the
+observed *olen was unchanged; printing the context pointers says whether
+that is what happened or whether the function was not reached at all.
+
+GENERATED WITH diff, NOT BY HAND -- see
+patches/0002-sfu_fwimg_no_swap-trace-verify-steps.patch for why.
+scratchpad/mkpatch3.py regenerates this file and asserts both anchors
+matched.
+
+--- a/se_crypto_bootloader.c
++++ b/se_crypto_bootloader.c
+@@ -19,6 +19,9 @@
+   */
+ 
+ /* Includes ------------------------------------------------------------------*/
++#if defined(PORT_SE_CRYPTO_TRACE)
++#include <stdio.h>
++#endif /* PORT_SE_CRYPTO_TRACE */
+ #include <string.h>               /* added for memcpy */
+ #include "se_crypto_bootloader.h"
+ #include "se_low_level.h"         /* required for assert_param */
+@@ -704,6 +707,13 @@
+   int32_t ret; /* mbedTLS return code */
+ #endif /* SECBOOT_CRYPTO_SCHEME */
+ 
++#if defined(PORT_SE_CRYPTO_TRACE)
++  printf("\r\n\t  [CRY] append in=%08x n=%d out=%08x osz=%08x info=%08x cctx=%08x",
++         (unsigned)pInputBuffer, (int)InputSize,
++         (unsigned)pOutputBuffer, (unsigned)pOutputSize,
++         (unsigned)m_AESCBCctx.mbedAesCbcCtx.MBEDTLS_PRIVATE(cipher_info),
++         (unsigned)m_AESCBCctx.mbedAesCbcCtx.MBEDTLS_PRIVATE(cipher_ctx));
++#endif /* PORT_SE_CRYPTO_TRACE */
+   /* DecryptImageInDwlSlot() always starts by calling the Decrypt service with a 0 byte buffer */
+   if (0 == InputSize)
+   {
+@@ -745,6 +755,9 @@
+   ret = mbedtls_cipher_update(&(m_AESCBCctx.mbedAesCbcCtx), pInputBuffer, (size_t)InputSize, pOutputBuffer,
+                               (size_t *)pOutputSize);
+ 
++#if defined(PORT_SE_CRYPTO_TRACE)
++  printf("\r\n\t  [CRY] cipher_update ret=%d olen=%d", (int)ret, (int)*pOutputSize);
++#endif /* PORT_SE_CRYPTO_TRACE */
+   if (ret == 0)
+   {
+     e_ret_status = SE_SUCCESS;

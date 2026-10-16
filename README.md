@@ -35,7 +35,7 @@ make that likely rather than possible. `./tools/verify.sh` is what catches it.
 | [`tls_https`](demos/tls_https) | NUCLEO-F429ZI, lwIP `httpd` + `altcp_tls` + mbedTLS, all out of STM32CubeF4 | `ethtimer` | record key, verified, 41 000 exchanges of one TLS session |
 | [`snmpv3_harmony`](demos/snmpv3_harmony) | PIC32MZ2048EFH144, Harmony 3 + wolfCrypt on FreeRTOS | its own CP0 counter, and the wire | privacy key, verified - but the **shipped build is a null** |
 | [`ota_802154`](demos/ota_802154) | NUCLEO-F401RE + S2-LP, X-CUBE-SUBG2 Contiki-NG, stock | a third board listening to the link | link key, verified, 2.5 M frames, blind, nothing on either legitimate node |
-| `sbsfu_spi` | ATSAMD21J18A and NUCLEO-L152RE running X-CUBE-SBSFU | a Nucleo clipped to the serial flash's chip select | key with nothing on the victim, and the SAM D21 has no cache at all |
+| [`sbsfu_spi`](demos/sbsfu_spi) | ATSAMD21J18A, NUCLEO-L152RE and B-L475E-IOT01A running X-CUBE-SBSFU | a Nucleo clipped to the serial flash's chip select, and on the L475 the bootloader's own clock for now | the key with nothing on the victim, and the SAM D21 has no cache at all |
 | `fido2_usb` | nRF52840 Dongle, RIOT's `fido2_ctap_hid`, unmodified | a Nucleo acting as the USB host | `cred_key`, blind: no debugger, key never known |
 
 The demos with a link have landed, with their vectors; the rest arrive in the
@@ -55,6 +55,8 @@ snmpv3_harmony  pic32mz_shipped_10k      no key    control
 ota_802154      f401_blind_2500k         key       expected
 ota_802154      f401_stock_2400k         key       expected
 ota_802154      f401_blind_500k          no key    control
+sbsfu_spi       l475_flash_5110          key       expected
+sbsfu_spi       l475_ramtwin_5110        no key    control
 ```
 
 ## How a demo is laid out

@@ -1,0 +1,77 @@
+Stop this file instantiating what the bootloader already has: the slot
+address tables, and the double-ECC fault handlers.
+
+Both exist twice in ST's project because ST links TWO binaries, and ST's own
+mechanism says so out loud -- sfu_fwimg_regions.h instantiates its const
+tables only `#if defined(SFU_FWIMG_COMMON_C) || defined(SE_LOW_LEVEL_C) ||
+defined(TEST_PROTECTIONS_C)`, which is how each image gets exactly one copy.
+This rig links ONE ELF (B_L475E_IOT01A/2_Images_SECoreBin/Inc/se_low_level.h
+has the reason), so both copies land in the same link and it fails with
+`multiple definition of SlotStartAdd' and `multiple definition of
+NMI_Handler'.
+
+PORT_SINGLE_IMAGE is defined by the Makefile for every build this rig makes.
+
+Hunk 1 -- the tables.  Dropping SE_LOW_LEVEL_C leaves the extern
+declarations at the top of sfu_fwimg_regions.h in force and the definitions
+to sfu_fwimg_common.c.  Both copies are `const` and both are built from the
+same linker symbols, so there is no version of this where the two differ:
+the SE core reads the same addresses either way.  -fcommon does not help
+here and that is worth knowing -- these are INITIALISED definitions, and
+-fcommon merges only tentative ones.
+
+Hunk 2 -- the handlers.  KEEPING THE BOOTLOADER'S IS WHAT REPRODUCES ST'S
+RUNTIME, not a coin toss.  The active vector table is the one at 0x08000000,
+built from the SBSFU project's startup_stm32l475xx.s, and its NMI entry
+resolves inside the SBSFU image -- so even in ST's two-binary build it is
+sfu_low_level_flash_int.c's handler that runs, and the copy here sits in a
+region VTOR never points at.
+
+What does change: SE_DoubleECC_Error_Counter, which this file's handler
+increments so SE code can discard a value read from a double-ECC-faulted
+word, is never incremented.  That path needs an uncorrectable ECC error in
+internal flash to be taken at all, and on a healthy part it is not -- and
+with the handler gone such an event presents as the bootloader's own fault
+path rather than as a silently wrong read.  It is recorded here rather than
+left for someone to find in the symbol table.
+
+HUNK 2'S GUARD OPENS ABOVE ST'S ATTRIBUTE BLOCK, not above the function.
+The __attribute__((optimize("O1"))) four lines up applies to the next
+declaration in the file, so a guard placed between it and NMI_Handler would
+silently attach ST's optimisation override to whatever followed.  That is
+the shape of the bug the L152 port's 0002 patch records, where an extern
+dropped between a section attribute and its function moved the Secure
+Engine's call gate out of its own region and the first SE call executed
+linker padding.
+
+Applied by the Makefile's STAGE_RULE -- this file is one of ST's project
+sources rather than middleware -- with -F0, so if ST's lines ever move the
+build stops rather than guarding the wrong region.
+--- se_low_level.c
++++ se_low_level.c
+@@ -18,7 +18,9 @@
+   ******************************************************************************
+   */
+ 
++#if !defined(PORT_SINGLE_IMAGE)
+ #define SE_LOW_LEVEL_C
++#endif /* !PORT_SINGLE_IMAGE */
+ 
+ /* Includes ------------------------------------------------------------------*/
+ #include "se_low_level.h"
+@@ -535,6 +537,7 @@
+   return result;
+ }
+ 
++#if !defined(PORT_SINGLE_IMAGE)
+ /*
+    As this handler code relies on stack pointer position to manipulate the PC return value, it is important
+    not to use extra registers (on top of scratch registers), because it would change the stack pointer
+@@ -625,6 +628,7 @@
+ {
+   SE_NMI_ExceptionHandler();
+ }
++#endif /* !PORT_SINGLE_IMAGE */
+ 
+ /**
+   * @brief  Cleanup SE CORE

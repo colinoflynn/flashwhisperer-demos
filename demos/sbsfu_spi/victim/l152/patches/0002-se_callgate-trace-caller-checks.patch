@@ -1,0 +1,41 @@
+--- se_callgate.c
++++ se_callgate.c
+@@ -168,6 +168,18 @@
+ void SE_ExitHandler_Service(void);
+ #endif /* IT_MANAGEMENT */
+ 
++#ifdef PORT_GATE_TRACE
++/* Declared WELL ABOVE ST's section attribute, and the gap matters.
++ * The attributes below -- section(".SE_CallGate_Code") and
++ * optimize("O0") -- apply to the NEXT declaration in the file.  An
++ * earlier version of this patch put this extern between them and
++ * SE_CallGate, which silently moved the call gate out of its region
++ * and put PORT_Trace there instead: the region then held four bytes
++ * of linker padding, and the first SE call executed it as an
++ * instruction.  The fault was an UNDEFINSTR at 0x08000204. */
++extern void PORT_Trace(const char *tag, uint32_t a, uint32_t b);
++#endif /* PORT_GATE_TRACE */
++
+ /* Functions Definition ------------------------------------------------------ */
+ /* Place code in a specific section */
+ #if defined(__ICCARM__)
+@@ -226,9 +238,19 @@
+    */
+ 
+   /* Check the Callgate was called only from SE Interface */
++#ifdef PORT_GATE_TRACE
++  PORT_Trace("LR-vs-SE_IF", LR, SE_IF_REGION_ROM_START);
++  PORT_Trace("LR-vs-SE_IF-end", LR, SE_IF_REGION_ROM_END);
++#endif
+   IS_CALLER_SE_IF();
++#ifdef PORT_GATE_TRACE
++  PORT_Trace("caller-ok", LR, (uint32_t)eID);
++#endif
+ 
+   /* Check the pointers allocation */
++#ifdef PORT_GATE_TRACE
++  PORT_Trace("status-ptr", (uint32_t)(uintptr_t)peSE_Status, sizeof(*peSE_Status));
++#endif
+   if (SE_LL_Buffer_in_ram(peSE_Status, sizeof(*peSE_Status)) != SE_SUCCESS)
+   {
+     NVIC_SystemReset();

@@ -99,16 +99,29 @@ def run(vector_path, *, n=None, line_off=None, controls=False, quiet=False,
 
     data = adapter.load(vector_path, geom)
     i = data["info"]
-    say("   conditioned %s: %d traces kept, %s modes, spread %.1f"
+    say("   oracle      %s: %d kept, %s modes, spread %.1f"
         % (i["column"], i["kept"], i["modes"], i["spread"] or float("nan")))
 
     if controls:
-        z, zs, zw = stats.controls(data["known_blocks"], data["timing"], truth,
-                                   line_off=g["line_off"],
-                                   line_shift=g["line_shift"])
-        say("   pooled z    %+.2f   (the effect over the 120 pairs, given the key)" % z)
-        say("   shuffled    %+.2f   (control: timing permuted)" % zs)
-        say("   wrong key   %+.2f   (control: labels from a key that is not it)" % zw)
+        # tools/stats.py scores LAST-round collisions on an AES output block.
+        # A demo whose reduction is something else - the bootloader one attacks
+        # round 1 of a decryption, where the index is linear in the key and
+        # identifies differences rather than bytes - says so by defining its
+        # own `controls`, and gets to print whatever its reduction can support.
+        # Silently running the last-round statistic on those traces would
+        # return a clean null and read as "no channel", which is the failure
+        # this repository has paid for more than once.
+        if hasattr(adapter, "controls"):
+            say("   controls    %s" % adapter.controls(data, geom, truth))
+        elif data.get("known_blocks") is None:
+            say("   controls    none for this reduction; the demo README says why")
+        else:
+            z, zs, zw = stats.controls(data["known_blocks"], data["timing"], truth,
+                                       line_off=g["line_off"],
+                                       line_shift=g["line_shift"])
+            say("   pooled z    %+.2f   (the effect over the 120 pairs, given the key)" % z)
+            say("   shuffled    %+.2f   (control: timing permuted)" % zs)
+            say("   wrong key   %+.2f   (control: labels from a key that is not it)" % zw)
 
     t0 = time.time()
     master, notes = adapter.attack(data, geom, vote_only=vote_only, truth=truth)

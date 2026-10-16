@@ -1,0 +1,67 @@
+Report the caller address the Secure Engine interface checks.
+
+DIAGNOSTIC PATCH, off unless -DPORT_SE_CRYPTO_TRACE is passed
+(CRYPTO_TRACE=1 in the Makefile).  It adds printf calls and changes no
+logic.
+
+__IS_SFU_RESERVED() returns a bare SE_ERROR when the caller's LR is outside
+the SBSFU ROM region, without setting the SE_StatusTypeDef and without
+reaching the call gate.  That is precisely what was observed here: ST's
+verify loop gets SE_ERROR from SE_Decrypt_Append, the gate's own trace
+(patches/0004-*) shows the gate is never entered, and the identical call
+from main() succeeds.  The check is about WHERE THE CALLER IS, and nothing
+else in the system reports that, so it is printed here.
+
+GENERATED WITH diff, NOT BY HAND -- see
+patches/0002-sfu_fwimg_no_swap-trace-verify-steps.patch for why.
+scratchpad/mkpatch5.py regenerates this file and asserts every wrapper it
+means to mark was found.
+
+--- a/se_interface_bootloader.c
++++ b/se_interface_bootloader.c
+@@ -26,6 +26,9 @@
+ #endif /* __ICCARM__ */
+ 
+ /* Includes ------------------------------------------------------------------*/
++#if defined(PORT_SE_CRYPTO_TRACE)
++#include <stdio.h>
++#endif /* PORT_SE_CRYPTO_TRACE */
+ #include "main.h"                       /* se_interface_bootloader.c is compiled in SBSFU project using main.h from
+                                          * this project
+                                          */
+@@ -388,6 +391,11 @@
+   uint32_t primask_bit; /*!< interruption mask saved when disabling ITs then restore when re-enabling ITs */
+ 
+   /* Check if the call is coming from SFU code */
++#if defined(PORT_SE_CRYPTO_TRACE)
++  printf("\r\n\t  [IF] %s lr=%08x lo=%08x hi=%08x", "dec-init",
++         (unsigned)get_LR(), (unsigned)SB_REGION_ROM_START,
++         (unsigned)SB_REGION_ROM_END);
++#endif /* PORT_SE_CRYPTO_TRACE */
+   __IS_SFU_RESERVED();
+ 
+   /* Check the parameter */
+@@ -441,6 +449,11 @@
+   uint32_t primask_bit; /*!< interruption mask saved when disabling ITs then restore when re-enabling ITs */
+ 
+   /* Check if the call is coming from SFU code */
++#if defined(PORT_SE_CRYPTO_TRACE)
++  printf("\r\n\t  [IF] %s lr=%08x lo=%08x hi=%08x", "dec-app",
++         (unsigned)get_LR(), (unsigned)SB_REGION_ROM_START,
++         (unsigned)SB_REGION_ROM_END);
++#endif /* PORT_SE_CRYPTO_TRACE */
+   __IS_SFU_RESERVED();
+ 
+ #ifdef SFU_ISOLATE_SE_WITH_MPU
+@@ -588,6 +601,11 @@
+   uint32_t primask_bit; /*!< interruption mask saved when disabling ITs then restore when re-enabling ITs */
+ 
+   /* Check if the call is coming from SFU code */
++#if defined(PORT_SE_CRYPTO_TRACE)
++  printf("\r\n\t  [IF] %s lr=%08x lo=%08x hi=%08x", "auth-app",
++         (unsigned)get_LR(), (unsigned)SB_REGION_ROM_START,
++         (unsigned)SB_REGION_ROM_END);
++#endif /* PORT_SE_CRYPTO_TRACE */
+   __IS_SFU_RESERVED();
+ 
+ #ifdef SFU_ISOLATE_SE_WITH_MPU

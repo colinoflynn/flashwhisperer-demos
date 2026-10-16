@@ -1,0 +1,36 @@
+{
+  "vector": "l475_flash_5110.npz",
+  "what": "B-L475E-IOT01A running X-CUBE-SBSFU's own 2_Images_ExtFlash configuration, self-timed across each 512-byte chunk of a verify pass, 5 110 intervals over 10 passes of a 256 KB body",
+  "victim": {
+    "part": "STM32L4S5VI on a B-L475E-IOT01A",
+    "core_mhz": 80,
+    "stack": "X-CUBE-SBSFU v2.7.0, 2_Images_ExtFlash, ST's shipped crypto scheme SECBOOT_ECCDSA_WITH_AES128_CBC_SHA256, mbedTLS as the package ships it",
+    "build": "MBEDTLS_AES_ROM_TABLES uncommented - mbedTLS's own documented flash-saving option, and the port's largest deviation. make RAMTABLES=1 restores ST's default and is the twin",
+    "flash_acr": "as SBSFU leaves it at 80 MHz",
+    "table": "mbedTLS RT0, 1 KB, four-byte entries (MBEDTLS_AES_FEWER_TABLES, so RT1..RT3 do not exist)",
+    "table_addr": "0x0802a488"
+  },
+  "geometry": {
+    "row_bytes": 8,
+    "entry_bytes": 4,
+    "line_shift": 1,
+    "line_off": 0,
+    "scorer_geometry": "latch",
+    "note": "The 8-byte read latch, two four-byte entries to a line, and the table lands at mod 8 == 0 so line_off is 0. The part also has a 32-byte data cache, and scoring at the CACHE's conflict period instead finds a real effect four times smaller and leaves 2**53 rather than 2**23 - which is why scorer_geometry is named here rather than left to a default. RT0 at 0x0802a488 is mod 32 == 8, so the two geometries are not the same partition."
+  },
+  "attack": {
+    "direction": "dec",
+    "round": "first",
+    "pair_offsets": null,
+    "conditioning": "none",
+    "column": "cycles",
+    "n": null,
+    "expect_recovery": true,
+    "expect_note": "the key out of 36 of 120 resolved pairs and 16 of 16 masked bytes, then a 2**23 search closed against the genuine image's own plaintext",
+    "note": "An interval is not a trace: at ST's 512-byte chunk one interval sums 32 block decryptions, so 5 110 intervals are 163 520 AES blocks. The attack identifies key-byte DIFFERENCES, because round 1 of the inverse cipher indexes the table with c ^ k and there is no S-box in the way; the absolute key comes from the residual search. Nothing secret is in this vector - there is no key field in it at all, and the search is scored against fw.plain, the genuine update an attacker holds."
+  },
+  "truth": {
+    "master_key": "4f454d5f4b45595f434f4d50414e5931",
+    "note": "ST's published demo key, ASCII OEM_KEY_COMPANY1, which is what their prebuild step generates for this project. tools/replay.py compares the recovered key against it; the recovery reaches it through fw.plain and never reads this field."
+  }
+}

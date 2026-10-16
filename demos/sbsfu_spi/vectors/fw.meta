@@ -1,0 +1,11 @@
+sfb              fw.sfb
+total_bytes      66048
+header_bytes     512
+body_bytes       65536
+aes_blocks       4096
+iv               d26e257faf366ad46527d26ecaf246ae
+aes_key_file     Projects\B-L475E-IOT01A\Applications\2_Images_ExtFlash\2_Images_SECoreBin\Binary\OEM_KEY_COMPANY1_key_AES_CBC.bin
+aes_key          4f454d5f4b45595f434f4d50414e5931
+tampered         0
+pattern          random
+seed             20260926
