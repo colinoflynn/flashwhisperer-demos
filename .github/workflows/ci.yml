@@ -1,0 +1,40 @@
+# One job: replay every shipped capture and check it still gives up the key it
+# is supposed to, or stays silent where it is a control.
+#
+# WHAT A GREEN RUN HERE DOES NOT CHECK, which matters more than that it is
+# green:
+#
+#   * NOTHING IS MEASURED. There is no board in CI. Every claim in this
+#     repository about what leaks rests on a bench run, and this job only
+#     re-does arithmetic on numbers from one.
+#   * NOTHING IS BUILT. No victim firmware is compiled, so nothing here
+#     notices a victim whose table moved, or a Makefile that stopped working.
+#   * It does not check the vendor pins. `deps/fetch.sh --tools` pulls only
+#     our own two repositories; the SDK pins are checked by `tools/verify.sh`
+#     on a machine that has fetched them.
+#   * A vector is a compression of a capture. The packer verifies that when the
+#     vector is made; this job takes the vector as given.
+name: replay
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  no-hardware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false     # deps/fetch.sh does this properly; see deps/README.md
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: the pinned analysis half
+        run: |
+          ./deps/fetch.sh --tools
+          pip install -e deps/flashwhisperer
+      - name: every vector does what its json says
+        run: python demos/00_no_hardware/run.py

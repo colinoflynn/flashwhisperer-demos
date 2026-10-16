@@ -1,0 +1,35 @@
+{
+  "vector": "f429_standard_600k.npz",
+  "what": "NUCLEO-F429ZI OSCORE victim, standard build, 600 000 exchanges, 2026-09-12",
+  "victim": {
+    "part": "STM32F429ZI",
+    "core_mhz": 180,
+    "stack": "uoscore-uedhoc + TinyCrypt over lwIP, out of STM32CubeF4, as shipped",
+    "build": "make (no axes)",
+    "flash_acr": "0x305",
+    "table": "TinyCrypt AES sbox, 256 x 1 byte",
+    "table_addr": "0x0801120c"
+  },
+  "geometry": {
+    "row_bytes": 16,
+    "entry_bytes": 1,
+    "line_shift": 4,
+    "line_off": 12,
+    "note": "0x0801120c is 12 bytes into its 16-byte flash row, so the row a lookup hits is (x+12)>>4 and not x>>4. line_off is in table ENTRIES, which for a byte table is the same number as the byte offset. Read it off the ELF with flashleak.row_offset_from_image; do not assume 0. At line_off=0 this same capture scores 3/16 at 150k where the right geometry gives 16/16 and a verified key."
+  },
+  "attack": {
+    "direction": "enc",
+    "pair_offsets": [
+      3
+    ],
+    "conditioning": "mode",
+    "column": "dt_hw",
+    "n": 150000,
+    "expect_recovery": true,
+    "expect_note": "master key recovered and verified from the first 150 000 traces"
+  },
+  "truth": {
+    "master_key": "ffb14e093c94c9cac9471648b4f98710",
+    "note": "RFC 8613 C.1 server sender key. Public, and present in the vector because the keystream the attacker read off the wire is regenerated from it rather than stored - see host/make_vector.py. The recovery never reads it; tools/replay.py compares against it at the end."
+  }
+}

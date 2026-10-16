@@ -1,0 +1,35 @@
+{
+  "vector": "f429_ramtables_300k.npz",
+  "what": "the negative control: same firmware, same instrument, S-box copied into RAM. 300 000 exchanges",
+  "victim": {
+    "part": "STM32F429ZI",
+    "core_mhz": 180,
+    "stack": "uoscore-uedhoc + TinyCrypt over lwIP, out of STM32CubeF4",
+    "build": "make RAMTABLES=1",
+    "flash_acr": "0x305",
+    "table": "TinyCrypt AES sbox, 256 x 1 byte, in SRAM",
+    "table_addr": "SRAM; the flash row structure does not apply"
+  },
+  "geometry": {
+    "row_bytes": 16,
+    "entry_bytes": 1,
+    "line_shift": 4,
+    "line_off": 12,
+    "note": "Scored at the SAME geometry as the leaky vector on purpose. The control has to fail at the attack's own settings, not at settings chosen to make it fail."
+  },
+  "attack": {
+    "direction": "enc",
+    "pair_offsets": [
+      3
+    ],
+    "conditioning": "mode",
+    "column": "dt_hw",
+    "n": 300000,
+    "expect_recovery": false,
+    "expect_note": "no key at any trace count, and a pooled z indistinguishable from noise"
+  },
+  "truth": {
+    "master_key": "ffb14e093c94c9cac9471648b4f98710",
+    "note": "same security context as the leaky vector, so the two differ in one thing: where the table lives."
+  }
+}

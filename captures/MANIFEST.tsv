@@ -1,0 +1,13 @@
+# Capture data this repository knows about.
+#
+#   vector  tracked, under demos/<demo>/vectors/ - must be present and match
+#   raw     NOT in this repository: the original capture, on the bench. The
+#           row says what exists and what it hashes to, so a copy can be
+#           checked. tools/manifest.py reports it ABSENT, which is fine.
+#
+# Regenerate: python tools/manifest.py --write   (keeps the raw rows)
+# Verify:     python tools/manifest.py
+#
+# path	kind	bytes	sha256
+demos/oscore_coap/vectors/f429_ramtables_300k.npz	vector	943152	43fb3d7252feb5f4c3a19af50b76f461a86763416e646d48a7986db8c91d20c0
+demos/oscore_coap/vectors/f429_standard_600k.npz	vector	1907663	0c490d31f4a9cb3a6187e8965785e8e8ef33149a48f7a31e8259c3f34bb97def

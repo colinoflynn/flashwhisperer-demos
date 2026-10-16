@@ -1,0 +1,80 @@
+# The pinned upstreams, one per line: name url commit version kind
+#
+# Read by deps/fetch.sh and by tools/verify.sh. For anything registered as a
+# submodule the commit is also what the parent repository records as the
+# gitlink, so `git submodule status` and this file must agree - verify.sh
+# checks that they do, because a submodule silently advanced by a
+# `git submodule update --remote` is a different measurement under the same
+# name.
+#
+# kind:
+#   tool      our own code, full checkout, every demo needs it
+#   sdk       a vendor package, sparse checkout of only what a victim compiles
+#   mirror    NOT the vendor's own git - see the X-CUBE-SBSFU note below
+#   optional  fetched only when named by hand; no demo needs it to run
+#
+# Why each one is what it is, which is not a detail:
+#
+#   flashwhisperer   the analysis half: the scoring rule, the row geometry, the
+#                    AES reference. Every recovery here goes through it.
+#   ethtimer         the Ethernet instrument, firmware and host in one project.
+#                    It IS the attacker board for the four wired demos, which
+#                    is why this repo ships no attacker firmware and no
+#                    protocol host code for them.
+#   crypto-eval      the ON-CHIP floor for a part a demo uses: same cipher,
+#                    same silicon, the victim's own cycle counter instead of a
+#                    transport. Nothing here imports it, so it is optional -
+#                    but when a demo needs "what would this cost with a perfect
+#                    oracle?", the number comes from there rather than from a
+#                    second rig built here.
+#   stm32cube-f4     the F429 victims compile the lwIP, mbedTLS and HAL THIS
+#                    PACKAGE SHIPS, not upstream, because "as the vendor ships
+#                    it" is the whole claim. Do NOT add an upstream Mbed-TLS
+#                    pin beside it - that is crypto-eval's job, not this one's.
+#                    The Drivers are submodules OF the package, so fetch.sh has
+#                    to init the ones a victim needs; a sparse checkout alone
+#                    leaves empty directories and a build that fails on a
+#                    missing stm32f4xx_hal.h.
+#   stm32cube-l1     the L152 SBSFU port needs this for the HAL only, because
+#                    X-CUBE-SBSFU ships no STM32L1 project. The package version
+#                    and the HAL submodule's own version are DIFFERENT NUMBERS
+#                    (1.10.6 against 1.4.6); assert each against the file that
+#                    states it, or the check warns on every run and means
+#                    nothing.
+#   uoscore-uedhoc   upstream of the Zephyr module, and where the OSCORE
+#                    victim's AES comes from: TinyCrypt and zcbor live in its
+#                    externals/.
+#   x-cube-subg2     ST DOES publish this one, which is why the 802.15.4 demo
+#                    is a clone-patch-build script and not a tarball.
+#   riot             the FIDO2 victim is RIOT's own tests/sys/fido2_ctap_hid,
+#                    unmodified. The line numbers that demo quotes are against
+#                    this commit, and its Makefile warns if the checkout moved.
+#   sbsfu            X-CUBE-SBSFU, and the one entry that is not a vendor repo.
+#                    There is no STMicroelectronics/x-cube-sbsfu (404, checked
+#                    2026-09-26) and ST ships it as a zip, so this is a
+#                    third-party mirror pinned to a commit with the release
+#                    version asserted out of its own Release_Notes.html. A
+#                    mirror can be force-pushed or deleted; a commit SHA cannot
+#                    change under you, and the assertion fails loudly if the
+#                    tree is not the one the ports were written against.
+#
+# NOT here, deliberately:
+#
+#   STM32CubeF7. The F746 attacker firmware is ethtimer's now, and ethtimer
+#   fetches its own ST sources with tools/fetch_sdk.sh f746.
+#
+#   Harmony 3. It is not a clone: MPLAB X's Content Manager installs it, one
+#   versioned component at a time (csp, core, net, crypto, net_apps_pic32mz),
+#   and the toolchain matters as much as the source - MPLAB X v6.20 exactly,
+#   because v6.25 dropped support for that board's Gen-3 PKOB debugger. The
+#   component versions get recorded with the Harmony demo when it lands, beside
+#   its patches, rather than invented here.
+flashwhisperer https://github.com/colinoflynn/flashwhisperer.git             0d9d3d0c89b970632a74c088df3bf1976b764c1f main     tool
+ethtimer       https://github.com/colinoflynn/ethtimer.git                   e0f7cf01dbe349f8155299b71fc5b76fb8a75cca main     tool
+crypto-eval    https://github.com/colinoflynn/flashwhisperer-crypto-eval.git a99c04a740c3e961e20d9bc0a194e662ab8cb06b main     optional
+stm32cube-f4   https://github.com/STMicroelectronics/STM32CubeF4.git         89e6d4466578bc9eab83de8fcd1e397ceb5e5cc9 V1.28.3  sdk
+stm32cube-l1   https://github.com/STMicroelectronics/STM32CubeL1.git         5605805b43ae0d5ae1c1b71d535b4238ef9fc63b V1.10.6  sdk
+uoscore-uedhoc https://github.com/eriptic/uoscore-uedhoc.git                 002de27cacb063a819b3e50c724e0be920d5ca6c main     sdk
+x-cube-subg2   https://github.com/STMicroelectronics/x-cube-subg2.git        277e8c1bf6bd1ff35fe29907c4e562a1b21566ec main     sdk
+riot           https://github.com/RIOT-OS/RIOT.git                           f59dcdace51d34218c24339d299ebc3777ec45bc main     sdk
+sbsfu          https://github.com/ThuanLeUte/STM32CubeExpansion_SBSFU_V2.7.0 bd73ec6558e7b87bc97a29f009f46223743a7b5c v2.7.0   mirror

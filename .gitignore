@@ -2,11 +2,15 @@
 Build/
 build/
 
-# Vendor trees. deps/<name> entries that are submodules ARE tracked, as
-# gitlinks; this covers whatever a fetch script puts beside them, such as a
-# package that is not on GitHub at all and arrives as an archive.
-deps/*/vendor/
-deps/sbsfu-src/
+# Fetched dependencies. deps/PINS is the authority on what each one is, and
+# only the two `tool` ones carry a committed gitlink (deps/README.md says why),
+# so everything else a fetch puts here is ignored rather than half-tracked.
+deps/*
+!deps/PINS
+!deps/README.md
+!deps/fetch.sh
+!deps/flashwhisperer
+!deps/ethtimer
 
 # Raw captures. The vectors under demos/*/vectors/ ARE tracked and are small
 # on purpose; captures/MANIFEST.tsv records a size and a SHA-256 for the big

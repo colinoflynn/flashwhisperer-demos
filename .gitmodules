@@ -1,0 +1,50 @@
+; These record the URL and the path of each pinned upstream. They are
+; deliberately NOT fetched with `git submodule update --init`, which clones the
+; default branch at depth 1 and lands on the wrong version - run
+; ./deps/fetch.sh, which sparse-fetches the pinned commit. deps/fetch.sh
+; explains why at length, and deps/PINS carries the commit and the reason for
+; each version.
+;
+; deps/sbsfu is NOT here. X-CUBE-SBSFU has no vendor git at all, so the only
+; thing a gitlink could point at is a third-party mirror, and a submodule entry
+; would read as though ST published it. It is fetched by script, pinned by
+; commit, version-asserted, and gitignored. deps/PINS says so.
+;
+; Harmony 3 is not here either: MPLAB X installs it, one versioned component at
+; a time, so there is no commit to pin.
+
+[submodule "flashwhisperer"]
+	path = deps/flashwhisperer
+	url = https://github.com/colinoflynn/flashwhisperer.git
+
+[submodule "ethtimer"]
+	path = deps/ethtimer
+	url = https://github.com/colinoflynn/ethtimer.git
+
+; The on-chip floor for any part a demo uses. Nothing here imports it, so
+; ./deps/fetch.sh skips it unless you name it.
+[submodule "crypto-eval"]
+	path = deps/crypto-eval
+	url = https://github.com/colinoflynn/flashwhisperer-crypto-eval.git
+
+; Vendor packages. Every one of these is upstream's own bytes at a stated
+; commit; what a victim changes lives in that demo's directory, never here.
+[submodule "stm32cube-f4"]
+	path = deps/stm32cube-f4
+	url = https://github.com/STMicroelectronics/STM32CubeF4.git
+
+[submodule "stm32cube-l1"]
+	path = deps/stm32cube-l1
+	url = https://github.com/STMicroelectronics/STM32CubeL1.git
+
+[submodule "uoscore-uedhoc"]
+	path = deps/uoscore-uedhoc
+	url = https://github.com/eriptic/uoscore-uedhoc.git
+
+[submodule "x-cube-subg2"]
+	path = deps/x-cube-subg2
+	url = https://github.com/STMicroelectronics/x-cube-subg2.git
+
+[submodule "riot"]
+	path = deps/riot
+	url = https://github.com/RIOT-OS/RIOT.git
