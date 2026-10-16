@@ -1,0 +1,418 @@
+diff --git a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Inc/contiki-conf.h b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Inc/contiki-conf.h
+index 4e9a6f4..f6a008f 100644
+--- a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Inc/contiki-conf.h
++++ b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Inc/contiki-conf.h
+@@ -83,7 +83,12 @@
+ #define CSMA_CONF_SEND_SOFT_ACK 1
+ #define CSMA_CONF_ACK_WAIT_TIME (RTIMER_SECOND/2)
+ #define CSMA_CONF_AFTER_ACK_DETECTED_WAIT_TIME (RTIMER_SECOND/10)
++/* RIG: guarded.  Upstream's 8 means a retry backoff of rand(0,255) periods;
++ * the 802.15.4 default is 5 (range 3-8).  Only matters for a node that
++ * TRANSMITS a lot -- the coordinator sets it, the victim does not. */
++#ifndef CSMA_CONF_MAX_BE
+ #define CSMA_CONF_MAX_BE 8
++#endif
+ 
+ /* Enable Link Layer security */
+ #define LLSEC802154_CONF_ENABLED 1
+@@ -95,7 +100,11 @@
+ /* Network setup for IPv6 */
+ 
+ /* radio driver blocks until ACK is received */
++/* RIG: guarded so a test network can be isolated from any other rig on the
++ * same band.  Default is upstream's. */
++#ifndef IEEE802154_CONF_PANID
+ #define IEEE802154_CONF_PANID       0xABCD
++#endif
+ 
+ #define PROCESS_CONF_NUMEVENTS 8
+ //#define PROCESS_CONF_STATS 1
+diff --git a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Inc/project-conf.h b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Inc/project-conf.h
+index cd91180..5ef941a 100644
+--- a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Inc/project-conf.h
++++ b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Inc/project-conf.h
+@@ -42,11 +42,34 @@
+ #define RADIO_LONG_PREAMBLE 0
+ 
+ #if !BUILD_WITH_RPL_BORDER_ROUTER
++/* RIG: guarded so the build can silence the node.  At LOG_LEVEL_DBG the MAC
++ * prints a few hundred characters per frame, which at 115200 is tens of
++ * milliseconds of BLOCKING UART inside the receive path whose timing is under
++ * measurement.  Values are unchanged when nothing is passed. */
++#ifndef LOG_CONF_LEVEL_MAC
+ #define LOG_CONF_LEVEL_MAC      LOG_LEVEL_DBG
++#endif
++#ifndef LOG_CONF_LEVEL_RPL
+ #define LOG_CONF_LEVEL_RPL   LOG_LEVEL_DBG
++#endif
++#ifndef LOG_CONF_LEVEL_FRAMER
+ #define LOG_CONF_LEVEL_FRAMER   LOG_LEVEL_ERR
++#endif
+ #endif /*!BUILD_WITH_RPL_BORDER_ROUTER*/
+ 
++/* RIG: link-layer AES key, settable at build time.  Upstream hardwires the
++ * Contiki-NG default {0x00..0x0f} in csma-security.h.  Pass e.g.
++ *   make EXTRA_DEFINES="RIG_KEY=0x01,0x02,...,0x10"
++ *
++ * NOTE the absence of braces: the shell performs BRACE EXPANSION on
++ * `{a,b,c}`, so a -D whose value is a brace initializer silently becomes
++ * three separate -D flags and the macro ends up redefined to its last byte.
++ * A bare comma list has no whitespace and no braces, so it survives make's
++ * word splitting and the shell untouched; the braces are added here. */
++#ifdef RIG_KEY
++#define CSMA_CONF_LLSEC_DEFAULT_KEY0 { RIG_KEY }
++#endif
++
+ //#define LOG_CONF_LEVEL_TCPIP   LOG_LEVEL_DBG
+ //#define LOG_CONF_LEVEL_IPV6     LOG_LEVEL_DBG
+ //#define LOG_CONF_LEVEL_MAC      LOG_LEVEL_INFO
+diff --git a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Inc/radio-driver.h b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Inc/radio-driver.h
+index accf843..bb8709d 100644
+--- a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Inc/radio-driver.h
++++ b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Inc/radio-driver.h
+@@ -78,12 +78,24 @@ void Radio_interrupt_callback(void);
+ #define radio_spi_busy() (HAL_SPI_GetState(&hspi) != HAL_SPI_STATE_READY)
+ 
+ #define CHANNEL_SPACE               100e3
++/* RIG: guarded so band, rate and channel are build-time settings.  Defaults
++ * are upstream's.  DATARATE, FREQ_DEVIATION and BANDWIDTH must move together:
++ * 2-FSK needs the deviation scaled with the symbol rate or the receiver will
++ * not lock, and the channel filter must be wide enough to pass it. */
++#ifndef CHANNEL_NUMBER
+ #define CHANNEL_NUMBER              0
++#endif
+ #define IEEE802154_CONF_DEFAULT_CHANNEL CHANNEL_NUMBER
+ #define MODULATION_SELECT           MOD_2FSK
++#ifndef DATARATE
+ #define DATARATE                    38400 /*bps*/
++#endif
++#ifndef FREQ_DEVIATION
+ #define FREQ_DEVIATION              20e3
++#endif
++#ifndef BANDWIDTH
+ #define BANDWIDTH                   100.0e3
++#endif
+ 
+ #define RADIO_POWER_DBM_MAX      14
+ #define RADIO_POWER_DBM_MIN      -31
+diff --git a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Src/contiki-platform.c b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Src/contiki-platform.c
+index 2224e53..5d0f491 100644
+--- a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Src/contiki-platform.c
++++ b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Client/Src/contiki-platform.c
+@@ -309,6 +309,23 @@ void UART_Platform_init(void)
+ */
+ static void node_mac_init(void)
+ {
++#ifdef NODE_MAC_FIXED
++  /* RIG: pin the EUI-64 instead of deriving it from the STM32 UID, so the
++   * whole build is reproducible and the coordinator can be told its peer's
++   * address at compile time rather than after reading a boot log.
++   *
++   * This address is bytes 1..8 of the CCM* nonce, so it changes every AES
++   * input block -- but it is constant per transmitter either way, and the
++   * last-round attack works on the cipher's OUTPUT, so nothing about the
++   * analysis depends on it.  It is obviously synthetic; that is the point.
++   *
++   * Pass it as a bare COMMA LIST, not a brace initializer: the shell
++   * brace-expands a braced value into separate words, so one -D silently
++   * becomes eight and the macro ends up defined as its last byte.  It gets
++   * far enough to look plausible before failing. */
++  static const uint8_t rig_mac[8] = { NODE_MAC_FIXED };
++  memcpy(node_mac, rig_mac, sizeof(rig_mac));
++#else
+   uint32_t device_id[3];
+ 
+   device_id[0] = HAL_GetUIDw0();
+@@ -318,6 +335,7 @@ static void node_mac_init(void)
+   (*(uint32_t*)node_mac) = device_id[1];
+   (*(((uint32_t*)node_mac)+1)) = device_id[2];
+   (*(((uint32_t*)node_mac)+1)) += device_id[0];
++#endif /*NODE_MAC_FIXED*/
+ }
+ /*---------------------------------------------------------------------------*/
+ /**
+diff --git a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Inc/contiki-conf.h b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Inc/contiki-conf.h
+index 4e9a6f4..f6a008f 100644
+--- a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Inc/contiki-conf.h
++++ b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Inc/contiki-conf.h
+@@ -83,7 +83,12 @@
+ #define CSMA_CONF_SEND_SOFT_ACK 1
+ #define CSMA_CONF_ACK_WAIT_TIME (RTIMER_SECOND/2)
+ #define CSMA_CONF_AFTER_ACK_DETECTED_WAIT_TIME (RTIMER_SECOND/10)
++/* RIG: guarded.  Upstream's 8 means a retry backoff of rand(0,255) periods;
++ * the 802.15.4 default is 5 (range 3-8).  Only matters for a node that
++ * TRANSMITS a lot -- the coordinator sets it, the victim does not. */
++#ifndef CSMA_CONF_MAX_BE
+ #define CSMA_CONF_MAX_BE 8
++#endif
+ 
+ /* Enable Link Layer security */
+ #define LLSEC802154_CONF_ENABLED 1
+@@ -95,7 +100,11 @@
+ /* Network setup for IPv6 */
+ 
+ /* radio driver blocks until ACK is received */
++/* RIG: guarded so a test network can be isolated from any other rig on the
++ * same band.  Default is upstream's. */
++#ifndef IEEE802154_CONF_PANID
+ #define IEEE802154_CONF_PANID       0xABCD
++#endif
+ 
+ #define PROCESS_CONF_NUMEVENTS 8
+ //#define PROCESS_CONF_STATS 1
+diff --git a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Inc/project-conf.h b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Inc/project-conf.h
+index cd91180..5ef941a 100644
+--- a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Inc/project-conf.h
++++ b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Inc/project-conf.h
+@@ -42,11 +42,34 @@
+ #define RADIO_LONG_PREAMBLE 0
+ 
+ #if !BUILD_WITH_RPL_BORDER_ROUTER
++/* RIG: guarded so the build can silence the node.  At LOG_LEVEL_DBG the MAC
++ * prints a few hundred characters per frame, which at 115200 is tens of
++ * milliseconds of BLOCKING UART inside the receive path whose timing is under
++ * measurement.  Values are unchanged when nothing is passed. */
++#ifndef LOG_CONF_LEVEL_MAC
+ #define LOG_CONF_LEVEL_MAC      LOG_LEVEL_DBG
++#endif
++#ifndef LOG_CONF_LEVEL_RPL
+ #define LOG_CONF_LEVEL_RPL   LOG_LEVEL_DBG
++#endif
++#ifndef LOG_CONF_LEVEL_FRAMER
+ #define LOG_CONF_LEVEL_FRAMER   LOG_LEVEL_ERR
++#endif
+ #endif /*!BUILD_WITH_RPL_BORDER_ROUTER*/
+ 
++/* RIG: link-layer AES key, settable at build time.  Upstream hardwires the
++ * Contiki-NG default {0x00..0x0f} in csma-security.h.  Pass e.g.
++ *   make EXTRA_DEFINES="RIG_KEY=0x01,0x02,...,0x10"
++ *
++ * NOTE the absence of braces: the shell performs BRACE EXPANSION on
++ * `{a,b,c}`, so a -D whose value is a brace initializer silently becomes
++ * three separate -D flags and the macro ends up redefined to its last byte.
++ * A bare comma list has no whitespace and no braces, so it survives make's
++ * word splitting and the shell untouched; the braces are added here. */
++#ifdef RIG_KEY
++#define CSMA_CONF_LLSEC_DEFAULT_KEY0 { RIG_KEY }
++#endif
++
+ //#define LOG_CONF_LEVEL_TCPIP   LOG_LEVEL_DBG
+ //#define LOG_CONF_LEVEL_IPV6     LOG_LEVEL_DBG
+ //#define LOG_CONF_LEVEL_MAC      LOG_LEVEL_INFO
+diff --git a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Inc/radio-driver.h b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Inc/radio-driver.h
+index accf843..bb8709d 100644
+--- a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Inc/radio-driver.h
++++ b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Inc/radio-driver.h
+@@ -78,12 +78,24 @@ void Radio_interrupt_callback(void);
+ #define radio_spi_busy() (HAL_SPI_GetState(&hspi) != HAL_SPI_STATE_READY)
+ 
+ #define CHANNEL_SPACE               100e3
++/* RIG: guarded so band, rate and channel are build-time settings.  Defaults
++ * are upstream's.  DATARATE, FREQ_DEVIATION and BANDWIDTH must move together:
++ * 2-FSK needs the deviation scaled with the symbol rate or the receiver will
++ * not lock, and the channel filter must be wide enough to pass it. */
++#ifndef CHANNEL_NUMBER
+ #define CHANNEL_NUMBER              0
++#endif
+ #define IEEE802154_CONF_DEFAULT_CHANNEL CHANNEL_NUMBER
+ #define MODULATION_SELECT           MOD_2FSK
++#ifndef DATARATE
+ #define DATARATE                    38400 /*bps*/
++#endif
++#ifndef FREQ_DEVIATION
+ #define FREQ_DEVIATION              20e3
++#endif
++#ifndef BANDWIDTH
+ #define BANDWIDTH                   100.0e3
++#endif
+ 
+ #define RADIO_POWER_DBM_MAX      14
+ #define RADIO_POWER_DBM_MIN      -31
+diff --git a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Src/contiki-platform.c b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Src/contiki-platform.c
+index 2224e53..5d0f491 100644
+--- a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Src/contiki-platform.c
++++ b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Src/contiki-platform.c
+@@ -309,6 +309,23 @@ void UART_Platform_init(void)
+ */
+ static void node_mac_init(void)
+ {
++#ifdef NODE_MAC_FIXED
++  /* RIG: pin the EUI-64 instead of deriving it from the STM32 UID, so the
++   * whole build is reproducible and the coordinator can be told its peer's
++   * address at compile time rather than after reading a boot log.
++   *
++   * This address is bytes 1..8 of the CCM* nonce, so it changes every AES
++   * input block -- but it is constant per transmitter either way, and the
++   * last-round attack works on the cipher's OUTPUT, so nothing about the
++   * analysis depends on it.  It is obviously synthetic; that is the point.
++   *
++   * Pass it as a bare COMMA LIST, not a brace initializer: the shell
++   * brace-expands a braced value into separate words, so one -D silently
++   * becomes eight and the macro ends up defined as its last byte.  It gets
++   * far enough to look plausible before failing. */
++  static const uint8_t rig_mac[8] = { NODE_MAC_FIXED };
++  memcpy(node_mac, rig_mac, sizeof(rig_mac));
++#else
+   uint32_t device_id[3];
+ 
+   device_id[0] = HAL_GetUIDw0();
+@@ -318,6 +335,7 @@ static void node_mac_init(void)
+   (*(uint32_t*)node_mac) = device_id[1];
+   (*(((uint32_t*)node_mac)+1)) = device_id[2];
+   (*(((uint32_t*)node_mac)+1)) += device_id[0];
++#endif /*NODE_MAC_FIXED*/
+ }
+ /*---------------------------------------------------------------------------*/
+ /**
+diff --git a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Src/csma-output.c b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Src/csma-output.c
+index fb4d12c..50add86 100644
+--- a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Src/csma-output.c
++++ b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Src/csma-output.c
+@@ -166,7 +166,15 @@ neighbor_queue_from_addr(const linkaddr_t *addr)
+ static clock_time_t
+ backoff_period(void)
+ {
+-#if 1 //CONTIKI_TARGET_COOJA //SRA: Temporary using different backoff period
++/* RIG (coordinator only): upstream hardwires this to `#if 1`, so the COOJA
++ * SIMULATOR compensation is always on.  On real hardware it makes
++ * backoff_period 6 ms instead of aUnitBackoffPeriod (320 us), and with
++ * CSMA_MAX_BE that is up to rand(0,255)*6 ms for a single retry -- which is
++ * what limited this network to about 1 message/s.  The coordinator is the
++ * traffic source and needs the standard value; the VICTIM is left untouched,
++ * because its soft ACK is a direct NETSTACK_RADIO.send that never goes
++ * through csma_output at all. */
++#if defined(CSMA_COOJA_BACKOFF) && (CSMA_COOJA_BACKOFF)
+   /* Increase normal value by 20 to compensate for the coarse-grained
+   radio medium with Cooja motes */
+   return MAX(20 * CLOCK_SECOND / 3125, 1);
+diff --git a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Src/udp-server.c b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Src/udp-server.c
+index d71ed33..8625d59 100644
+--- a/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Src/udp-server.c
++++ b/Projects/NUCLEO-F401RE/Applications/Contiki-NG/S2915A1_UDP_Server/Src/udp-server.c
+@@ -53,7 +53,126 @@
+ static struct simple_udp_connection udp_conn;
+ 
+ PROCESS(udp_server_process, "UDP server");
++
++/* ---- RIG: MAC_GEN, a link-layer traffic generator -------------------------
++ *
++ * The coordinator's job in this rig is to give the victim something to decrypt,
++ * at a steady rate, so the passive listener has frames to time.  Stock
++ * Contiki-NG sends far too little: the UDP client reports every 5 s, which is
++ * ~0.2 secured frames/s where the attack needs tens per second.
++ *
++ * This is the ONE node that is deliberately not stock -- it is the traffic
++ * source, not the target, so nothing here has to be defended as realistic
++ * firmware.  What DOES have to be defended is the traffic SHAPE, because a
++ * passive attacker cannot make a device transmit: a 24-byte payload every
++ * 20 ms is a "device reports periodically" model, and 24 bytes is the measured
++ * optimum for a passive listener (it beat both 16 and 48; see
++ * PASSIVE_ORACLE.md RESULT 5d).  Do not tune it further to flatter the attack.
++ */
++#if MAC_GEN
++#include "net/netstack.h"
++#include "net/packetbuf.h"
++#include "net/linkaddr.h"
++#include "net/mac/mac.h"
++#include <string.h>
++
++/* Destination EUI-64, as linkaddr_t stores it (MSB first).  With NODE_MAC_FIXED
++ * on both nodes this is a compile-time constant and the coordinator needs to
++ * know nothing about the victim at run time. */
++#ifndef MAC_GEN_DST
++#define MAC_GEN_DST 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x02
++#endif
++#ifndef MAC_GEN_INTERVAL_MS
++#define MAC_GEN_INTERVAL_MS 20
++#endif
++#ifndef MAC_GEN_PAYLOAD
++#define MAC_GEN_PAYLOAD 24
++#endif
++/* Randomise payload bytes 16.. on every frame, keeping the FIRST 16 fixed.
++ * This is the realism control: a wholly constant payload makes the CBC-MAC
++ * blocks over it identical frame to frame, contributing a constant instead of
++ * variance, while randomising ALL of it would destroy the known plaintext the
++ * output-side attack needs.  Real 6LoWPAN/UDP traffic is predictable in its
++ * leading header bytes and variable after, which is what this reproduces.
++ * Measured to cost nothing (identical robust sd), so it is safe to leave on. */
++#ifndef MAC_GEN_RANDTAIL
++#define MAC_GEN_RANDTAIL 0
++#endif
++
++PROCESS(mac_gen_process, "MAC traffic generator");
++
++static void
++mac_gen_sent(void *ptr, int status, int num_tx)
++{
++  (void)ptr; (void)status; (void)num_tx;
++}
++
++PROCESS_THREAD(mac_gen_process, ev, data)
++{
++  static struct etimer et;
++  static linkaddr_t dst = { { MAC_GEN_DST } };   /* comma list, see NODE_MAC_FIXED */
++  static uint8_t payload[MAC_GEN_PAYLOAD];
++  unsigned i;
++
++  PROCESS_BEGIN();
++  printf("MAC_GEN: %d-byte payload (randtail=%d) every %d ms to ",
++         (int)MAC_GEN_PAYLOAD, (int)MAC_GEN_RANDTAIL, (int)MAC_GEN_INTERVAL_MS);
++  for(i = 0; i < LINKADDR_SIZE; i++) {
++    printf("%02x", dst.u8[i]);
++  }
++  printf("\n");
++
++  for(i = 0; i < MAC_GEN_PAYLOAD; i++) {
++    payload[i] = (uint8_t)(0x40 + (i & 0x0f));
++  }
++
++  etimer_set(&et, (MAC_GEN_INTERVAL_MS * CLOCK_SECOND) / 1000);
++  while(1) {
++    PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
++    etimer_reset(&et);
++
++#if MAC_GEN_RANDTAIL
++    {
++      static uint32_t st = 0x12345678u;
++      for(i = 16; i < MAC_GEN_PAYLOAD; i++) {
++        st ^= st << 13; st ^= st >> 17; st ^= st << 5;
++        payload[i] = (uint8_t)st;
++      }
++    }
++#endif
++    packetbuf_clear();
++    memcpy(packetbuf_dataptr(), payload, MAC_GEN_PAYLOAD);
++    packetbuf_set_datalen(MAC_GEN_PAYLOAD);
++    packetbuf_set_addr(PACKETBUF_ADDR_RECEIVER, &dst);
++    /* MUST be set explicitly.  packetbuf_clear() memsets the attributes to 0,
++     * but csma.c init_sec() only applies CSMA_LLSEC_SECURITY_LEVEL when it
++     * finds the sentinel PACKETBUF_ATTR_SECURITY_LEVEL_DEFAULT (0xffff) -- so a
++     * zeroed attribute means level 0 and the frame goes out IN PLAINTEXT with
++     * no AES anywhere in the victim's receive path.  An earlier version of this
++     * generator hit exactly that and captured 30000 records containing no
++     * cipher at all.  Set MAC_GEN_UNSECURED=1 to get it back deliberately, as
++     * a no-AES control arm at matched frame length. */
++#if MAC_GEN_UNSECURED
++    packetbuf_set_attr(PACKETBUF_ATTR_SECURITY_LEVEL, 0);
++#else
++    packetbuf_set_attr(PACKETBUF_ATTR_SECURITY_LEVEL,
++                       PACKETBUF_ATTR_SECURITY_LEVEL_DEFAULT);
++#endif
++    /* Unicast plus this attribute is what makes framer-802154.c set
++     * fcf.ack_required, which is what makes the victim ACK -- and the ACK is
++     * the entire oracle. */
++    packetbuf_set_attr(PACKETBUF_ATTR_MAC_ACK, 1);
++    NETSTACK_MAC.send(mac_gen_sent, NULL);
++  }
++  PROCESS_END();
++}
++#endif /*MAC_GEN*/
++
++#if MAC_GEN
++AUTOSTART_PROCESSES(&udp_server_process, &mac_gen_process);
++#else
+ AUTOSTART_PROCESSES(&udp_server_process);
++#endif
+ /*---------------------------------------------------------------------------*/
+ static void
+ udp_rx_callback(struct simple_udp_connection *c,

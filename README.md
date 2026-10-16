@@ -34,15 +34,16 @@ make that likely rather than possible. `./tools/verify.sh` is what catches it.
 | [`snmpv3_lwip`](demos/snmpv3_lwip) | NUCLEO-F429ZI, lwIP's own SNMPv3 agent on mbedTLS, both out of STM32CubeF4 | `ethtimer` | privacy key, verified, 250 000 exchanges and a floor near 100 000 |
 | [`tls_https`](demos/tls_https) | NUCLEO-F429ZI, lwIP `httpd` + `altcp_tls` + mbedTLS, all out of STM32CubeF4 | `ethtimer` | record key, verified, 41 000 exchanges of one TLS session |
 | [`snmpv3_harmony`](demos/snmpv3_harmony) | PIC32MZ2048EFH144, Harmony 3 + wolfCrypt on FreeRTOS | its own CP0 counter, and the wire | privacy key, verified - but the **shipped build is a null** |
-| `ota_802154` | NUCLEO-F401RE + S2-LP, X-CUBE-SUBG2 Contiki-NG, stock | a third board listening | key from 2.4 M frames, blind, nothing on either node |
+| [`ota_802154`](demos/ota_802154) | NUCLEO-F401RE + S2-LP, X-CUBE-SUBG2 Contiki-NG, stock | a third board listening to the link | link key, verified, 2.5 M frames, blind, nothing on either legitimate node |
 | `sbsfu_spi` | ATSAMD21J18A and NUCLEO-L152RE running X-CUBE-SBSFU | a Nucleo clipped to the serial flash's chip select | key with nothing on the victim, and the SAM D21 has no cache at all |
 | `fido2_usb` | nRF52840 Dongle, RIOT's `fido2_ctap_hid`, unmodified | a Nucleo acting as the USB host | `cred_key`, blind: no debugger, key never known |
 
-The first four have landed, with their vectors. The last three arrive in that
-order, and this table is the one place that says which.
+The demos with a link have landed, with their vectors; the rest arrive in the
+order the table lists them, and this table is the one place that says which.
 
-Each of the four replays to a verified key in under a minute with no hardware,
-and each ships at least one control that must NOT give a key:
+Each replays to a verified key with no hardware, in well under a minute except
+where the table above says millions of frames, and each ships at least one
+control that must NOT give a key:
 
 ```
 oscore_coap     f429_standard_600k       key       expected
@@ -51,6 +52,9 @@ snmpv3_lwip     f429_romtables_250k      key       expected
 tls_https       f429_romtables_50k       key       expected
 snmpv3_harmony  pic32mz_cacheoff_60k     key       expected
 snmpv3_harmony  pic32mz_shipped_10k      no key    control
+ota_802154      f401_blind_2500k         key       expected
+ota_802154      f401_stock_2400k         key       expected
+ota_802154      f401_blind_500k          no key    control
 ```
 
 ## How a demo is laid out

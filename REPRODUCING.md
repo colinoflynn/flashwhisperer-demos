@@ -35,6 +35,12 @@ the firmware - not the attack. This step is the only cheap way to tell that
 apart from an adapter that is wrong, and those two failures look identical from
 a capture with no records in it.
 
+For the radio demo the equivalent is to read a few hundred records off the
+listener and look at them: LD2 blinks once per PAIRED record, so a dark LED on
+a live network means the pairing is broken rather than the radio, and a
+turnaround that is CONSTANT means the listener's cycle counter is stopped
+rather than that the link is wonderfully quiet.
+
 ## 3. The victim
 
 Build it, flash it, and then READ the table's address off the ELF before
@@ -69,7 +75,8 @@ to write a vector that does not reproduce byte for byte.
 * A vendor tree with edits in it. These demos rest on the victim being the
   vendor's own code. `verify.sh` fails if a dependency is dirty, and each demo
   keeps its deviations in its own directory so a diff against a fresh fetch is
-  the check.
+  the check. Where a build script has to patch the vendor tree in place it puts
+  it back on the way out, and says so when it does not.
 * The row offset. See stage 3. This is the one that has actually cost a
   result rather than an afternoon.
 * A victim whose console is on. A diagnostic line on the victim corrupts

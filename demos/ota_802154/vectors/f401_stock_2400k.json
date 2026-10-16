@@ -1,0 +1,42 @@
+{
+  "vector": "f401_stock_2400k.npz",
+  "what": "The same rig a day earlier: stock victim, 2 400 000 frames heard by the third board, 2026-09-21. This capture's key was known to the analyst throughout and used for scoring, which is why the blind one beside it exists.",
+  "victim": {
+    "part": "STM32F401RE",
+    "core_mhz": 84,
+    "stack": "X-CUBE-SUBG2's Contiki-NG over the S2-LP radio, CSMA LLSEC on at security level 5, built from STMicroelectronics/x-cube-subg2 @ 277e8c1b with victim/rig.patch",
+    "build": "the stock arm: no console output at all, no stamps, nothing on the measured path",
+    "flash_acr": "0x00000702",
+    "table": "Contiki-NG aes-128.c sbox, 256 x 1 byte",
+    "table_addr": "0x08017d0c"
+  },
+  "instrument": {
+    "board": "NUCLEO-L152RE + X-NUCLEO-S2915A1 running instruments/sniff802154",
+    "clock_hz": 32000000,
+    "times": "the listener's own DWT cycles between the end of a data frame on the air and the victim's ACK, with nothing on either legitimate node"
+  },
+  "geometry": {
+    "row_bytes": 16,
+    "entry_bytes": 1,
+    "line_shift": 4,
+    "line_off": 12,
+    "note": "0x08017d0c is 12 bytes into its 16-byte flash row, so the row a lookup hits is (x+12)>>4 and the table spans seventeen rows rather than sixteen. The blind capture beside this one is the same sources built with a different key and it lands on 4: `static const uint8_t sbox[256]` carries no alignment attribute, so GCC gives the section 4-byte alignment and the offset is link-order luck out of {0,4,8,12}. Forcing aligned(16) is not a defence - it moves the offset to 0, which is if anything cleaner for the attacker."
+  },
+  "attack": {
+    "direction": "enc",
+    "pairs": "all",
+    "trim": 6.0,
+    "highpass": 33,
+    "n": 2400000,
+    "weak": 6,
+    "depth": 64,
+    "wrong": 3,
+    "expect_recovery": true,
+    "slow": true,
+    "expect_note": "13 of 16 round-10 bytes from the vote, and the three it gets wrong are inside the six least confident, so about 3.6 M candidate keys settle it"
+  },
+  "truth": {
+    "master_key": "101112131415161718191a1b9c1d1e1f",
+    "note": "The link key, and k[12] is 0x9c rather than 0x1c because this was the second key variant on that bench. Present for the same reason as in the other vector: the blocks regenerate from it. The recovery never reads it."
+  }
+}

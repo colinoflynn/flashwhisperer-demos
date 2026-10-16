@@ -1,0 +1,42 @@
+{
+  "vector": "f401_blind_2500k.npz",
+  "what": "NUCLEO-F401RE + X-NUCLEO-S2915A1 victim, X-CUBE-SUBG2 Contiki-NG as shipped, 2 500 000 frames heard by a third board, 2026-09-23. The key was chosen and flashed by someone else and was never on the analyst's host.",
+  "victim": {
+    "part": "STM32F401RE",
+    "core_mhz": 84,
+    "stack": "X-CUBE-SUBG2's Contiki-NG over the S2-LP radio, CSMA LLSEC on at security level 5, built from STMicroelectronics/x-cube-subg2 @ 277e8c1b with victim/rig.patch",
+    "build": "no -D flags beyond the key, the PAN id, the radio settings and the fixed EUI-64; every patch hunk is an #ifndef or a new #ifdef",
+    "flash_acr": "0x00000702",
+    "table": "Contiki-NG aes-128.c sbox, 256 x 1 byte",
+    "table_addr": "0x08017ce4 in a rebuild of these sources with this key and gcc 10.3.1, which is row offset 4. The original build tree was ephemeral so the image that took this capture cannot be shown; see geometry.note for what the capture says on its own."
+  },
+  "instrument": {
+    "board": "NUCLEO-L152RE + X-NUCLEO-S2915A1 running instruments/sniff802154",
+    "clock_hz": 32000000,
+    "times": "the listener's own DWT cycles between the end of a data frame on the air and the victim's ACK, with nothing on either legitimate node"
+  },
+  "geometry": {
+    "row_bytes": 16,
+    "entry_bytes": 1,
+    "line_shift": 4,
+    "line_off": 4,
+    "note": "4 was read off the victim's ELF at capture time with flashleak's placement reader. The build tree was ephemeral so this kit cannot show you that image, but the capture agrees on its own: sweeping the four offsets a 4-byte-aligned .rodata table can land on gives 2/16, 16/16, 3/16, 0/16 round-key bytes at 0, 4, 8, 12, and 67.0, 0.0, 44.1, 100.2 residual bits. It is a per-IMAGE property and not a constant of the attack - the other capture in this directory is the same sources at 12. Verification is cryptographic, so a wrong offset cannot produce a key, which is why sweeping all four is a fine thing for an attacker to do and costs four scorings."
+  },
+  "attack": {
+    "direction": "enc",
+    "pairs": "all",
+    "trim": 6.0,
+    "highpass": 33,
+    "n": 2500000,
+    "weak": 6,
+    "depth": 64,
+    "expect_recovery": true,
+    "slow": true,
+    "expect_note": "all sixteen round-10 bytes at rank 1, so the key comes out of the vote and one AES block confirms it",
+    "wrong": 3
+  },
+  "truth": {
+    "master_key": "deadbeefcafeface1133710551223945",
+    "note": "The link key. It is in the vector because the AES output block the listener saw is regenerated from it rather than stored - see host/make_vector.py, which refuses to pack a capture whose blocks do not come back byte for byte. The recovery never reads it: the search verifies against an (A_1, keystream) pair taken from the captured traffic, which is public. tools/replay.py compares against it at the end."
+  }
+}

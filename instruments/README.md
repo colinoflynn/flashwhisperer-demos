@@ -12,7 +12,7 @@ under `deps/`; the rest need an instrument that is not Ethernet.
 | `ethtimer` | the four wired demos | request out to reply in, in its own clock cycles, from its own Ethernet interrupts | [`deps/ethtimer`](../deps/ethtimer) |
 | `spitimer` | `sbsfu_spi` | chip-select rise to the next chip-select fall on the victim's serial flash - the gap the decrypt happens in | not landed yet |
 | `ctaphost` | `fido2_usb` | a CTAPHID request to its reply, from a bare-metal USB host rather than a PC | not landed yet |
-| `sniff802154` | `ota_802154` | a data frame's end to the victim's ACK, off the air, with nothing on either legitimate node | not landed yet |
+| `sniff802154` | `ota_802154` | a data frame's end to the victim's ACK, off the air, with nothing on either legitimate node | [`sniff802154`](sniff802154) |
 
 ## Why these are not inside ethtimer
 
@@ -29,9 +29,12 @@ here.
 Two numbers worth knowing before reading any trace count:
 
 * A better instrument is worth traces. The 802.15.4 listener's own receive
-  chain contributes about 1.6 µs of per-frame noise against the victim's 0.6,
-  which is a 9x trace penalty. That is the attacker's equipment, not the link:
-  σ is flat across a 6.5x sweep of the data rate.
+  chain contributes 1.4 to 1.7 µs of per-frame noise against the victim's 0.6,
+  which is a 6x to 9x trace penalty, and where it falls in that range is
+  thermal - the first calibration on a cold bench said 4.7x and the same rig
+  half an hour later said 9.3x. It is the attacker's equipment rather than the
+  link: σ is flat across a 6.5x sweep of the data rate, and within one frame
+  the listener's two edges agree to 1.5 cycles of its own clock.
 * An MCU host beats a PC host by about 100x on jitter for the USB demo, and
   the reason is that `bInterval` is a host scheduling policy rather than a
   property of the link. A host that implements no periodic scheduling does not

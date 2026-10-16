@@ -143,6 +143,17 @@ fetch_one() {
         git -C "$dir" remote add origin "$url"
     fi
     git -C "$dir" config core.longpaths true
+    # The working tree has to be BYTE-IDENTICAL to what git stored, or
+    # "pristine" means two different things in two shells on the same machine.
+    # This checkout was made with a global core.autocrlf=true, which rewrites
+    # every vendor file to CRLF on the way out: Windows git then calls the tree
+    # clean because it converts back, while git under WSL sees some thousands
+    # of modified files and refuses to apply a demo's patch. The firmware is
+    # built under WSL, so that is the shell that has to be right - and
+    # tools/verify.sh's pristine check is worth nothing if the answer depends
+    # on which shell asked.
+    git -C "$dir" config core.autocrlf false
+    git -C "$dir" config core.eol lf
 
     sparse="$(sparse_for "$name")"
     if [ -n "$sparse" ]; then
@@ -155,6 +166,23 @@ fetch_one() {
         git -C "$dir" fetch -q --depth 1 --filter=blob:none origin "$pin"
     fi
     git -C "$dir" checkout -q --detach "$pin"
+
+    # Conversion settings only apply to files git actually writes, so a tree an
+    # earlier fetch left in CRLF stays that way however often you check it out:
+    # git believes those files are unmodified. Renormalise once, out loud.
+    #
+    # `--really-refresh` is the load-bearing word. The index entries were
+    # written when the files WERE CRLF, so their recorded size and mtime match
+    # what is on disk and a plain `status` compares nothing and says clean.
+    # It says clean on Windows and dirty under WSL, from the same tree, because
+    # the 9p mount hands out different inode numbers and that invalidates the
+    # stat cache on one side only.
+    git -C "$dir" update-index -q --really-refresh 2>/dev/null || true
+    if [ -n "$(git -C "$dir" status --porcelain)" ]; then
+        echo "   renormalising the working tree (an earlier fetch wrote CRLF)"
+        git -C "$dir" ls-files -z | xargs -0 rm -f
+        git -C "$dir" checkout -q --force --detach "$pin"
+    fi
 
     subs="$(subs_for "$name")"
     if [ -n "$subs" ]; then

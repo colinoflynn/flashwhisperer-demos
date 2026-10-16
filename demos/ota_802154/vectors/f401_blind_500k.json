@@ -1,0 +1,46 @@
+{
+  "vector": "f401_blind_500k.npz",
+  "what": "The control: the first 500 000 frames of the blind capture, which is about four hours of listening. Everything is held fixed except how long the attacker listened, and no key comes out.",
+  "victim": {
+    "part": "STM32F401RE",
+    "core_mhz": 84,
+    "stack": "X-CUBE-SUBG2's Contiki-NG over the S2-LP radio, CSMA LLSEC on at security level 5, built from STMicroelectronics/x-cube-subg2 @ 277e8c1b with victim/rig.patch",
+    "build": "identical to f401_blind_2500k - it is the same capture, truncated",
+    "flash_acr": "0x00000702",
+    "table": "Contiki-NG aes-128.c sbox, 256 x 1 byte",
+    "table_addr": "see f401_blind_2500k.json - it is the same capture"
+  },
+  "instrument": {
+    "board": "NUCLEO-L152RE + X-NUCLEO-S2915A1 running instruments/sniff802154",
+    "clock_hz": 32000000,
+    "times": "the listener's own DWT cycles between the end of a data frame on the air and the victim's ACK"
+  },
+  "geometry": {
+    "row_bytes": 16,
+    "entry_bytes": 1,
+    "line_shift": 4,
+    "line_off": 4,
+    "note": "The same offset as the full capture, since it is the same image."
+  },
+  "control": {
+    "holds_fixed": "the victim and its build, the two legitimate nodes, the listener, the traffic shape, the row offset, the conditioning and the search. The only thing that changes is the number of frames: 500 000 against 2 500 000.",
+    "why_this_one": "The two controls the campaign actually took cannot be replayed here, and saying so is more useful than shipping one that looks like evidence. The first is an UNSECURED-traffic arm, which is the experiment that isolates the cipher - same generator, same code path, security level the only variable, and the turnaround falls from 102 542 to 51 855 victim cycles, so AES-CCM* is about 47 % of what the listener measures. It is not replayable because with security off there is no keystream to read and the payload the listener recorded does not vary, so the attack has nothing to score. The second is the listener calibration, which is where the instrument's own 1.6 us comes from; it holds no cipher at all. Both are numbers in the README rather than vectors.",
+    "what_it_does_not_establish": "It is a trace-count null, not a structural one. It says this analysis does not manufacture a key out of any capture you hand it, which is worth saying given that the key here comes out of a vote plus one AES block - but it is not evidence about the mechanism. The shuffled-timing and wrong-key controls that tools/replay.py prints are, and so is the offset sweep."
+  },
+  "attack": {
+    "direction": "enc",
+    "pairs": "all",
+    "trim": 6.0,
+    "highpass": 33,
+    "n": 500000,
+    "weak": 6,
+    "depth": 64,
+    "wrong": 3,
+    "expect_recovery": false,
+    "expect_note": "pooled z -15.15 and no key: 1 of 16 round-10 bytes at rank 1, 76.0 residual bits, and nothing in the 5.06 M candidates the escalation tries. A statistic is not a channel."
+  },
+  "truth": {
+    "master_key": "deadbeefcafeface1133710551223945",
+    "note": "The same link key. The recovery never reads it, and here it does not find it either."
+  }
+}
