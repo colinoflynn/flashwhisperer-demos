@@ -78,6 +78,12 @@ from the subtree and a stale record is worse than none. The commit each squash
 came from is also in the squash-merge message, which is the only other place it
 is written down.
 
+The squash-merge message for the current `flashwhisperer` copy names
+`0d9d3d0c89b970632a74c088df3bf1976b764c1f`. An email-only rewrite of
+the private upstream history changed that commit to
+`ab0910a9bbd6c09c46e9314c937b9ae2e7dedb52` without changing its tree.
+`PINS` records the new, fetchable identity.
+
 ### Putting it back as a submodule
 
 The day the upstream is public, one commit:
