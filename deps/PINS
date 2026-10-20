@@ -80,9 +80,9 @@
 #   because v6.25 dropped support for that board's Gen-3 PKOB debugger. The
 #   component versions get recorded with the Harmony demo when it lands, beside
 #   its patches, rather than invented here.
-flashwhisperer https://github.com/colinoflynn/flashwhisperer.git             0d9d3d0c89b970632a74c088df3bf1976b764c1f main     subtree
+flashwhisperer https://github.com/colinoflynn/flashwhisperer.git             ab0910a9bbd6c09c46e9314c937b9ae2e7dedb52 main     subtree
 ethtimer       https://github.com/colinoflynn/ethtimer.git                   e0f7cf01dbe349f8155299b71fc5b76fb8a75cca main     tool
-crypto-eval    https://github.com/colinoflynn/flashwhisperer-crypto-eval.git a99c04a740c3e961e20d9bc0a194e662ab8cb06b main     optional
+crypto-eval    https://github.com/colinoflynn/flashwhisperer-crypto-eval.git afa6fb75116a3d99f4c68de5f3211a12f8754ac0 main     optional
 stm32cube-f4   https://github.com/STMicroelectronics/STM32CubeF4.git         89e6d4466578bc9eab83de8fcd1e397ceb5e5cc9 V1.28.3  sdk
 stm32cube-l1   https://github.com/STMicroelectronics/STM32CubeL1.git         5605805b43ae0d5ae1c1b71d535b4238ef9fc63b V1.10.6  sdk
 uoscore-uedhoc https://github.com/eriptic/uoscore-uedhoc.git                 002de27cacb063a819b3e50c724e0be920d5ca6c main     sdk
