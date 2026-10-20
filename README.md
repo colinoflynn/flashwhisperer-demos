@@ -37,6 +37,7 @@ make that likely rather than possible. `./tools/verify.sh` is what catches it.
 | [`ota_802154`](demos/ota_802154) | NUCLEO-F401RE + S2-LP, X-CUBE-SUBG2 Contiki-NG, stock | a third board listening to the link | link key, verified, 2.5 M frames, blind, nothing on either legitimate node |
 | [`sbsfu_spi`](demos/sbsfu_spi) | ATSAMD21J18A, NUCLEO-L152RE and B-L475E-IOT01A running X-CUBE-SBSFU | a Nucleo clipped to the serial flash's chip select, and on the L475 the bootloader's own clock for now | the key with nothing on the victim, and the SAM D21 has no cache at all |
 | [`fido2_usb`](demos/fido2_usb) | nRF52840 Dongle, RIOT's `fido2_ctap_hid`, unmodified | a Nucleo acting as the USB host | `cred_key`, blind: no debugger, key never known to the analyst |
+| [`riot_802154`](demos/riot_802154) | nRF52840-DK, RIOT GNRC's `ieee802154_security`, stock at a pin with one build flag for the key | an nRF52840 Dongle, hardware-latching the radio END on its own 16 MHz timer | the AES-128 link key, verified, from about an hour and a quarter of pinging |
 
 The demos with a link have landed, with their vectors; the rest arrive in the
 order the table lists them, and this table is the one place that says which.
@@ -58,6 +59,8 @@ ota_802154      f401_blind_500k          no key    control
 sbsfu_spi       l475_flash_5110          key       expected
 sbsfu_spi       l475_ramtwin_5110        no key    control
 fido2_usb       dongle_ladder_13stages   relations relations
+riot_802154     nrf52840_newkey_80000    key       expected
+riot_802154     nrf52840_newkey_20000    no key    control
 ```
 
 ## How a demo is laid out
