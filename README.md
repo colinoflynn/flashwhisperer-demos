@@ -8,8 +8,8 @@ or  little data cache) makes an AES lookup table's access time depend on which
 row the last lookup touched. That is enough to recover the key, and you do not
 need a probe on the board: a protocol that answers you is a good enough clock.
 
-These are the demos where that worked end to end, against stock stacks, over a
-real transport, finishing in a key that was then verified. Each one ships the
+These demos show end to end key recovery, against stock stacks, over a
+real transport, ending up with a final key. Each one ships the
 capture it was measured from, so you can recreate the attack demo.
 
 ```bash
@@ -24,6 +24,9 @@ python demos/00_no_hardware/run.py   # recover a key. No board needed.
 into a deep directory exceeds MAX_PATH and **aborts part way through the
 checkout**, leaving a tree that looks complete; the vendor SDKs under `deps/`
 make that likely rather than possible. `./tools/verify.sh` is what catches it.
+
+*NOTE: This repo was 'extracted' from a larger research repo, so some commits may reference that, or have later timelines than the
+original repo.*
 
 ## The demos
 
