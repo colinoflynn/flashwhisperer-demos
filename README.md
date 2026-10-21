@@ -1,17 +1,16 @@
-# flashwhisperer-demos
+# FlashWhisperer-Demos: AES Timing Side-Channel Demos
 
-*🤖WARNING🤖: This file LLM generated and may read oddly. Will eventually be
-human-edited for that real-life touch and typos.*
+*🤖🥩: This document is partially human-written, partially LLM. This repo flags
+LLM-written docs as I find they can be more annoying to read as a human bag of 🥩*
 
-A microcontroller's flash accelerator - the read latch, the prefetch buffer,
-the little data cache - makes an AES lookup table's access time depend on which
+A microcontroller's flash accelerator (called the read latch, prefetch buffer,
+or  little data cache) makes an AES lookup table's access time depend on which
 row the last lookup touched. That is enough to recover the key, and you do not
 need a probe on the board: a protocol that answers you is a good enough clock.
 
 These are the demos where that worked end to end, against stock stacks, over a
 real transport, finishing in a key that was then verified. Each one ships the
-capture it was measured from, so you can check it before you own any of the
-hardware.
+capture it was measured from, so you can recreate the attack demo.
 
 ```bash
 git clone -c core.longpaths=true <this repo> && cd flashwhisperer-demos
@@ -30,21 +29,18 @@ make that likely rather than possible. `./tools/verify.sh` is what catches it.
 
 | | victim | what times it | what came out |
 |---|---|---|---|
-| [`oscore_coap`](demos/oscore_coap) | NUCLEO-F429ZI, `uoscore-uedhoc` + TinyCrypt over lwIP, as shipped | `ethtimer` on a second Nucleo | AES-128 key, verified, 150 000 exchanges |
+| [`oscore_coap`](demos/oscore_coap) | NUCLEO-F429ZI, `uoscore-uedhoc` + TinyCrypt over lwIP | `ethtimer` on a second Nucleo | AES-128 key, verified, 150 000 exchanges |
 | [`snmpv3_lwip`](demos/snmpv3_lwip) | NUCLEO-F429ZI, lwIP's own SNMPv3 agent on mbedTLS, both out of STM32CubeF4 | `ethtimer` | privacy key, verified, 250 000 exchanges and a floor near 100 000 |
 | [`tls_https`](demos/tls_https) | NUCLEO-F429ZI, lwIP `httpd` + `altcp_tls` + mbedTLS, all out of STM32CubeF4 | `ethtimer` | record key, verified, 41 000 exchanges of one TLS session |
-| [`snmpv3_harmony`](demos/snmpv3_harmony) | PIC32MZ2048EFH144, Harmony 3 + wolfCrypt on FreeRTOS | its own CP0 counter, and the wire | privacy key, verified - but the **shipped build is a null** |
-| [`ota_802154`](demos/ota_802154) | NUCLEO-F401RE + S2-LP, X-CUBE-SUBG2 Contiki-NG, stock | a third board listening to the link | link key, verified, 2.5 M frames, blind, nothing on either legitimate node |
-| [`sbsfu_spi`](demos/sbsfu_spi) | ATSAMD21J18A, NUCLEO-L152RE and B-L475E-IOT01A running X-CUBE-SBSFU | a Nucleo clipped to the serial flash's chip select, and on the L475 the bootloader's own clock for now | the key with nothing on the victim, and the SAM D21 has no cache at all |
-| [`fido2_usb`](demos/fido2_usb) | nRF52840 Dongle, RIOT's `fido2_ctap_hid`, unmodified | a Nucleo acting as the USB host | `cred_key`, blind: no debugger, key never known to the analyst |
-| [`riot_802154`](demos/riot_802154) | nRF52840-DK, RIOT GNRC's `ieee802154_security`, stock at a pin with one build flag for the key | an nRF52840 Dongle, hardware-latching the radio END on its own 16 MHz timer | the AES-128 link key, verified, from about an hour and a quarter of pinging |
+| [`snmpv3_harmony`](demos/snmpv3_harmony) | PIC32MZ2048EFH144, Harmony 3 + wolfCrypt on FreeRTOS | its own CP0 counter, and the wire | privacy key, verified - but the **shipped build does not leak, this was a modified build** |
+| [`ota_802154`](demos/ota_802154) | NUCLEO-F401RE + S2-LP, X-CUBE-SUBG2 Contiki-NG, stock | a third board listening to the link | link key, verified, 2.5 M frames, blind, victim nodes stock (but with artificial traffic or the test) |
+| [`sbsfu_spi`](demos/sbsfu_spi) | ATSAMD21J18A, NUCLEO-L152RE and B-L475E-IOT01A running X-CUBE-SBSFU | a Nucleo clipped to the serial flash's chip select (plus flash programmer, or emulator) | the key with nothing on the victim |
+| [`fido2_usb`](demos/fido2_usb) | nRF52840 Dongle, RIOT's `fido2_ctap_hid` demo | a Nucleo acting as the USB host | `cred_key`: allows recovery of private keys |
+| [`riot_802154`](demos/riot_802154) | nRF52840-DK, RIOT GNRC's `ieee802154_security` | nRF52840 Dongle is attacker, exploits accepting unsecure ping requests | the AES-128 link key, from about 1.25hrs of pinging |
 
-The demos with a link have landed, with their vectors; the rest arrive in the
-order the table lists them, and this table is the one place that says which.
-
-Each replays to a verified key with no hardware, in well under a minute except
-where the table above says millions of frames, and each ships at least one
-control that must NOT give a key:
+The demos above have a number of recorded traces. There is also a "control" which normally means moving the AES tables to RAM
+(which does not leak on these micros). This control is done to ensure it was not some other problem (misflashed, or the LLM did some
+dirty trick to the crypto):
 
 ```
 oscore_coap     f429_standard_600k       key       expected
@@ -67,7 +63,7 @@ riot_802154     nrf52840_newkey_20000    no key    control
 
 ```
 demos/<name>/README.md     what it recovers, what it costs, what did NOT work
-           /victim/        the overlay against the vendor tree. Never a copy of it
+           /victim/        the overlay against the vendor tree (normally pins from git upstream)
            /host/          capture, analyse, recover
            /vectors/       the distilled capture, and the geometry it needs
            /images/        known-good binaries, built with a published test key
@@ -77,7 +73,7 @@ Everything shared sits beside those: `deps/` for pinned upstreams,
 `instruments/` for the boards that do the timing, `tools/` for the replay, the
 manifest and the checks.
 
-## The attacker is not in here
+## EthTimer Project
 
 For the four wired demos the attacker board is
 [`ethtimer`](https://github.com/colinoflynn/ethtimer), pinned under `deps/`. It
@@ -88,10 +84,9 @@ attacker firmware and no protocol code for them, which is also why the
 instrument can be used for something else entirely.
 
 The other three demos need an instrument that is not Ethernet: a chip-select
-timer, a USB host, a radio listener. Those live in [`instruments/`](instruments)
-and they follow ethtimer's shape rather than growing inside it.
+timer, a USB host, a radio listener. Those are in [`instruments/`](instruments).
 
-## The one thing that will cost you a key
+## Common Key Recover Failures
 
 A trace count without the table's **address** is under-specified. The row a
 lookup hits is `(index + line_off) >> line_shift`, `line_off` is where the
@@ -107,6 +102,9 @@ verified key at 150 000 exchanges and three correct bytes:
 
 Every vector therefore carries its geometry in a `.json` beside it, and
 `tools/replay.py` refuses to run without one.
+
+When recreating the demos, shifts in the AES table layout was a common issue that
+made it seem like it suddenly did not work.
 
 ## Related
 
